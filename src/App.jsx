@@ -1,19 +1,46 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import './App.css'
+import ExamPage from './components/ExamPage'
 
 // ===================== 工具函数 =====================
-const STORAGE_KEY = 'fire_exam_data'
 const EXAM_TIME = 90 * 60 // 90分钟秒数
 
-function loadData() {
+// 从json文件夹读取所有题目文件
+async function loadJsonFiles() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : { papers: [], questions: [] }
-  } catch { return { papers: [], questions: [] } }
-}
-
-function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    // 在开发环境中，直接从public/json文件夹读取
+    const response = await fetch('/json/exam-papers.json')
+    if (!response.ok) {
+      throw new Error('Failed to load exam data')
+    }
+    const data = await response.json()
+    
+    // 如果questions字段为空，从papers中提取题目
+    if (!data.questions || data.questions.length === 0) {
+      const allQuestions = []
+      const questionIds = new Set()
+      
+      if (data.papers && Array.isArray(data.papers)) {
+        for (const paper of data.papers) {
+          if (paper.questions && Array.isArray(paper.questions)) {
+            for (const question of paper.questions) {
+              if (question.id && !questionIds.has(question.id)) {
+                allQuestions.push(question)
+                questionIds.add(question.id)
+              }
+            }
+          }
+        }
+      }
+      
+      data.questions = allQuestions
+    }
+    
+    return data
+  } catch (error) {
+    console.error('Error loading JSON files:', error)
+    return { papers: [], questions: [] }
+  }
 }
 
 function formatTime(seconds) {
@@ -63,21 +90,56 @@ function calcScore(q, userAns) {
 
 // ===================== 组件 =====================
 export default function App() {
-  const [page, setPage] = useState('home') // home | import | fixed | random | practice | exam | result
-  const [data, setData] = useState(loadData())
+  const [page, setPageState] = useState('home') // home | fixed | random | practice | exam | result
+  const [data, setData] = useState({ papers: [], questions: [] })
   const [examState, setExamState] = useState(null)
   const [practiceState, setPracticeState] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  // 刷新数据
-  const refreshData = () => setData(loadData())
-
-  // 清空数据
-  const clearData = () => {
-    if (confirm('确定清空所有导入的题库数据？')) {
-      localStorage.removeItem(STORAGE_KEY)
-      setData({ papers: [], questions: [] })
+  // 自定义setPage，同步更新浏览器历史记录
+  const setPage = (newPage) => {
+    if (newPage !== page) {
+      setPageState(newPage)
+      // 添加到浏览器历史记录
+      window.history.pushState({ page: newPage }, '', `#${newPage}`)
     }
   }
+
+  // 处理浏览器前进/后退
+  useEffect(() => {
+    const handlePopState = (e) => {
+      if (e.state && e.state.page) {
+        setPageState(e.state.page)
+      } else {
+        // 如果没有state，返回首页
+        setPageState('home')
+      }
+    }
+
+    // 监听popstate事件
+    window.addEventListener('popstate', handlePopState)
+
+    // 初始化时检查URL hash
+    const hash = window.location.hash.slice(1)
+    if (['fixed', 'random', 'practice', 'exam', 'result', 'practice-exam'].includes(hash)) {
+      setPageState(hash)
+    }
+
+    // 清理函数
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [])
+
+  // 组件加载时从json文件夹读取数据
+  useEffect(() => {
+    const initData = async () => {
+      const jsonData = await loadJsonFiles()
+      setData(jsonData)
+      setLoading(false)
+    }
+    initData()
+  }, [])
 
   return (
     <div className="app">
@@ -93,169 +155,83 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        {page === 'home' && <HomePage data={data} setPage={setPage} clearData={clearData} />}
-        {page === 'import' && <ImportPage setPage={setPage} refreshData={refreshData} />}
-        {page === 'fixed' && <FixedListPage data={data} setPage={setPage} setExamState={setExamState} />}
-        {page === 'random' && <RandomSetupPage data={data} setPage={setPage} setExamState={setExamState} />}
-        {page === 'practice' && <PracticeSetupPage data={data} setPage={setPage} setPracticeState={setPracticeState} />}
-        {page === 'exam' && <ExamPage examState={examState} setPage={setPage} setExamState={setExamState} />}
-        {page === 'result' && <ResultPage examState={examState} setPage={setPage} data={data} />}
-        {page === 'practice-exam' && <PracticePage state={practiceState} setPage={setPage} />}
+        {loading ? (
+          <div className="loading-page">
+            <div className="loading-spinner"></div>
+            <p>正在加载题库数据...</p>
+          </div>
+        ) : (
+          <>
+            {page === 'home' && <HomePage data={data} setPage={setPage} />}
+            {page === 'fixed' && <FixedListPage data={data} setPage={setPage} setExamState={setExamState} />}
+            {page === 'random' && <RandomSetupPage data={data} setPage={setPage} setExamState={setExamState} />}
+            {page === 'practice' && <PracticeSetupPage data={data} setPage={setPage} setPracticeState={setPracticeState} />}
+            {page === 'exam' && <ExamPage examState={examState} setPage={setPage} setExamState={setExamState} />}
+            {page === 'result' && <ResultPage examState={examState} setPage={setPage} data={data} />}
+            {page === 'practice-exam' && <PracticePage state={practiceState} setPage={setPage} />}
+          </>
+        )}
       </main>
     </div>
   )
 }
 
 // ===================== 首页 =====================
-function HomePage({ data, setPage, clearData }) {
+function HomePage({ data, setPage }) {
   return (
     <div className="home-page">
-      <div className="mode-cards">
-        <div className="mode-card" onClick={() => setPage('fixed')}>
-          <div className="mode-icon">📋</div>
-          <h3>固定卷考试</h3>
-          <p>选择已导入的试卷（卷1~卷N），题目固定，90分钟计时，60分及格</p>
-          <button className="btn-primary">进入</button>
+      <div className="mode-sections">
+        {/* 考试模式 - 占2/3 */}
+        <div className="mode-section exam-mode">
+          <div className="section-header">
+            <div className="section-icon">📝</div>
+            <div className="section-info">
+              <h2>考试模式</h2>
+              <p>模拟真实考卷｜检验学习成果</p>
+            </div>
+          </div>
+          <div className="exam-options">
+            <div className="exam-option" onClick={() => setPage('fixed')}>
+              <div className="option-icon">📋</div>
+              <div className="option-content">
+                <h3>固定考卷</h3>
+                <p>固定试卷，90分钟，60分及格</p>
+              </div>
+            </div>
+            <div className="exam-option" onClick={() => setPage('random')}>
+              <div className="option-icon">🎲</div>
+              <div className="option-content">
+                <h3>随机考卷</h3>
+                <p>随机抽取200道题，90分钟，60分及格</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="mode-card" onClick={() => setPage('random')}>
-          <div className="mode-icon">🎲</div>
-          <h3>随机卷考试</h3>
-          <p>从总题库随机抽取：100单选+40多选+60判断，90分钟计时</p>
-          <button className="btn-primary">进入</button>
-        </div>
-        <div className="mode-card" onClick={() => setPage('practice')}>
-          <div className="mode-icon">✏️</div>
-          <h3>专项练习</h3>
-          <p>自选题型（单选/多选/判断）和数量，不计时，不评分，即时看解析</p>
-          <button className="btn-primary">进入</button>
-        </div>
-      </div>
 
-      <div className="home-actions">
-        <button className="btn-secondary" onClick={() => setPage('import')}>📥 导入题库</button>
-        <button className="btn-danger" onClick={clearData}>🗑️ 清空数据</button>
+        {/* 练习模式 - 占1/3 */}
+        <div className="mode-section practice-mode" onClick={() => setPage('practice')}>
+          <div className="section-header">
+            <div className="section-icon">✏️</div>
+            <div className="section-info">
+              <h2>练习模式</h2>
+              <p>自由练习，巩固知识</p>
+            </div>
+          </div>
+          <div className="practice-content">
+            <p style={{ textAlign: 'left' }}>自选题型<span style={{ color: '#999', fontSize: '0.85em' }}>（单选/多选/判断）</span>和数量</p>
+            <p style={{ textAlign: 'left' }}>不计时</p>
+            <p style={{ textAlign: 'left' }}>即时查看解析</p>
+
+            <button className="btn-primary" style={{ width: '100%', fontSize: '1em' }}>进入练习</button>
+          </div>
+        </div>
       </div>
 
       {data.papers.length === 0 && data.questions.length === 0 && (
         <div className="empty-tip">
-          ⚠️ 暂无题库数据，请先点击「导入题库」添加试卷
+          ⚠️ 暂无题库数据，请检查json文件夹中的题目文件
         </div>
       )}
-    </div>
-  )
-}
-
-// ===================== 导入页 =====================
-function ImportPage({ setPage, refreshData }) {
-  const [text, setText] = useState('')
-  const [msg, setMsg] = useState('')
-
-  const handleImport = () => {
-    if (!text.trim()) { setMsg('请输入JSON内容'); return }
-    try {
-      const json = JSON.parse(text)
-      const existing = loadData()
-      let addedPapers = 0, addedQuestions = 0
-
-      if (json.papers && Array.isArray(json.papers)) {
-        for (const p of json.papers) {
-          if (!existing.papers.find(ep => ep.id === p.id)) {
-            existing.papers.push(p)
-            addedPapers++
-            if (p.questions) {
-              for (const q of p.questions) {
-                if (!existing.questions.find(eq => eq.id === q.id)) {
-                  existing.questions.push(q)
-                  addedQuestions++
-                }
-              }
-            }
-          }
-        }
-      }
-      if (json.questions && Array.isArray(json.questions)) {
-        for (const q of json.questions) {
-          if (!existing.questions.find(eq => eq.id === q.id)) {
-            existing.questions.push(q)
-            addedQuestions++
-          }
-        }
-      }
-
-      saveData(existing)
-      refreshData()
-      setMsg(`✅ 导入成功！新增 ${addedPapers} 份试卷，${addedQuestions} 道题目`)
-      setText('')
-    } catch (e) {
-      setMsg('❌ JSON解析失败: ' + e.message)
-    }
-  }
-
-  const loadExample = () => {
-    setText(JSON.stringify({
-      papers: [
-        {
-          id: "1", name: "卷1",
-          questions: [
-            { id: "1-1", type: "single", question: "火灾报警控制器处于手动状态时，收到火警信号后会自动联动启动消防泵吗？", options: ["A. 会", "B. 不会", "C. 有时可以", "D. 取决于设置"], answer: ["B"], parse: "手动状态下，控制器不会自动联动启动消防泵，需要人工确认后手动启动。" },
-            { id: "1-2", type: "multiple", question: "湿式报警阀组的组成部件包括哪些？", options: ["A. 湿式报警阀", "B. 水力警铃", "C. 压力开关", "D. 延迟器"], answer: ["A", "B", "C", "D"], parse: "湿式报警阀组由湿式报警阀、水力警铃、压力开关、延迟器、压力表、泄水阀等组成。" },
-            { id: "1-3", type: "judge", question: "末端试水装置的压力表读数正常范围一般在0.4~0.6MPa之间。", options: ["正确", "错误"], answer: ["正确"], parse: "末端试水装置的压力表正常读数通常在0.4~0.6MPa范围内，反映系统侧管网压力。" },
-            { id: "1-4", type: "single", question: "火灾报警控制器发出119报警声，对应的是哪种信号？", options: ["A. 故障", "B. 监管", "C. 火警", "D. 屏蔽"], answer: ["C"], parse: "火警信号发出119消防车声音，故障为120救护车声，监管为110警车声，屏蔽无声。" },
-            { id: "1-5", type: "judge", question: "喷淋泵控制柜当前在手动状态属于正常工作状态。", options: ["正确", "错误"], answer: ["错误"], parse: "喷淋泵控制柜应处于自动状态，手动状态属于异常，需切回自动。" }
-          ]
-        }
-      ]
-    }, null, 2))
-  }
-
-  return (
-    <div className="import-page">
-      <h2>📥 导入题库</h2>
-      <div className="import-grid">
-        <div className="import-left">
-          <textarea
-            className="import-textarea"
-            value={text}
-            onChange={e => setText(e.target.value)}
-            placeholder="粘贴JSON内容..."
-          />
-          <div className="import-btns">
-            <button className="btn-secondary" onClick={loadExample}>填入示例</button>
-            <button className="btn-primary" onClick={handleImport}>导入</button>
-          </div>
-          {msg && <div className={msg.startsWith('✅') ? 'msg-success' : 'msg-error'}>{msg}</div>}
-        </div>
-        <div className="import-right">
-          <h4>📋 JSON格式说明</h4>
-          <pre>{`{
-  "papers": [
-    {
-      "id": "1",
-      "name": "卷1",
-      "questions": [
-        {
-          "id": "1-1",
-          "type": "single",
-          "question": "题目内容",
-          "options": ["A. 选项1", "B. 选项2"],
-          "answer": ["A"],
-          "parse": "解析"
-        }
-      ]
-    }
-  ],
-  "questions": [
-    // 也可以直接放题目，不区分试卷
-  ]
-}`}</pre>
-          <p className="tip">
-            <b>type</b>：single=单选, multiple=多选, judge=判断<br/>
-            <b>answer</b>：必须是数组，如 ["A"] 或 ["A","B"]<br/>
-            <b>options</b>：判断题建议用 ["正确","错误"]<br/>
-            支持多次导入追加，重复id会自动跳过。
-          </p>
-        </div>
-      </div>
     </div>
   )
 }
@@ -265,8 +241,8 @@ function FixedListPage({ data, setPage, setExamState }) {
   if (data.papers.length === 0) {
     return (
       <div className="empty-page">
-        <p>暂无试卷，请先导入题库</p>
-        <button className="btn-primary" onClick={() => setPage('import')}>去导入</button>
+        <p>暂无试卷，请检查json文件夹中的题目文件</p>
+        <button className="btn-primary" onClick={() => setPage('home')}>返回首页</button>
       </div>
     )
   }
@@ -283,7 +259,8 @@ function FixedListPage({ data, setPage, setExamState }) {
       current: 0,
       timeLeft: EXAM_TIME,
       finished: false,
-      startTime: Date.now()
+      startTime: Date.now(),
+      autoNext: false
     })
     setPage('exam')
   }
@@ -291,15 +268,33 @@ function FixedListPage({ data, setPage, setExamState }) {
   return (
     <div className="fixed-list-page">
       <h2>📋 固定卷考试</h2>
-      <p className="sub">选择一份试卷开始考试，题目固定，90分钟，60分及格</p>
+      <p className="sub">选择一份试卷开始测试一下你的水平吧！</p>
       <div className="paper-list">
         {data.papers.map(p => (
-          <div className="paper-item" key={p.id}>
+          <div 
+            className="paper-item" 
+            key={p.id}
+            onClick={() => start(p)}
+            style={{ 
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              border: '2px solid transparent',
+              padding: '16px',
+              borderRadius: '8px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.border = '2px solid #1890ff'
+              e.currentTarget.style.boxShadow = '0 0 0 4px rgba(24, 144, 255, 0.2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.border = '2px solid transparent'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+          >
             <div className="paper-info">
               <h4>{p.name}</h4>
               <span>{(p.questions || []).length} 题</span>
             </div>
-            <button className="btn-primary" onClick={() => start(p)}>开始考试</button>
           </div>
         ))}
       </div>
@@ -313,7 +308,7 @@ function RandomSetupPage({ data, setPage, setExamState }) {
     return (
       <div className="empty-page">
         <p>总题库不足200题（当前 {data.questions.length} 道），无法生成随机卷</p>
-        <button className="btn-primary" onClick={() => setPage('import')}>去导入</button>
+        <button className="btn-primary" onClick={() => setPage('home')}>返回首页</button>
       </div>
     )
   }
@@ -334,7 +329,8 @@ function RandomSetupPage({ data, setPage, setExamState }) {
       current: 0,
       timeLeft: EXAM_TIME,
       finished: false,
-      startTime: Date.now()
+      startTime: Date.now(),
+      autoNext: false
     })
     setPage('exam')
   }
@@ -404,148 +400,6 @@ function PracticeSetupPage({ data, setPage, setPracticeState }) {
 }
 
 // ===================== 考试页（固定卷/随机卷共用）=====================
-function ExamPage({ examState, setPage, setExamState }) {
-  const [state, setState] = useState(examState)
-  const timerRef = useRef(null)
-
-  // 计时器
-  useEffect(() => {
-    if (state.finished) return
-    timerRef.current = setInterval(() => {
-      setState(prev => {
-        if (prev.timeLeft <= 1) {
-          clearInterval(timerRef.current)
-          return { ...prev, timeLeft: 0, finished: true }
-        }
-        return { ...prev, timeLeft: prev.timeLeft - 1 }
-      })
-    }, 1000)
-    return () => clearInterval(timerRef.current)
-  }, [state.finished])
-
-  // 自动交卷
-  useEffect(() => {
-    if (state.finished) {
-      clearInterval(timerRef.current)
-      setExamState(state)
-      setPage('result')
-    }
-  }, [state.finished])
-
-  const q = state.questions[state.current]
-  const total = state.questions.length
-  const answered = Object.keys(state.answers).length
-  const isLast = state.current === total - 1
-
-  const selectOption = (key) => {
-    if (state.finished) return
-    const currentAns = state.answers[state.current] || []
-    let nextAns
-    if (q.type === 'multiple') {
-      nextAns = currentAns.includes(key)
-        ? currentAns.filter(k => k !== key)
-        : [...currentAns, key].sort()
-    } else {
-      nextAns = [key]
-    }
-    setState(prev => ({
-      ...prev,
-      answers: { ...prev.answers, [prev.current]: nextAns }
-    }))
-  }
-
-  const toggleMark = () => {
-    setState(prev => ({
-      ...prev,
-      marked: { ...prev.marked, [prev.current]: !prev.marked[prev.current] }
-    }))
-  }
-
-  const submitExam = () => {
-    if (!confirm('确定交卷？')) return
-    setState(prev => ({ ...prev, finished: true }))
-  }
-
-  const goQuestion = (idx) => {
-    setState(prev => ({ ...prev, current: idx }))
-  }
-
-  const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
-  const currentAns = state.answers[state.current] || []
-
-  return (
-    <div className="exam-page">
-      <div className="exam-sidebar">
-        <div className="timer-box">
-          <div className={state.timeLeft < 600 ? 'timer-danger' : 'timer-normal'}>
-            ⏱️ {formatTime(state.timeLeft)}
-          </div>
-        </div>
-        <div className="paper-name">{state.paperName}</div>
-        <div className="answer-stats">
-          <span>已答 {answered} / {total}</span>
-          <span>未答 {total - answered}</span>
-        </div>
-        <div className="qnum-grid">
-          {state.questions.map((qq, idx) => {
-            const hasAns = !!state.answers[idx]
-            const isMarked = !!state.marked[idx]
-            const isCurrent = idx === state.current
-            return (
-              <button
-                key={idx}
-                className={`qnum-btn ${isCurrent ? 'current' : ''} ${hasAns ? 'answered' : ''} ${isMarked ? 'marked' : ''}`}
-                onClick={() => goQuestion(idx)}
-                title={`${typeMap[qq.type]} · ${qq.question.substring(0, 20)}...`}
-              >
-                {idx + 1}
-              </button>
-            )
-          })}
-        </div>
-        <button className="btn-submit-exam" onClick={submitExam}>交卷</button>
-      </div>
-
-      <div className="exam-main">
-        <div className="exam-card">
-          <div className="exam-header">
-            <span className="q-index">第 {state.current + 1} / {total} 题</span>
-            <span className={`q-type-badge type-${q.type}`}>{typeMap[q.type]}</span>
-            <button className="mark-btn" onClick={toggleMark}>
-              {state.marked[state.current] ? '⭐ 已标记' : '☆ 标记'}
-            </button>
-          </div>
-
-          <div className="question-text">{q.question}</div>
-
-          <div className="options-list">
-            {q.options.map((opt, idx) => {
-              const key = opt.charAt(0)
-              const selected = currentAns.includes(key)
-              return (
-                <div
-                  key={idx}
-                  className={`option-row ${selected ? 'selected' : ''}`}
-                  onClick={() => selectOption(key)}
-                >
-                  <span className="option-key">{key}</span>
-                  <span className="option-text">{opt}</span>
-                </div>
-              )
-            })}
-          </div>
-
-          <div className="exam-nav">
-            <button disabled={state.current === 0} onClick={() => goQuestion(state.current - 1)}>上一题</button>
-            <button disabled={isLast} onClick={() => goQuestion(state.current + 1)}>下一题</button>
-            {isLast && <button className="btn-primary" onClick={submitExam}>交卷</button>}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ===================== 结果页 =====================
 function ResultPage({ examState, setPage, data }) {
   if (!examState) return null
@@ -629,7 +483,8 @@ function ResultPage({ examState, setPage, data }) {
               current: 0,
               timeLeft: EXAM_TIME,
               finished: false,
-              startTime: Date.now()
+              startTime: Date.now(),
+              autoNext: examState.autoNext ?? false
             })
             setPage('exam')
           }}>错题重练</button>
