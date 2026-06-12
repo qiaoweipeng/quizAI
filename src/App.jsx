@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import ExamPage from './components/ExamPage'
 
@@ -62,13 +62,13 @@ function scoreMultiple(userAns, correctAns) {
   if (!userAns || userAns.length === 0) return 0
   const userSet = new Set(userAns)
   const correctSet = new Set(correctAns)
-  // 全对
+  // 全对：选的数量和正确答案一样，且都是对的
   if (userSet.size === correctSet.size && [...userSet].every(x => correctSet.has(x))) return 0.5
-  // 错选：只要有一个选项选错了
+  // 错选：只要有一个选项选错了，得0分
   for (const u of userSet) {
-    if (!correctSet.has(u)) return -0.5
+    if (!correctSet.has(u)) return 0
   }
-  // 漏选：选的都是对的，但没选全
+  // 漏选：选的都是对的，但没选全，得0分
   return 0
 }
 
@@ -144,7 +144,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>🧯 消防理论考试系统</h1>
+        {page !== 'exam' && <h1>🧯 {page === 'home' && '消防理论考试系统'}</h1>}
         <div className="header-stats">
           <span>试卷: {data.papers.length} 份</span>
           <span>总题: {data.questions.length} 道</span>
@@ -166,8 +166,8 @@ export default function App() {
             {page === 'fixed' && <FixedListPage data={data} setPage={setPage} setExamState={setExamState} />}
             {page === 'random' && <RandomSetupPage data={data} setPage={setPage} setExamState={setExamState} />}
             {page === 'practice' && <PracticeSetupPage data={data} setPage={setPage} setPracticeState={setPracticeState} />}
-            {page === 'exam' && <ExamPage examState={examState} setPage={setPage} setExamState={setExamState} />}
-            {page === 'result' && <ResultPage examState={examState} setPage={setPage} data={data} />}
+            {page === 'exam' && <ExamPage examState={examState} setPage={setPage} />}
+            {page === 'result' && <ResultPage examState={examState} setPage={setPage} />}
             {page === 'practice-exam' && <PracticePage state={practiceState} setPage={setPage} />}
           </>
         )}
@@ -367,7 +367,6 @@ function PracticeSetupPage({ data, setPage, setPracticeState }) {
     setPage('practice-exam')
   }
 
-  const typeLabel = { single: '单选题', multiple: '多选题', judge: '判断题' }
   const available = data.questions.filter(q => q.type === type).length
 
   return (
@@ -401,36 +400,44 @@ function PracticeSetupPage({ data, setPage, setPracticeState }) {
 
 // ===================== 考试页（固定卷/随机卷共用）=====================
 // ===================== 结果页 =====================
-function ResultPage({ examState, setPage, data }) {
+function ResultPage({ examState, setPage }) {
   if (!examState) return null
   const { questions, answers, paperName, timeLeft } = examState
   const total = questions.length
   const usedTime = EXAM_TIME - timeLeft
 
-  let score = 0
+  let rawScore = 0
   let correct = 0, wrong = 0, unanswered = 0
   const details = []
 
   questions.forEach((q, idx) => {
     const ans = answers[idx]
     const s = calcScore(q, ans)
-    score += s
+    rawScore += s
     if (!ans || ans.length === 0) {
       unanswered++
       details.push({ idx, q, ans, score: 0, status: 'unanswered' })
     } else if (s > 0) {
       correct++
       details.push({ idx, q, ans, score: s, status: 'correct' })
-    } else if (s < 0) {
+    } else {
       wrong++
       details.push({ idx, q, ans, score: s, status: 'wrong' })
-    } else {
-      details.push({ idx, q, ans, score: 0, status: 'partial' })
     }
   })
 
+  // 转换为百分制：每道题 0.5 分，满分 = 题目数 × 0.5
+  const maxScore = questions.length * 0.5
+  const rawPercent = maxScore > 0 ? (rawScore / maxScore) * 100 : 0
+  // 最低分不低于0分
+  const clampedPercent = Math.max(0, rawPercent)
+  // 分数显示：整数显示整数，小数显示小数
+  const score = clampedPercent % 1 === 0 ? Math.round(clampedPercent) : clampedPercent
   const passed = score >= 60
-  const wrongList = details.filter(d => d.status === 'wrong' || d.status === 'partial' || d.status === 'unanswered')
+  const wrongList = details.filter(d => d.status === 'wrong' || d.status === 'unanswered')
+
+  // 错题预览模态框状态
+  const [showReviewModal, setShowReviewModal] = useState(false)
 
   return (
     <div className="result-page">
@@ -438,11 +445,10 @@ function ResultPage({ examState, setPage, data }) {
         <h2>📊 考试结果</h2>
         <div className="paper-name">{paperName}</div>
         <div className={`score-circle ${passed ? 'pass' : 'fail'}`}>
-          <div className="score-num">{score.toFixed(1)}</div>
-          <div className="score-label">分 / 100分</div>
+          <div className="score-num">{Number.isInteger(score) ? score : score.toFixed(1)}</div>
         </div>
         <div className={`pass-badge ${passed ? 'pass' : 'fail'}`}>
-          {passed ? '✅ 及格' : '❌ 不及格'}
+          {passed ? '✅ 合格' : '❌ 不合格'}
         </div>
 
         <div className="result-stats">
@@ -456,7 +462,7 @@ function ResultPage({ examState, setPage, data }) {
           </div>
           <div className="stat-item">
             <div className="stat-num" style={{color:'#d63031'}}>{wrong}</div>
-            <div className="stat-label">错误/扣分</div>
+            <div className="stat-label">错误</div>
           </div>
           <div className="stat-item">
             <div className="stat-num">{unanswered}</div>
@@ -470,53 +476,64 @@ function ResultPage({ examState, setPage, data }) {
 
         <div className="result-actions">
           <button className="btn-secondary" onClick={() => setPage('home')}>返回首页</button>
-          <button className="btn-primary" onClick={() => {
-            // 用错题重考
-            const wrongQs = wrongList.map(d => d.q)
-            if (wrongQs.length === 0) { alert('没有错题！'); return }
-            setExamState({
-              mode: 'fixed',
-              paperName: paperName + '（错题重练）',
-              questions: wrongQs,
-              answers: {},
-              marked: {},
-              current: 0,
-              timeLeft: EXAM_TIME,
-              finished: false,
-              startTime: Date.now(),
-              autoNext: examState.autoNext ?? false
-            })
-            setPage('exam')
-          }}>错题重练</button>
+          {wrongList.length > 0 && (
+            <button className="btn-primary" onClick={() => setShowReviewModal(true)}>错题预览 ({wrongList.length})</button>
+          )}
         </div>
       </div>
 
-      <div className="wrong-list-card">
-        <h3>📝 错题回顾（共 {wrongList.length} 道）</h3>
-        {wrongList.length === 0 ? (
-          <p className="empty-wrong">🎉 全对！没有错题</p>
-        ) : (
-          <div className="wrong-list">
-            {wrongList.map(({ idx, q, ans, score: s, status }) => (
-              <div className={`wrong-item ${status}`} key={idx}>
-                <div className="wrong-header">
-                  <span>第 {idx + 1} 题</span>
-                  <span className={`wrong-tag ${status}`}>
-                    {status === 'wrong' ? '错选扣分' : status === 'partial' ? '漏选' : '未作答'}
-                  </span>
-                  <span className="wrong-score">{s > 0 ? '+' : ''}{s.toFixed(1)} 分</span>
+      {/* 错题预览模态框 */}
+      {showReviewModal && (
+        <div className="modal-overlay" onClick={() => setShowReviewModal(false)}>
+          <div className="review-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>📝 错题预览（共 {wrongList.length} 道）</h3>
+              <button className="modal-close" onClick={() => setShowReviewModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              {wrongList.map(({ idx, q, ans, status }) => (
+                <div className={`review-item ${status}`} key={idx}>
+                  <div className="review-header">
+                    <span className="review-index">第 {idx + 1} 题</span>
+                    <span className={`review-tag ${status}`}>
+                      {status === 'wrong' ? '❌ 答错' : '⏳ 未答'}
+                    </span>
+                  </div>
+                  <div className="review-question">{q.question}</div>
+                  <div className="review-options">
+                    {q.options.map((opt, optIdx) => {
+                      const key = opt.charAt(0)
+                      const selected = ans?.includes(key)
+                      const isCorrect = q.answer.includes(key)
+                      let optionClass = ''
+                      if (selected && isCorrect) {
+                        optionClass = 'selected correct'
+                      } else if (selected && !isCorrect) {
+                        optionClass = 'selected wrong'
+                      } else if (!selected && isCorrect) {
+                        optionClass = 'correct'
+                      }
+                      return (
+                        <div key={optIdx} className={`review-option ${optionClass}`}>
+                          <span className="option-key">{key}</span>
+                          <span className="option-text">{opt}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="review-answer">
+                    <span>你的答案：{ans && ans.length ? ans.join(', ') : '未答'}</span>
+                    <span>正确答案：{q.answer.join(', ')}</span>
+                  </div>
                 </div>
-                <div className="wrong-question">{q.question}</div>
-                <div className="wrong-answer">
-                  <span>你的答案：{ans && ans.length ? ans.join(', ') : '未答'}</span>
-                  <span>正确答案：{q.answer.join(', ')}</span>
-                </div>
-                {q.parse && <div className="wrong-parse">📖 {q.parse}</div>}
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setShowReviewModal(false)}>关闭</button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
