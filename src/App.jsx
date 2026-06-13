@@ -33,6 +33,10 @@ export default function App() {
   const setPage = (newPage) => {
     if (newPage !== page) {
       setPageState(newPage)
+      // 如果返回首页，清除考试状态缓存
+      if (newPage === 'home') {
+        localStorage.removeItem('exam_state')
+      }
       // 添加到浏览器历史记录
       window.history.pushState({ page: newPage }, '', `#${newPage}`)
     }

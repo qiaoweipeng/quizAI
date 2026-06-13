@@ -37,11 +37,15 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
     const single = shuffleArray(all.filter(q => q.type === 'single')).slice(0, 100)
     const multiple = shuffleArray(all.filter(q => q.type === 'multiple')).slice(0, 40)
     const judge = shuffleArray(all.filter(q => q.type === 'judge')).slice(0, 60)
-    const questions = shuffleArray([...single, ...multiple, ...judge])
+    // 顺序固定：前100道单选，101-140道多选，141-200道判断（不再打乱整个数组）
+    const questions = [...single, ...multiple, ...judge]
+
+    // 生成唯一的试卷名称，确保每次生成的试卷都不同，用于区分刷新恢复
+    const timestamp = Date.now().toString(36)
 
     setExamState({
       mode: 'random',
-      paperName: '随机卷',
+      paperName: `随机卷-${timestamp}`,
       questions,
       answers: {},
       marked: {},
@@ -160,37 +164,40 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
         open={fixedModalOpen}
         onCancel={() => setFixedModalOpen(false)}
         footer={null}
-        width={600}
-        styles={{ body: { height: 300, overflow: 'auto' } }}
+        width={800}
+        styles={{ body: { height: 500, display: 'flex', flexDirection: 'column', overflow: 'hidden' } }}
       >
-        <p style={{ marginBottom: 16, color: '#666' }}>选择一份试卷开始测试一下吧！</p>
-        <Table
-          dataSource={data.papers}
-          rowKey="id"
-          pagination={false}
-          rowSelection={{
-            type: 'radio',
-            selectedRowKeys: selectedPaper ? [selectedPaper.id] : [],
-            onChange: (_, selectedRows) => setSelectedPaper(selectedRows[0] || null)
-          }}
-          onRow={(record) => ({
-            onClick: () => setSelectedPaper(record)
-          })}
-          columns={[
-            {
-              title: '试卷名称',
-              dataIndex: 'name',
-              key: 'name',
-            },
-            {
-              title: '题目数量',
-              key: 'count',
-              width: 100,
-              render: (_, record) => (record.questions || []).length + ' 题'
-            }
-          ]}
-        />
-        <div style={{ marginTop: 24, textAlign: 'center' }}>
+        <p style={{ marginBottom: 16, color: '#666', flexShrink: 0 }}>选择一份试卷开始测试一下吧！</p>
+        <div style={{ flex: 1, overflowY: 'auto', marginBottom: 16 }}>
+          <Table
+            dataSource={data.papers}
+            rowKey="id"
+            pagination={false}
+            scroll={{ y: 300 }}
+            rowSelection={{
+              type: 'radio',
+              selectedRowKeys: selectedPaper ? [selectedPaper.id] : [],
+              onChange: (_, selectedRows) => setSelectedPaper(selectedRows[0] || null)
+            }}
+            onRow={(record) => ({
+              onClick: () => setSelectedPaper(record)
+            })}
+            columns={[
+              {
+                title: '试卷名称',
+                dataIndex: 'name',
+                key: 'name',
+              },
+              {
+                title: '题目数量',
+                key: 'count',
+                width: 100,
+                render: (_, record) => (record.questions || []).length + ' 题'
+              }
+            ]}
+          />
+        </div>
+        <div style={{ textAlign: 'center', paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
           <Button
             type="primary"
             size="large"

@@ -23,7 +23,7 @@
  * - setPage: function - 页面切换函数
  */
 import { useState, useEffect, useRef } from 'react'
-import { calcScore } from '../utils/examUtils'
+import { calcScore, clearExamState } from '../utils/examUtils'
 import { Modal, Tooltip, FloatButton } from 'antd'
 import { LeftOutlined, RightOutlined, RollbackOutlined, VerticalLeftOutlined, VerticalRightOutlined, CheckOutlined, CloseOutlined, VerticalAlignTopOutlined } from '@ant-design/icons'
 import ExamTimer from './ExamTimer'
@@ -55,24 +55,16 @@ function saveExamState(state) {
   }
 }
 
-// 清除 localStorage 中的考试状态
-function clearExamState() {
-  try {
-    localStorage.removeItem(STORAGE_KEY)
-  } catch (e) {
-    console.error('Failed to clear exam state:', e)
-  }
-}
-
 export default function ExamPage({ examState, setPage }) {
-  // 优先从 localStorage 恢复状态，否则使用传入的 examState
+  // 优先使用传入的 examState，如果与 localStorage 中的不同（新的随机卷），则清除旧缓存
   const [state, setState] = useState(() => {
     const saved = loadExamState()
-    // 如果 localStorage 中的试卷名称与当前传入的不同，说明是新考试，使用新状态
-    if (saved && saved.paperName !== examState.paperName) {
+    // 如果 localStorage 中有保存的状态，且试卷名称与传入的不同，说明是新考试
+    if (saved && saved.paperName !== examState?.paperName) {
       clearExamState()
       return examState
     }
+    // 否则使用 localStorage 中保存的状态（支持刷新恢复）
     return saved || examState
   })
   const [preselectModalVisible, setPreselectModalVisible] = useState(false)
@@ -282,13 +274,6 @@ export default function ExamPage({ examState, setPage }) {
               <div className="overview-header">
                 <span className="overview-index">{idx + 1}</span>
                 <span className={`overview-type type-${qq.type}`}>{typeMap[qq.type]}</span>
-                <span className={`overview-status ${isReviewMode && qq.status === 'correct' ? 'correct' : isReviewMode && qq.status === 'wrong' ? 'wrong' : ans.length > 0 ? 'answered' : 'unanswered'}`}>
-                  {isReviewMode && qq.status === 'correct' ? (
-                    <CheckOutlined />
-                  ) : isReviewMode && qq.status === 'wrong' ? (
-                    <CloseOutlined />
-                  ) : ans.length > 0 ? '已答' : '未答'}
-                </span>
               </div>
               <div className="overview-question">{qq.question}</div>
               <div className="options-list">
@@ -409,6 +394,8 @@ export default function ExamPage({ examState, setPage }) {
               onToggleViewMode={() => setViewMode(viewMode === 'single' ? 'overview' : 'single')}
               sidebarHidden={sidebarHidden}
               onToggleSidebar={() => setSidebarHidden(!sidebarHidden)}
+              // 自动切题模式下多选题需要确认按钮
+              showConfirmNext={state.autoNext && !isReviewMode && q.type === 'multiple' && !isLast}
             />
           </>
         ) : (

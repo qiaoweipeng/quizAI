@@ -12,7 +12,7 @@
  * - setPage: function - 页面切换函数
  * - setExamState: function - 设置考试状态函数
  */
-import { EXAM_TIME, shuffleArray } from '../utils/examUtils'
+import { EXAM_TIME, shuffleArray, clearExamState } from '../utils/examUtils'
 
 export default function RandomSetupPage({ data, setPage, setExamState }) {
   if (data.questions.length < 200) {
@@ -25,6 +25,9 @@ export default function RandomSetupPage({ data, setPage, setExamState }) {
   }
 
   const start = () => {
+    // 清除旧的考试状态，确保每次生成新卷都是全新的
+    clearExamState()
+    
     const all = data.questions
     const single = shuffleArray(all.filter(q => q.type === 'single')).slice(0, 100)
     const multiple = shuffleArray(all.filter(q => q.type === 'multiple')).slice(0, 40)
@@ -32,9 +35,11 @@ export default function RandomSetupPage({ data, setPage, setExamState }) {
     // 顺序固定：前100道单选，101-140道多选，141-200道判断
     const questions = [...single, ...multiple, ...judge]
 
+    // 生成唯一的试卷名称（包含时间戳），确保每次生成的试卷都不同
+    const timestamp = Date.now().toString(36)
     setExamState({
       mode: 'random',
-      paperName: '随机卷',
+      paperName: `随机卷-${timestamp}`,
       questions,
       answers: {},
       marked: {},

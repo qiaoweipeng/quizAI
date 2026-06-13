@@ -65,35 +65,6 @@ export async function loadJsonFiles() {
       }
     }
     
-    // 同时支持从 exam-papers.json 加载（向后兼容）
-    if (papers.length === 0) {
-      const response = await fetch('/json/exam-papers.json')
-      if (response.ok) {
-        const data = await response.json()
-        if (data.papers && Array.isArray(data.papers)) {
-          for (const paper of data.papers) {
-            papers.push(paper)
-            if (paper.questions && Array.isArray(paper.questions)) {
-              for (const question of paper.questions) {
-                if (question.id && !questionIds.has(question.id)) {
-                  allQuestions.push(question)
-                  questionIds.add(question.id)
-                }
-              }
-            }
-          }
-        } else if (data.questions && Array.isArray(data.questions)) {
-          // 处理旧格式（直接有questions数组）
-          allQuestions.push(...data.questions.filter(q => q.id && !questionIds.has(q.id)))
-          papers.push({
-            id: 'default',
-            name: '默认试卷',
-            questions: data.questions
-          })
-        }
-      }
-    }
-    
     return { papers, questions: allQuestions }
   } catch (error) {
     console.error('Error loading JSON files:', error)
@@ -121,6 +92,15 @@ export function shuffleArray(arr) {
     ;[a[i], a[j]] = [a[j], a[i]]
   }
   return a
+}
+
+// 清除 localStorage 中的考试状态
+export function clearExamState() {
+  try {
+    localStorage.removeItem('exam_state')
+  } catch (e) {
+    console.error('Failed to clear exam state:', e)
+  }
 }
 
 export function scoreMultiple(userAns, correctAns) {

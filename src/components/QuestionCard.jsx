@@ -39,7 +39,8 @@ export default function QuestionCard({
   viewMode,
   onToggleViewMode,
   sidebarHidden,
-  onToggleSidebar
+  onToggleSidebar,
+  showConfirmNext
 }) {
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
   const isLast = currentIndex === total - 1
@@ -150,6 +151,13 @@ export default function QuestionCard({
               <button className="btn-primary">交卷</button>
             </Popconfirm>
           )}
+        </div>
+      )}
+      
+      {/* 自动切题模式下多选题的确认按钮 */}
+      {showConfirmNext && (
+        <div className="exam-nav">
+          <button className="btn-primary confirm-next-btn" onClick={onNext}>确认并下一题</button>
         </div>
       )}
     </div>
