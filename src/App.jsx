@@ -7,10 +7,25 @@ import ResultPage from './components/ResultPage'
 import PracticePage from './components/PracticePage'
 import { loadJsonFiles } from './utils/examUtils'
 
+// 从 localStorage 恢复考试状态
+function loadExamState() {
+  try {
+    const saved = localStorage.getItem('exam_state')
+    if (saved) {
+      return JSON.parse(saved)
+    }
+  } catch (e) {
+    console.error('Failed to load exam state:', e)
+  }
+  return null
+}
+
 export default function App() {
-  const [page, setPageState] = useState('home') // home | exam | result | practice-exam
+  // 尝试从 localStorage 恢复考试状态
+  const savedExamState = loadExamState()
+  const [page, setPageState] = useState(savedExamState ? 'exam' : 'home') // home | exam | result | practice-exam
   const [data, setData] = useState({ papers: [], questions: [] })
-  const [examState, setExamState] = useState(null)
+  const [examState, setExamState] = useState(savedExamState || null)
   const [practiceState, setPracticeState] = useState(null)
   const [loading, setLoading] = useState(true)
 

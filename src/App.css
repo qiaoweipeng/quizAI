@@ -2,6 +2,10 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .app-header {
@@ -477,7 +481,6 @@
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
   transition: all 0.3s ease;
   padding: 0 20px 20px 20px;
   display: flex;
@@ -497,10 +500,12 @@
   z-index: 10;
   padding: 20px 20px 0px 20px;
   margin: 0 -20px;
+  margin-top: -1px;
   transition: opacity 0.3s ease;
   will-change: opacity;
   flex-shrink: 0;
   border-bottom: 1px solid #eee;
+  border-radius: 10px 10px 0 0;
 }
 
 .sidebar-scroll {
@@ -624,9 +629,8 @@
 
 .qnum-group-label {
   grid-column: span 6;
-  font-size: 14px;
-  font-weight: 600;
-  color: #666;
+  font-size: 14px !important;
+  font-weight: 500;
   padding: 8px 4px;
   margin-top: 4px;
 }
@@ -640,9 +644,15 @@
   grid-column: span 6;
 }
 
+.qnum-grid .ant-divider-inner-text {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #868686 !important;
+}
+
 .qnum-group-range {
   font-size: 12px;
-  color: #999;
+  color: #bcbcbc;
 }
 
 .qnum-btn {
@@ -653,7 +663,7 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   transition: 0.2s;
   color: #666;
 }
@@ -704,8 +714,19 @@
 
 .exam-main {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.exam-main > .exam-overview {
+  overflow-y: auto;
+  height: calc(100vh - 120px);
+  padding-right: 12px;
+}
+
+.exam-main > .exam-overview::-webkit-scrollbar {
+  display: block;
 }
 
 .exam-main.full-width {
@@ -803,8 +824,8 @@
 }
 
 .question-text {
-  font-size: 17px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 300;
   line-height: 1.7;
   margin-bottom: 24px;
   user-select: none;
@@ -849,7 +870,7 @@
 }
 
 .option-text {
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .exam-nav {
@@ -1596,8 +1617,9 @@
   font-size: 12px;
 }
 
-.result-modal-body .stat-num.stat-time.short-time {
-  font-size: 14px;
+.result-modal-body .stat-num.stat-time {
+  font-size: 12px;
+  padding-top: 14px;
 }
 
 .wrong-preview {
@@ -1642,6 +1664,40 @@
   position: relative;
 }
 
+.exa/* position: sticky; */
+  /* top: 0; */
+  /* z-index: 10; */
+  m-overview .exam-toolbar {
+  /* position: sticky; */
+  /* top: 0; */
+  /* z-index: 10; */
+  background: #fff;
+  padding-bottom: 12px;
+}
+
+.back-to-top-fixed {
+  position: absolute;
+  right: 30px;
+  bottom: 18px;
+  z-index: 1000;
+  width: 40px;
+  height: 40px;
+}
+
+.back-to-top-fixed .ant-float-btn,
+.back-to-top-fixed .ant-float-btn-body,
+.back-to-top-fixed .ant-float-btn-default {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  /* width: 40px !important;
+  height: 40px !important;
+  inset: auto !important;
+  transform: none !important; */
+}
+
 .overview-item {
   padding: 12px 16px;
   border-radius: 8px;
@@ -1671,8 +1727,8 @@
 .overview-index {
   width: 24px;
   height: 24px;
-  border-radius: 50%;
-  background: #f0f0f0;
+  /* border-radius: 50%;
+  background: #f0f0f0; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1681,10 +1737,10 @@
   color: #666;
 }
 
-.overview-item.current .overview-index {
+/* .overview-item.current .overview-index {
   background: #1890ff;
   color: #fff;
-}
+} */
 
 .overview-type {
   font-size: 10px;
@@ -1719,7 +1775,8 @@
 }
 
 .overview-question {
-  font-size: 12px;
+  font-size: 16px;
+  font-weight: 300;
   color: #333;
   line-height: 1.5;
   margin-bottom: 8px;
@@ -1731,7 +1788,7 @@
 
 /* 全览模式的选项文字 */
 .overview-item .option-text {
-  font-size: 11px;
+  font-size: 14px;
 }
 
 .overview-options {
@@ -1767,7 +1824,7 @@
   color: #fff;
 }
 
-.overview-item.status-correct {
+/* .overview-item.status-correct {
   border-color: #b7eb8f;
   background: #f6ffed;
 }
@@ -1775,7 +1832,7 @@
 .overview-item.status-wrong {
   border-color: #ffccc7;
   background: #fff2f0;
-}
+} */
 
 .overview-item.status-unanswered {
   border-color: #ffe58f;

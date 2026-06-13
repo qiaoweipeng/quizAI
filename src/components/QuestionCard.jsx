@@ -45,7 +45,8 @@ export default function QuestionCard({
   const isLast = currentIndex === total - 1
 
   const renderOption = (opt, idx) => {
-    const key = opt.charAt(0)
+    // 判断题使用完整选项文字作为key，其他题型使用第一个字符
+    const key = question.type === 'judge' ? opt : opt.charAt(0)
     const selected = isReviewMode ? question.userAns?.includes(key) : currentAns.includes(key)
     const isCorrect = question.answer.includes(key)
     // 判断这道题是否答错了

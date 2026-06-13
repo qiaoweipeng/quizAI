@@ -68,6 +68,11 @@ export default function ExamPage({ examState, setPage }) {
   // 优先从 localStorage 恢复状态，否则使用传入的 examState
   const [state, setState] = useState(() => {
     const saved = loadExamState()
+    // 如果 localStorage 中的试卷名称与当前传入的不同，说明是新考试，使用新状态
+    if (saved && saved.paperName !== examState.paperName) {
+      clearExamState()
+      return examState
+    }
     return saved || examState
   })
   const [preselectModalVisible, setPreselectModalVisible] = useState(false)
@@ -288,7 +293,8 @@ export default function ExamPage({ examState, setPage }) {
               <div className="overview-question">{qq.question}</div>
               <div className="options-list">
                 {qq.options.map((opt, optIdx) => {
-                  const key = opt.charAt(0)
+                  // 判断题使用完整选项文字作为key，其他题型使用第一个字符
+                  const key = qq.type === 'judge' ? opt : opt.charAt(0)
                   const selected = isReviewMode ? qq.userAns?.includes(key) : ans.includes(key)
                   const isCorrect = qq.answer.includes(key)
                   // 判断这道题是否答错了
@@ -325,20 +331,6 @@ export default function ExamPage({ examState, setPage }) {
             </div>
           )
         })}
-        <FloatButton
-          icon={<VerticalAlignTopOutlined />}
-          onClick={() => {
-            const overviewEl = document.querySelector('.exam-overview')
-            if (overviewEl) {
-              overviewEl.scrollTo({ top: 0, behavior: 'smooth' })
-            }
-          }}
-          style={{
-            position: 'absolute',
-            right: '24px',
-            bottom: '24px'
-          }}
-        />
       </div>
     )
   }
@@ -421,6 +413,19 @@ export default function ExamPage({ examState, setPage }) {
           </>
         ) : (
           renderOverview()
+        )}
+        {viewMode === 'overview' && (
+          <div className="back-to-top-fixed">
+            <FloatButton
+              icon={<VerticalAlignTopOutlined />}
+              onClick={() => {
+                const overviewEl = document.querySelector('.exam-overview')
+                if (overviewEl) {
+                  overviewEl.scrollTo({ top: 0, behavior: 'smooth' })
+                }
+              }}
+            />
+          </div>
         )}
       </div>
 

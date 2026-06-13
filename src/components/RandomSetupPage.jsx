@@ -29,7 +29,8 @@ export default function RandomSetupPage({ data, setPage, setExamState }) {
     const single = shuffleArray(all.filter(q => q.type === 'single')).slice(0, 100)
     const multiple = shuffleArray(all.filter(q => q.type === 'multiple')).slice(0, 40)
     const judge = shuffleArray(all.filter(q => q.type === 'judge')).slice(0, 60)
-    const questions = shuffleArray([...single, ...multiple, ...judge])
+    // 顺序固定：前100道单选，101-140道多选，141-200道判断
+    const questions = [...single, ...multiple, ...judge]
 
     setExamState({
       mode: 'random',
