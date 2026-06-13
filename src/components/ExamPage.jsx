@@ -1,46 +1,128 @@
+/**
+ * 考试页面组件
+ * 
+ * 功能：核心考试界面，整合以下子组件：
+ * - ExamTimer: 倒计时显示
+ * - QuestionSidebar: 题目导航侧边栏
+ * - QuestionCard: 题目卡片
+ * - PreselectModal: 一键预答弹窗
+ * - ExamResultModal: 考试结果弹窗
+ * 
+ * 主要功能：
+ * - 90分钟倒计时
+ * - 题目导航侧边栏（按题型分组）
+ * - 单题模式和全览模式切换
+ * - 自动切题功能
+ * - 一键预答功能
+ * - 考试结果计算与展示
+ * - 错题回顾模式
+ * - 考试状态持久化（刷新页面不丢失）
+ * 
+ * Props:
+ * - examState: object - 考试状态（题目、答案、时间等）
+ * - setPage: function - 页面切换函数
+ */
 import { useState, useEffect, useRef } from 'react'
+import { calcScore } from '../utils/examUtils'
+import { Modal, Tooltip, FloatButton } from 'antd'
+import { LeftOutlined, RightOutlined, RollbackOutlined, VerticalLeftOutlined, VerticalRightOutlined, CheckOutlined, CloseOutlined, VerticalAlignTopOutlined } from '@ant-design/icons'
+import ExamTimer from './ExamTimer'
+import QuestionSidebar from './QuestionSidebar'
+import QuestionCard from './QuestionCard'
+import ExamResultModal from './ExamResultModal'
 
-function formatTime(seconds) {
-  const h = Math.floor(seconds / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  const s = seconds % 60
-  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
-}
+const STORAGE_KEY = 'exam_state'
 
-function formatUsedTime(seconds) {
-  if (seconds < 60) {
-    return '不足一分钟'
-  }
-  const minutes = Math.round(seconds / 60)
-  return `${minutes} 分钟`
-}
-
-// 计分函数
-function calcScore(q, userAns) {
-  if (!userAns || userAns.length === 0) return 0
-  if (q.type === 'multiple') {
-    const userSet = new Set(userAns)
-    const correctSet = new Set(q.answer)
-    if (userSet.size === correctSet.size && [...userSet].every(x => correctSet.has(x))) return 0.5
-    for (const u of userSet) {
-      if (!correctSet.has(u)) return 0
+// 从 localStorage 恢复考试状态
+function loadExamState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      return JSON.parse(saved)
     }
-    return 0
+  } catch (e) {
+    console.error('Failed to load exam state:', e)
   }
-  return userAns[0] === q.answer[0] ? 0.5 : 0
+  return null
+}
+
+// 保存考试状态到 localStorage
+function saveExamState(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch (e) {
+    console.error('Failed to save exam state:', e)
+  }
+}
+
+// 清除 localStorage 中的考试状态
+function clearExamState() {
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch (e) {
+    console.error('Failed to clear exam state:', e)
+  }
 }
 
 export default function ExamPage({ examState, setPage }) {
-  const [state, setState] = useState(examState)
+  // 优先从 localStorage 恢复状态，否则使用传入的 examState
+  const [state, setState] = useState(() => {
+    const saved = loadExamState()
+    return saved || examState
+  })
+  const [preselectModalVisible, setPreselectModalVisible] = useState(false)
+
+  // 如果 state 为 null，显示加载状态
+  if (!state) {
+    return (
+      <div style={{ padding: 20, textAlign: 'center' }}>
+        <p>正在加载考试数据...</p>
+      </div>
+    )
+  }
   const timerRef = useRef(null)
-  const sidebarRef = useRef(null)
-  const scrollRef = useRef(null)
-  const [headerVisible, setHeaderVisible] = useState(true)
-  const [showPreselectModal, setShowPreselectModal] = useState(true)
   const [viewMode, setViewMode] = useState('single') // single | overview
   const [showResultModal, setShowResultModal] = useState(false)
   const [examResult, setExamResult] = useState(null)
-  const [sidebarHidden, setSidebarHidden] = useState(false) // 新增：控制侧边栏显示
+  const [sidebarHidden, setSidebarHidden] = useState(false)
+  const sidebarRef = useRef(null)
+
+  // 一键预选题
+  const preselectAll = () => {
+    const newAnswers = {}
+    state.questions.forEach((qq, idx) => {
+      if (qq.type === 'single') {
+        newAnswers[idx] = ['A']
+      } else if (qq.type === 'judge') {
+        newAnswers[idx] = [qq.options[0]]
+      } else if (qq.type === 'multiple') {
+        const keys = qq.options.map(opt => opt.charAt(0))
+        newAnswers[idx] = keys.sort()
+      }
+    })
+    setState(prev => ({ ...prev, answers: newAnswers }))
+    setPreselectModalVisible(false)
+  }
+
+  // 一键预选 Modal - 只有首次开始考试时显示（刷新页面不显示）
+  useEffect(() => {
+    // 如果已经显示过一键预选对话框，则不再显示
+    if (state.preselectModalShown) return
+
+    const timer = setTimeout(() => {
+      setPreselectModalVisible(true)
+      // 标记已显示过
+      setState(prev => ({ ...prev, preselectModalShown: true }))
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  // 一键预选 Modal
+  const handlePreselectModal = () => {
+    setPreselectModalVisible(false)
+    preselectAll()
+  }
 
   // 计时器
   useEffect(() => {
@@ -57,10 +139,18 @@ export default function ExamPage({ examState, setPage }) {
     return () => clearInterval(timerRef.current)
   }, [state.finished])
 
-  // 考试结束时计算结果
+  // 保存考试状态到 localStorage
+  useEffect(() => {
+    if (state && !state.finished) {
+      saveExamState(state)
+    }
+  }, [state])
+
+  // 考试结束时计算结果并清除存储
   useEffect(() => {
     if (state.finished && !examResult) {
       clearInterval(timerRef.current)
+      clearExamState() // 考试结束后清除存储
       calculateResult()
     }
   }, [state.finished])
@@ -69,7 +159,6 @@ export default function ExamPage({ examState, setPage }) {
     const { questions, answers } = state
     let rawScore = 0
     let correct = 0, wrong = 0, unanswered = 0
-    const details = []
 
     const questionsWithStatus = questions.map((q, idx) => {
       const ans = answers[idx]
@@ -86,7 +175,6 @@ export default function ExamPage({ examState, setPage }) {
         wrong++
         status = 'wrong'
       }
-      details.push({ idx, q, ans, score: s, status })
       return { ...q, status, userAns: ans }
     })
 
@@ -103,7 +191,6 @@ export default function ExamPage({ examState, setPage }) {
       wrong,
       unanswered,
       usedTime: 90 * 60 - state.timeLeft,
-      wrongList: details.filter(d => d.status === 'wrong' || d.status === 'unanswered'),
       paperName: state.paperName,
       questionsWithStatus
     }
@@ -116,27 +203,6 @@ export default function ExamPage({ examState, setPage }) {
     }))
     setShowResultModal(true)
   }
-
-  // 滚动监听：当单选题标签碰到顶部时隐藏计时和统计
-  useEffect(() => {
-    const scrollEl = scrollRef.current
-    if (!scrollEl) return
-
-    const handleScroll = () => {
-      const scrollTop = scrollEl.scrollTop
-      const hideThreshold = 150
-      const showThreshold = 30
-      
-      if (headerVisible && scrollTop > hideThreshold) {
-        setHeaderVisible(false)
-      } else if (!headerVisible && scrollTop < showThreshold) {
-        setHeaderVisible(true)
-      }
-    }
-
-    scrollEl.addEventListener('scroll', handleScroll, { passive: true })
-    return () => scrollEl.removeEventListener('scroll', handleScroll)
-  }, [headerVisible])
 
   const q = state.questions[state.current]
   const total = state.questions.length
@@ -159,14 +225,13 @@ export default function ExamPage({ examState, setPage }) {
       ...prev,
       answers: { ...prev.answers, [prev.current]: nextAns }
     }))
-    // 自动切题：单选/判断题选完直接切，多选题需要等再次点击确认或手动切
+    // 自动切题
     if (state.autoNext && !isLast && q.type !== 'multiple') {
       setTimeout(() => goQuestion(state.current + 1), 200)
     }
   }
 
   const submitExam = () => {
-    if (!confirm('确定交卷？')) return
     setState(prev => ({ ...prev, finished: true }))
   }
 
@@ -174,63 +239,138 @@ export default function ExamPage({ examState, setPage }) {
     setState(prev => ({ ...prev, current: idx }))
   }
 
-  // 一键预选题
-  const preselectAll = () => {
-    const newAnswers = {}
-    state.questions.forEach((q, idx) => {
-      if (q.type === 'single') {
-        // 单选题选A
-        newAnswers[idx] = ['A']
-      } else if (q.type === 'judge') {
-        // 判断题选第一个选项（正确）
-        newAnswers[idx] = [q.options[0]]
-      } else if (q.type === 'multiple') {
-        // 多选题全选
-        const keys = q.options.map(opt => opt.charAt(0))
-        newAnswers[idx] = keys.sort()
-      }
-    })
-    setState(prev => ({ ...prev, answers: newAnswers }))
-    setShowPreselectModal(false)
-  }
-
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
   const currentAns = state.answers[state.current] || []
 
+  // 全览模式渲染
+  const renderOverview = () => {
+    return (
+      <div className="exam-overview">
+        {/* 全览模式工具栏 */}
+        <div className="exam-toolbar">
+          <Tooltip title="返回单题模式">
+            <button 
+              className="toolbar-btn"
+              onClick={() => setViewMode('single')}
+            >
+              <RollbackOutlined />
+            </button>
+          </Tooltip>
+          <Tooltip title={sidebarHidden ? '显示侧边栏' : '隐藏侧边栏'}>
+            <button 
+              className="toolbar-btn sidebar-toggle-btn"
+              onClick={() => setSidebarHidden(!sidebarHidden)}
+            >
+              {sidebarHidden ? <VerticalRightOutlined /> : <VerticalLeftOutlined />}
+            </button>
+          </Tooltip>
+        </div>
+        {state.questions.map((qq, idx) => {
+          const ans = state.answers[idx] || []
+          const statusClass = isReviewMode && qq.status ? `status-${qq.status}` : ''
+          return (
+            <div 
+              key={idx} 
+              className={`overview-item ${idx === state.current ? 'current' : ''} ${statusClass}`}
+              onClick={() => goQuestion(idx)}
+            >
+              <div className="overview-header">
+                <span className="overview-index">{idx + 1}</span>
+                <span className={`overview-type type-${qq.type}`}>{typeMap[qq.type]}</span>
+                <span className={`overview-status ${isReviewMode && qq.status === 'correct' ? 'correct' : isReviewMode && qq.status === 'wrong' ? 'wrong' : ans.length > 0 ? 'answered' : 'unanswered'}`}>
+                  {isReviewMode && qq.status === 'correct' ? (
+                    <CheckOutlined />
+                  ) : isReviewMode && qq.status === 'wrong' ? (
+                    <CloseOutlined />
+                  ) : ans.length > 0 ? '已答' : '未答'}
+                </span>
+              </div>
+              <div className="overview-question">{qq.question}</div>
+              <div className="options-list">
+                {qq.options.map((opt, optIdx) => {
+                  const key = opt.charAt(0)
+                  const selected = isReviewMode ? qq.userAns?.includes(key) : ans.includes(key)
+                  const isCorrect = qq.answer.includes(key)
+                  // 判断这道题是否答错了
+                  const isWrong = isReviewMode && qq.status === 'wrong'
+                  let optionClass = selected ? 'selected' : ''
+
+                  if (isReviewMode) {
+                    // 用户选择的答案始终是蓝色加粗
+                    if (selected) {
+                      optionClass = 'selected'
+                    }
+                    // 如果这道题答错了，正确答案显示绿色加粗
+                    if (isWrong && isCorrect) {
+                      optionClass += ' correct-answer'
+                    }
+                  }
+
+                  return (
+                    <div key={optIdx} className={`option-row ${optionClass} readonly`}>
+                      <span className="option-text">{opt}</span>
+                    </div>
+                  )
+                })}
+              </div>
+              {isReviewMode && qq.parse && (
+                <div className="parse-box show">
+                  <div className="parse-title">📖 解析</div>
+                  <div className="parse-text">{qq.parse}</div>
+                  <div className="parse-answer">
+                    正确答案：{qq.answer.join(', ')} · 你的答案：{qq.userAns?.length ? qq.userAns.join(', ') : '未选'}
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        })}
+        <FloatButton
+          icon={<VerticalAlignTopOutlined />}
+          onClick={() => {
+            const overviewEl = document.querySelector('.exam-overview')
+            if (overviewEl) {
+              overviewEl.scrollTo({ top: 0, behavior: 'smooth' })
+            }
+          }}
+          style={{
+            position: 'absolute',
+            right: '24px',
+            bottom: '24px'
+          }}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="exam-page">
-      {/* 一键预选题弹窗 */}
-      {showPreselectModal && (
-        <div className="modal-overlay" onClick={() => setShowPreselectModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-body">
-              <div className="modal-title">是否需要一键预选？</div>
-              <div className="modal-desc">
-                <p>一键预选将自动完成以下操作：</p>
-                <ul>
-                  <li>单选题：全部选择 A 选项</li>
-                  <li>多选题：全部选项都选中</li>
-                  <li>判断题：全部选择 对(A)</li>
-                </ul>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn-cancel" onClick={() => setShowPreselectModal(false)}>不需要</button>
-              <button className="btn-primary" onClick={preselectAll}>确定预选</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 一键预选 Modal */}
+      <Modal
+        title="⚡ 一键预选"
+        open={preselectModalVisible}
+        onCancel={() => setPreselectModalVisible(false)}
+        maskClosable={true}
+        footer={[
+          <button key="cancel" onClick={() => setPreselectModalVisible(false)} style={{ padding: '6px 16px', marginRight: 8, border: '1px solid #d9d9d9', borderRadius: 4, background: '#fff', cursor: 'pointer' }}>
+            取消
+          </button>,
+          <button key="confirm" onClick={handlePreselectModal} style={{ padding: '6px 16px', border: 'none', borderRadius: 4, background: '#1890ff', color: '#fff', cursor: 'pointer' }}>
+            确认预选
+          </button>
+        ]}
+      >
+        <p>自动填充所有题目答案：单选选A、多选全选、判断选对</p>
+      </Modal>
 
       {/* 左侧边栏 - 考试信息 */}
-      <div ref={sidebarRef} className={`exam-sidebar ${sidebarHidden ? 'hidden' : ''}`}>
+      <div 
+        ref={sidebarRef}
+        className={`exam-sidebar ${sidebarHidden ? 'hidden' : ''}`}
+      >
         {!isReviewMode && (
-          <div className={`sidebar-header ${headerVisible ? '' : 'hidden'}`}>
-            <div className="timer-box">
-              <div className={state.timeLeft < 600 ? 'timer-danger' : 'timer-normal'}>
-                ⏱️ {formatTime(state.timeLeft)}
-              </div>
-            </div>
+          <div className="sidebar-header">
+            <ExamTimer timeLeft={state.timeLeft} />
             <div className="answer-stats">
               <div className="stat-item">
                 <span className="stat-label stat-answered">已答</span>
@@ -244,244 +384,52 @@ export default function ExamPage({ examState, setPage }) {
             </div>
           </div>
         )}
-        <div ref={scrollRef} className="sidebar-scroll">
-          <div className="qnum-grid">
-            {/* 单选题 1-100 */}
-            <div className="qnum-group-label">单选题 <span className="qnum-group-range">1-100</span></div>
-            {state.questions.slice(0, 100).map((qq, idx) => {
-              const hasAns = !!state.answers[idx]
-              const isCurrent = idx === state.current
-              const statusClass = isReviewMode && qq.status ? qq.status : ''
-              return (
-                <button
-                  key={idx}
-                  className={`qnum-btn ${isCurrent ? 'current' : ''} ${hasAns ? 'answered' : ''} ${statusClass}`}
-                  onClick={() => goQuestion(idx)}
-                  title={`${typeMap[qq.type]} · ${qq.question.substring(0, 20)}...`}
-                >
-                  {idx + 1}
-                </button>
-              )
-            })}
-
-            {/* 多选题 101-140 */}
-            <div className="qnum-group-label">多选题 <span className="qnum-group-range">101-140</span></div>
-            {state.questions.slice(100, 140).map((qq, idx) => {
-              const realIdx = idx + 100
-              const hasAns = !!state.answers[realIdx]
-              const isCurrent = realIdx === state.current
-              const statusClass = isReviewMode && qq.status ? qq.status : ''
-              return (
-                <button
-                  key={realIdx}
-                  className={`qnum-btn ${isCurrent ? 'current' : ''} ${hasAns ? 'answered' : ''} ${statusClass}`}
-                  onClick={() => goQuestion(realIdx)}
-                  title={`${typeMap[qq.type]} · ${qq.question.substring(0, 20)}...`}
-                >
-                  {realIdx + 1}
-                </button>
-              )
-            })}
-
-            {/* 判断题 141-200 */}
-            <div className="qnum-group-label">判断题 <span className="qnum-group-range">141-200</span></div>
-            {state.questions.slice(140).map((qq, idx) => {
-              const realIdx = idx + 140
-              const hasAns = !!state.answers[realIdx]
-              const isCurrent = realIdx === state.current
-              const statusClass = isReviewMode && qq.status ? qq.status : ''
-              return (
-                <button
-                  key={realIdx}
-                  className={`qnum-btn ${isCurrent ? 'current' : ''} ${hasAns ? 'answered' : ''} ${statusClass}`}
-                  onClick={() => goQuestion(realIdx)}
-                  title={`${typeMap[qq.type]} · ${qq.question.substring(0, 20)}...`}
-                >
-                  {realIdx + 1}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-        {!isReviewMode && total - answered === 0 && (
-          <div className="sidebar-footer">
-            <button className="btn-submit-exam" onClick={submitExam}>交卷</button>
-          </div>
-        )}
+        <QuestionSidebar
+          questions={state.questions}
+          current={state.current}
+          answers={state.answers}
+          isReviewMode={isReviewMode}
+          onGoQuestion={goQuestion}
+          showSubmit={!isReviewMode && total - answered === 0}
+          onSubmit={submitExam}
+        />
       </div>
 
       {/* 右侧主内容 - 试题 */}
       <div className={`exam-main ${sidebarHidden ? 'full-width' : ''}`}>
         {viewMode === 'single' ? (
-          <div className="exam-card">
-            <div className="card-content">
-              <div className="exam-toolbar">
-            <button 
-              className={`toolbar-btn auto-next-btn ${state.autoNext ? 'active' : ''}`}
-              onClick={() => setState(prev => ({ ...prev, autoNext: !prev.autoNext }))}
-              title={state.autoNext ? '切换为手动切题' : '切换为自动切题'}
-            >
-              {state.autoNext ? '👆' : '⚡'}
-            </button>
-            <button 
-              className={`toolbar-btn view-mode-btn ${viewMode === 'overview' ? 'active' : ''}`}
-              onClick={() => setViewMode(viewMode === 'single' ? 'overview' : 'single')}
-              title={viewMode === 'overview' ? '切换为单题模式' : '切换为全览模式'}
-            >
-              {viewMode === 'overview' ? '▦' : '▣'}
-            </button>
-            <button 
-              className={`toolbar-btn sidebar-toggle-btn ${sidebarHidden ? 'active' : ''}`}
-              onClick={() => setSidebarHidden(!sidebarHidden)}
-              title={sidebarHidden ? '显示侧边栏' : '隐藏侧边栏'}
-            >
-              {sidebarHidden ? '◀' : '▶'}
-            </button>
-              </div>
-              <div className="exam-header">
-                <span className="q-index">第 {state.current + 1} / {total} 题</span>
-                <span className={`q-type-badge type-${q.type}`}>{typeMap[q.type]}</span>
-              </div>
-
-              <div className="question-content">
-                <div className="question-text">{q.question}</div>
-
-                <div className="options-list">
-                  {q.options.map((opt, idx) => {
-                    const key = opt.charAt(0)
-                    const selected = isReviewMode ? q.userAns?.includes(key) : currentAns.includes(key)
-                    const isCorrect = q.answer.includes(key)
-                    let optionClass = ''
-                    if (isReviewMode) {
-                      if (selected && isCorrect) {
-                        optionClass = 'selected correct'
-                      } else if (selected && !isCorrect) {
-                        optionClass = 'selected wrong'
-                      } else if (!selected && isCorrect) {
-                        optionClass = 'correct'
-                      }
-                    } else {
-                    optionClass = selected ? 'selected' : ''
-                  }
-                  return (
-                    <div
-                      key={idx}
-                      className={`option-row ${optionClass} ${isReviewMode ? 'readonly' : ''}`}
-                      onClick={() => selectOption(key)}
-                    >
-                      <span className="option-key">{key}</span>
-                      <span className="option-text">{opt}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-          {!state.autoNext || (isLast && total - answered === 0) ? (
-            <div className="exam-nav">
-              {!state.autoNext && (
-                <>
-                  <button disabled={state.current === 0} onClick={() => goQuestion(state.current - 1)}>上一题</button>
-                  <button disabled={isLast} onClick={() => goQuestion(state.current + 1)}>下一题</button>
-                </>
-              )}
-              {!isReviewMode && isLast && total - answered === 0 && <button className="btn-primary" onClick={submitExam}>交卷</button>}
-            </div>
-          ) : null}
-            </div>
-        </div>
+          <>
+            <QuestionCard
+              question={q}
+              currentAns={currentAns}
+              currentIndex={state.current}
+              total={total}
+              isReviewMode={isReviewMode}
+              onSelectOption={selectOption}
+              showNav={!state.autoNext || (isLast && total - answered === 0)}
+              onPrev={() => goQuestion(state.current - 1)}
+              onNext={() => goQuestion(state.current + 1)}
+              onSubmit={submitExam}
+              showSubmit={!isReviewMode && isLast && total - answered === 0}
+              autoNext={state.autoNext}
+              onToggleAutoNext={() => setState(prev => ({ ...prev, autoNext: !prev.autoNext }))}
+              viewMode={viewMode}
+              onToggleViewMode={() => setViewMode(viewMode === 'single' ? 'overview' : 'single')}
+              sidebarHidden={sidebarHidden}
+              onToggleSidebar={() => setSidebarHidden(!sidebarHidden)}
+            />
+          </>
         ) : (
-          /* 全览模式 */
-          <div className="exam-overview">
-            {state.questions.map((qq, idx) => {
-              const ans = state.answers[idx] || []
-              const statusClass = isReviewMode && qq.status ? `status-${qq.status}` : ''
-              return (
-                <div 
-                  key={idx} 
-                  className={`overview-item ${idx === state.current ? 'current' : ''} ${statusClass}`}
-                  onClick={() => goQuestion(idx)}
-                >
-                  <div className="overview-header">
-                    <span className="overview-index">{idx + 1}</span>
-                    <span className={`overview-type type-${qq.type}`}>{typeMap[qq.type]}</span>
-                    <span className={`overview-status ${ans.length > 0 ? 'answered' : 'unanswered'}`}>
-                      {isReviewMode && qq.status ? (qq.status === 'correct' ? '正确' : qq.status === 'wrong' ? '错误' : '未答') : (ans.length > 0 ? '已答' : '未答')}
-                    </span>
-                  </div>
-                  <div className="overview-question">{qq.question}</div>
-                  <div className="overview-options">
-                    {qq.options.map((opt, optIdx) => {
-                      const key = opt.charAt(0)
-                      const selected = isReviewMode ? qq.userAns?.includes(key) : ans.includes(key)
-                      const isCorrect = qq.answer.includes(key)
-                      let optionClass = selected ? 'selected' : ''
-                      if (isReviewMode) {
-                        if (selected && isCorrect) {
-                          optionClass = 'selected correct'
-                        } else if (selected && !isCorrect) {
-                          optionClass = 'selected wrong'
-                        } else if (!selected && isCorrect) {
-                          optionClass = 'correct'
-                        }
-                      }
-                      return (
-                        <span 
-                          key={optIdx} 
-                          className={`overview-option ${optionClass}`}
-                        >
-                          {key}
-                        </span>
-                      )
-                    })}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+          renderOverview()
         )}
       </div>
 
       {/* 考试结果模态框 */}
-      {showResultModal && examResult && (
-        <div className="modal-overlay" onClick={() => {
-          setShowResultModal(false)
-        }}>
-          <div className="result-modal" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => {
-              setShowResultModal(false)
-            }}>×</button>
-            <div className="result-modal-body">
-              <div className="result-title">{examResult.paperName}</div>
-              <div className={`score-circle ${examResult.passed ? 'pass' : 'fail'}`}>
-                <div className="score-num">{Number.isInteger(examResult.score) ? examResult.score : examResult.score.toFixed(1)}</div>
-              </div>
-              <div className={`pass-badge ${examResult.passed ? 'pass' : 'fail'}`}>
-                {examResult.passed ? '及格' : '不及格'}
-              </div>
-
-              <div className="result-stats">
-                <div className="stat-item">
-                  <div className="stat-num stat-correct">{examResult.correct}</div>
-                  <div className="stat-label">正确</div>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-num stat-wrong">{examResult.wrong}</div>
-                  <div className="stat-label">错误</div>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-num stat-unanswered">{examResult.unanswered}</div>
-                  <div className="stat-label">未答</div>
-                </div>
-                <div className="stat-item">
-                  <div className={`stat-num stat-time ${examResult.usedTime < 60 ? 'short-time' : ''}`}>{formatUsedTime(examResult.usedTime)}</div>
-                  <div className="stat-label">用时</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ExamResultModal
+        visible={showResultModal}
+        result={examResult}
+        onClose={() => setShowResultModal(false)}
+      />
     </div>
   )
 }

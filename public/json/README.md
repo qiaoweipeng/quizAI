@@ -5,15 +5,71 @@
 ## 文件命名规范
 
 - 使用英文文件名，避免编码问题
-- 建议使用描述性的名称，如 `exam-papers.json`、`practice-questions.json`
+- 建议使用描述性的名称，如 `paper-1.json`、`paper-2.json`
 - 文件扩展名必须是 `.json`
 
 ## 当前文件
 
-- `exam-papers.json`: 主要的题目数据文件，包含试卷和题目信息
+- `paper-index.json`: 试卷索引文件，记录所有试卷的基本信息
+- `paper-1.json`: 第一份试卷的题目数据
+- `exam-papers.json`: 旧格式的题目数据文件（向后兼容）
+
+## 多试卷管理
+
+系统支持多份独立的JSON试卷文件，采用**索引+试卷**的管理方式：
+
+### 1. 创建试卷索引 (`paper-index.json`)
+
+```json
+{
+  "papers": [
+    {
+      "id": "paper-1",
+      "name": "2026年中级消防设施操作员[监控]历年真题练习（卷A）",
+      "file": "paper-1.json"
+    },
+    {
+      "id": "paper-2",
+      "name": "2026年中级消防设施操作员[监控]历年真题练习（卷B）",
+      "file": "paper-2.json"
+    }
+  ]
+}
+```
+
+### 2. 创建试卷文件 (`paper-xxx.json`)
+
+每个试卷文件只包含题目数组：
+
+```json
+{
+  "questions": [
+    {
+      "id": "dx-1",
+      "type": "single",
+      "question": "题目内容",
+      "options": ["A. 选项1", "B. 选项2", "C. 选项3", "D. 选项4"],
+      "answer": ["A"],
+      "parse": "解析内容"
+    }
+  ]
+}
+```
+
+### 3. 添加新试卷步骤
+
+1. 在 `paper-index.json` 中添加新试卷的元数据（id、name、file）
+2. 创建对应的试卷文件（如 `paper-2.json`）
+3. 刷新页面即可自动加载新试卷
 
 ## 添加新题目文件
 
+**推荐方式**（使用多试卷管理）：
+1. 在 `paper-index.json` 中添加试卷条目
+2. 创建对应的试卷文件
+3. 无需修改代码
+
+**旧方式**（向后兼容）：
 1. 在此文件夹中创建新的 JSON 文件
 2. 按照标准格式添加题目数据
 3. 修改 `src/App.jsx` 中的 `loadJsonFiles` 函数以加载新文件
