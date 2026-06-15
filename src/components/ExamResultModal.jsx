@@ -3,7 +3,7 @@
  * 
  * 功能：展示考试结果
  * - 分数显示
- * - 及格/不及格状态
+ * - 及格/不及格状态（带Logo和Title）
  * - 正确/错误/未答统计
  * - 用时统计
  * 
@@ -13,6 +13,7 @@
  * - onClose: function - 关闭弹窗函数
  */
 import { Modal } from 'antd'
+import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons'
 
 function formatUsedTime(seconds) {
   if (seconds < 60) {
@@ -25,6 +26,10 @@ function formatUsedTime(seconds) {
 export default function ExamResultModal({ visible, result, onClose }) {
   if (!result) return null
 
+  const isPassed = result.passed
+  const TitleIcon = isPassed ? CheckCircleFilled : CloseCircleFilled
+  const title = isPassed ? '恭喜你成绩合格' : '成绩不合格，请继续努力'
+
   return (
     <Modal
       open={visible}
@@ -32,19 +37,28 @@ export default function ExamResultModal({ visible, result, onClose }) {
       footer={null}
       width={700}
       centered
-      bodyStyle={{ height: 500, padding: 0 }}
+      bodyStyle={{ 
+        height: 500, 
+        padding: 0 
+      }}
       maskStyle={{ backdropFilter: 'blur(8px)', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+      title={
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <TitleIcon style={{ fontSize: 24, color: isPassed ? '#52c41a' : '#ff4d4f' }} />
+          <span>{title}</span>
+        </div>
+      }
     >
       <div className="result-modal" onClick={e => e.stopPropagation()}>
         <div className="result-modal-body">
           <div className="result-title">{result.paperName}</div>
-          <div className={`score-circle ${result.passed ? 'pass' : 'fail'}`}>
+          <div className={`score-circle ${isPassed ? 'pass' : 'fail'}`}>
             <div className="score-num">
               {Number.isInteger(result.score) ? result.score : result.score.toFixed(1)}
             </div>
           </div>
-          <div className={`pass-badge ${result.passed ? 'pass' : 'fail'}`}>
-            {result.passed ? '合格' : '不合格'}
+          <div className={`pass-badge ${isPassed ? 'pass' : 'fail'}`}>
+            {isPassed ? '合格' : '不合格'}
           </div>
 
           <div className="result-stats">

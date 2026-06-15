@@ -12,6 +12,7 @@
  * - setPage: function - 页面切换函数
  * - setExamState: function - 设置考试状态函数
  */
+import { Button } from 'antd'
 import { EXAM_TIME, shuffleArray, clearExamState } from '../utils/examUtils'
 
 export default function RandomSetupPage({ data, setPage, setExamState }) {
@@ -19,7 +20,7 @@ export default function RandomSetupPage({ data, setPage, setExamState }) {
     return (
       <div className="empty-page">
         <p>总题库不足200题（当前 {data.questions.length} 道），无法生成随机卷</p>
-        <button className="btn-primary" onClick={() => setPage('home')}>返回首页</button>
+        <Button className="btn-primary" onClick={() => setPage('home')}>返回首页</Button>
       </div>
     )
   }
@@ -65,7 +66,7 @@ export default function RandomSetupPage({ data, setPage, setExamState }) {
           <li>考试时间：90 分钟</li>
         </ul>
       </div>
-      <button className="btn-primary btn-large" onClick={start}>生成试卷并开考</button>
+      <Button className="btn-primary btn-large" onClick={start}>生成试卷并开考</Button>
     </div>
   )
 }

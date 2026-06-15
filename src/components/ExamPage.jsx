@@ -23,15 +23,13 @@
  * - setPage: function - 页面切换函数
  */
 import { useState, useEffect, useRef } from 'react'
-import { calcScore, clearExamState } from '../utils/examUtils'
-import { Modal, Tooltip, FloatButton } from 'antd'
-import { LeftOutlined, RightOutlined, RollbackOutlined, VerticalLeftOutlined, VerticalRightOutlined, CheckOutlined, CloseOutlined, VerticalAlignTopOutlined } from '@ant-design/icons'
+import { calcScore, clearExamState, STORAGE_KEY } from '../utils/examUtils'
+import { Modal, Tooltip, FloatButton, Button, notification, Dropdown, Space } from 'antd'
+import { LeftOutlined, RightOutlined, RollbackOutlined, VerticalLeftOutlined, VerticalRightOutlined, CheckOutlined, CloseOutlined, VerticalAlignTopOutlined, QuestionCircleOutlined, BarChartOutlined, DownOutlined, EllipsisOutlined } from '@ant-design/icons'
 import ExamTimer from './ExamTimer'
 import QuestionSidebar from './QuestionSidebar'
 import QuestionCard from './QuestionCard'
 import ExamResultModal from './ExamResultModal'
-
-const STORAGE_KEY = 'exam_state'
 
 // 从 localStorage 恢复考试状态
 function loadExamState() {
@@ -67,13 +65,13 @@ export default function ExamPage({ examState, setPage }) {
     // 否则使用 localStorage 中保存的状态（支持刷新恢复）
     return saved || examState
   })
-  const [preselectModalVisible, setPreselectModalVisible] = useState(false)
 
-  // 如果 state 为 null，显示加载状态
-  if (!state) {
+  // 如果 state 为 null 或没有题目，跳转到首页
+  if (!state || !state.questions || state.questions.length === 0) {
     return (
       <div style={{ padding: 20, textAlign: 'center' }}>
-        <p>正在加载考试数据...</p>
+        <p>考试数据加载失败或不存在，请返回首页重新开始</p>
+        <button onClick={() => setPage('home')} style={{ marginTop: 10, padding: '8px 16px' }}>返回首页</button>
       </div>
     )
   }
@@ -83,6 +81,8 @@ export default function ExamPage({ examState, setPage }) {
   const [examResult, setExamResult] = useState(null)
   const [sidebarHidden, setSidebarHidden] = useState(false)
   const sidebarRef = useRef(null)
+  const [showParse, setShowParse] = useState(true)
+  const [showWrongOnly, setShowWrongOnly] = useState(false)
 
   // 一键预选题
   const preselectAll = () => {
@@ -98,28 +98,34 @@ export default function ExamPage({ examState, setPage }) {
       }
     })
     setState(prev => ({ ...prev, answers: newAnswers }))
-    setPreselectModalVisible(false)
   }
 
-  // 一键预选 Modal - 只有首次开始考试时显示（刷新页面不显示）
+  // 一键预选通知 - 只有首次开始考试时显示（刷新页面不显示）
   useEffect(() => {
-    // 如果已经显示过一键预选对话框，则不再显示
     if (state.preselectModalShown) return
 
     const timer = setTimeout(() => {
-      setPreselectModalVisible(true)
-      // 标记已显示过
+      const key = `preselect-${Date.now()}`
+      const btn = (
+        <Button type="primary" size="small" onClick={() => {
+          preselectAll()
+          notification.destroy(key)
+        }}>
+          确认预选
+        </Button>
+      )
+      notification.open({
+        message: '⚡ 一键预选',
+        description: '自动填充所有题目答案：单选选A、多选全选、判断选对',
+        btn,
+        key,
+        duration: 0, // 不自动关闭
+      })
       setState(prev => ({ ...prev, preselectModalShown: true }))
     }, 1000)
 
     return () => clearTimeout(timer)
   }, [])
-
-  // 一键预选 Modal
-  const handlePreselectModal = () => {
-    setPreselectModalVisible(false)
-    preselectAll()
-  }
 
   // 计时器
   useEffect(() => {
@@ -201,17 +207,44 @@ export default function ExamPage({ examState, setPage }) {
     setShowResultModal(true)
   }
 
+  const submitExam = () => {
+    setState(prev => ({ ...prev, finished: true }))
+  }
+
   const q = state.questions[state.current]
   const total = state.questions.length
   const answered = Object.keys(state.answers).length
   const isLast = state.current === total - 1
   const isReviewMode = state.mode === 'review'
 
+  // 只看错题模式下的题目索引列表
+  const wrongQuestionIndices = state.questions
+    .map((qq, idx) => ({ qq, idx }))
+    .filter(({ qq }) => qq.status === 'wrong')
+    .map(({ idx }) => idx)
+
+  // 当前在错题列表中的位置
+  const currentWrongIndex = wrongQuestionIndices.indexOf(state.current)
+
+  // 获取当前题目（考虑只看错题模式）
+  const getCurrentQuestion = () => {
+    if (isReviewMode && showWrongOnly && wrongQuestionIndices.length > 0) {
+      // 如果当前题目不在错题列表中，取第一个错题
+      if (currentWrongIndex === -1) {
+        return state.questions[wrongQuestionIndices[0]]
+      }
+      return state.questions[wrongQuestionIndices[currentWrongIndex]]
+    }
+    return state.questions[state.current]
+  }
+
+  const currentQ = getCurrentQuestion() || state.questions[state.current] || state.questions[0]
+
   const selectOption = (key) => {
     if (state.finished || isReviewMode) return
     const currentAns = state.answers[state.current] || []
     let nextAns
-    if (q.type === 'multiple') {
+    if (currentQ.type === 'multiple') {
       nextAns = currentAns.includes(key)
         ? currentAns.filter(k => k !== key)
         : [...currentAns, key].sort()
@@ -223,17 +256,26 @@ export default function ExamPage({ examState, setPage }) {
       answers: { ...prev.answers, [prev.current]: nextAns }
     }))
     // 自动切题
-    if (state.autoNext && !isLast && q.type !== 'multiple') {
+    if (state.autoNext && !isLast && currentQ.type !== 'multiple') {
       setTimeout(() => goQuestion(state.current + 1), 200)
     }
   }
 
-  const submitExam = () => {
-    setState(prev => ({ ...prev, finished: true }))
-  }
-
   const goQuestion = (idx) => {
     setState(prev => ({ ...prev, current: idx }))
+  }
+
+  // 只看错题模式下的导航
+  const goNextWrong = () => {
+    if (currentWrongIndex < wrongQuestionIndices.length - 1) {
+      setState(prev => ({ ...prev, current: wrongQuestionIndices[currentWrongIndex + 1] }))
+    }
+  }
+
+  const goPrevWrong = () => {
+    if (currentWrongIndex > 0) {
+      setState(prev => ({ ...prev, current: wrongQuestionIndices[currentWrongIndex - 1] }))
+    }
   }
 
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
@@ -241,38 +283,65 @@ export default function ExamPage({ examState, setPage }) {
 
   // 全览模式渲染
   const renderOverview = () => {
+    const filteredQuestions = showWrongOnly
+      ? state.questions.filter((qq, idx) => qq.status === 'wrong')
+      : state.questions
+
     return (
       <div className="exam-overview">
         {/* 全览模式工具栏 */}
         <div className="exam-toolbar">
+          {isReviewMode && (
+            <Space.Compact>
+              <Button className="toolbar-btn result-btn" onClick={() => setShowResultModal(true)} style={{ minWidth: '100px' }}>
+                考试结果
+              </Button>
+              <Dropdown 
+                menu={{
+                  items: [
+                    {
+                      key: 'showParse',
+                      label: showParse ? '不看解析' : '查看解析',
+                      onClick: () => setShowParse(!showParse)
+                    },
+                    {
+                      key: 'showWrongOnly',
+                      label: showWrongOnly ? '全部题目' : '只看错题',
+                      onClick: () => setShowWrongOnly(!showWrongOnly)
+                    }
+                  ]
+                }}
+                placement="bottomRight"
+              >
+                <Button className="toolbar-btn" icon={<EllipsisOutlined />} />
+              </Dropdown>
+            </Space.Compact>
+          )}
           <Tooltip title="返回单题模式">
-            <button 
-              className="toolbar-btn"
-              onClick={() => setViewMode('single')}
-            >
+            <Button className="toolbar-btn" onClick={() => setViewMode('single')}>
               <RollbackOutlined />
-            </button>
+            </Button>
           </Tooltip>
           <Tooltip title={sidebarHidden ? '显示侧边栏' : '隐藏侧边栏'}>
-            <button 
-              className="toolbar-btn sidebar-toggle-btn"
-              onClick={() => setSidebarHidden(!sidebarHidden)}
-            >
+            <Button className="toolbar-btn sidebar-toggle-btn" onClick={() => setSidebarHidden(!sidebarHidden)}>
               {sidebarHidden ? <VerticalRightOutlined /> : <VerticalLeftOutlined />}
-            </button>
+            </Button>
           </Tooltip>
         </div>
-        {state.questions.map((qq, idx) => {
-          const ans = state.answers[idx] || []
+        {filteredQuestions.map((qq, idx) => {
+          const originalIdx = state.questions.indexOf(qq)
+          const ans = state.answers[originalIdx] || []
           const statusClass = isReviewMode && qq.status ? `status-${qq.status}` : ''
+          // 在只看错题模式下显示重新排列的编号，否则显示原始编号
+          const displayIndex = showWrongOnly ? idx + 1 : originalIdx + 1
           return (
             <div 
-              key={idx} 
-              className={`overview-item ${idx === state.current ? 'current' : ''} ${statusClass}`}
-              onClick={() => goQuestion(idx)}
+              key={originalIdx} 
+              className={`overview-item ${originalIdx === state.current ? 'current' : ''} ${statusClass}`}
+              onClick={() => goQuestion(originalIdx)}
             >
               <div className="overview-header">
-                <span className="overview-index">{idx + 1}</span>
+                <span className="overview-index">{displayIndex}</span>
                 <span className={`overview-type type-${qq.type}`}>{typeMap[qq.type]}</span>
               </div>
               <div className="overview-question">{qq.question}</div>
@@ -286,6 +355,9 @@ export default function ExamPage({ examState, setPage }) {
                   const isWrong = isReviewMode && qq.status === 'wrong'
                   let optionClass = selected ? 'selected' : ''
 
+                  // 回顾模式下的图标显示
+                  let Icon = null
+                  let iconStyle = {}
                   if (isReviewMode) {
                     // 用户选择的答案始终是蓝色加粗
                     if (selected) {
@@ -295,18 +367,56 @@ export default function ExamPage({ examState, setPage }) {
                     if (isWrong && isCorrect) {
                       optionClass += ' correct-answer'
                     }
+
+                    if (selected && isCorrect) {
+                      // 用户选对了
+                      Icon = CheckOutlined
+                      iconStyle = { color: '#52c41a' }
+                    } else if (selected && !isCorrect) {
+                      // 用户选错了
+                      Icon = CloseOutlined
+                      iconStyle = { color: '#ff4d4f' }
+                    } else if (!selected && isCorrect && isWrong) {
+                      // 正确答案但用户没选（题目答错时显示）
+                      Icon = CheckOutlined
+                      iconStyle = { color: '#52c41a' }
+                    }
+                  }
+
+                  const handleOptionClick = (e) => {
+                    e.stopPropagation()
+                    if (isReviewMode) return
+                    let newAns = [...ans]
+                    if (qq.type === 'multiple') {
+                      if (newAns.includes(key)) {
+                        newAns = newAns.filter(k => k !== key)
+                      } else {
+                        newAns.push(key)
+                      }
+                    } else {
+                      newAns = [key]
+                    }
+                    setState(prev => ({
+                      ...prev,
+                      answers: { ...prev.answers, [idx]: newAns }
+                    }))
                   }
 
                   return (
-                    <div key={optIdx} className={`option-row ${optionClass} readonly`}>
+                    <div 
+                      key={optIdx} 
+                      className={`option-row ${optionClass} ${isReviewMode ? 'readonly' : ''}`}
+                      onClick={handleOptionClick}
+                    >
                       <span className="option-text">{opt}</span>
+                      {Icon && <Icon style={{ marginLeft: 8, fontSize: 16, ...iconStyle }} />}
                     </div>
                   )
                 })}
               </div>
-              {isReviewMode && qq.parse && (
+              {isReviewMode && showParse && qq.parse && (
                 <div className="parse-box show">
-                  <div className="parse-title">📖 解析</div>
+                  <div className="parse-title"><QuestionCircleOutlined /> 解析</div>
                   <div className="parse-text">{qq.parse}</div>
                   <div className="parse-answer">
                     正确答案：{qq.answer.join(', ')} · 你的答案：{qq.userAns?.length ? qq.userAns.join(', ') : '未选'}
@@ -322,24 +432,6 @@ export default function ExamPage({ examState, setPage }) {
 
   return (
     <div className="exam-page">
-      {/* 一键预选 Modal */}
-      <Modal
-        title="⚡ 一键预选"
-        open={preselectModalVisible}
-        onCancel={() => setPreselectModalVisible(false)}
-        maskClosable={true}
-        footer={[
-          <button key="cancel" onClick={() => setPreselectModalVisible(false)} style={{ padding: '6px 16px', marginRight: 8, border: '1px solid #d9d9d9', borderRadius: 4, background: '#fff', cursor: 'pointer' }}>
-            取消
-          </button>,
-          <button key="confirm" onClick={handlePreselectModal} style={{ padding: '6px 16px', border: 'none', borderRadius: 4, background: '#1890ff', color: '#fff', cursor: 'pointer' }}>
-            确认预选
-          </button>
-        ]}
-      >
-        <p>自动填充所有题目答案：单选选A、多选全选、判断选对</p>
-      </Modal>
-
       {/* 左侧边栏 - 考试信息 */}
       <div 
         ref={sidebarRef}
@@ -369,6 +461,7 @@ export default function ExamPage({ examState, setPage }) {
           onGoQuestion={goQuestion}
           showSubmit={!isReviewMode && total - answered === 0}
           onSubmit={submitExam}
+          filter={showWrongOnly ? 'wrong' : 'all'}
         />
       </div>
 
@@ -377,15 +470,15 @@ export default function ExamPage({ examState, setPage }) {
         {viewMode === 'single' ? (
           <>
             <QuestionCard
-              question={q}
+              question={currentQ}
               currentAns={currentAns}
               currentIndex={state.current}
               total={total}
               isReviewMode={isReviewMode}
               onSelectOption={selectOption}
               showNav={!state.autoNext || (isLast && total - answered === 0)}
-              onPrev={() => goQuestion(state.current - 1)}
-              onNext={() => goQuestion(state.current + 1)}
+              onPrev={isReviewMode && showWrongOnly ? goPrevWrong : () => goQuestion(state.current - 1)}
+              onNext={isReviewMode && showWrongOnly ? goNextWrong : () => goQuestion(state.current + 1)}
               onSubmit={submitExam}
               showSubmit={!isReviewMode && isLast && total - answered === 0}
               autoNext={state.autoNext}
@@ -394,8 +487,15 @@ export default function ExamPage({ examState, setPage }) {
               onToggleViewMode={() => setViewMode(viewMode === 'single' ? 'overview' : 'single')}
               sidebarHidden={sidebarHidden}
               onToggleSidebar={() => setSidebarHidden(!sidebarHidden)}
-              // 自动切题模式下多选题需要确认按钮
-              showConfirmNext={state.autoNext && !isReviewMode && q.type === 'multiple' && !isLast}
+              showConfirmNext={state.autoNext && !isReviewMode && currentQ.type === 'multiple' && !isLast}
+              showResultModal={showResultModal}
+              onShowResult={() => setShowResultModal(true)}
+              showParse={showParse}
+              onToggleShowParse={() => setShowParse(!showParse)}
+              showWrongOnly={showWrongOnly}
+              onToggleShowWrongOnly={() => setShowWrongOnly(!showWrongOnly)}
+              isWrongOnlyMode={isReviewMode && showWrongOnly}
+              wrongQuestionIndices={wrongQuestionIndices}
             />
           </>
         ) : (

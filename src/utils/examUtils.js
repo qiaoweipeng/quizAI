@@ -11,6 +11,7 @@
 
 // ===================== 常量 =====================
 export const EXAM_TIME = 90 * 60 // 90分钟秒数
+export const STORAGE_KEY = 'exam_state'
 
 // ===================== 工具函数 =====================
 
@@ -97,7 +98,7 @@ export function shuffleArray(arr) {
 // 清除 localStorage 中的考试状态
 export function clearExamState() {
   try {
-    localStorage.removeItem('exam_state')
+    localStorage.removeItem(STORAGE_KEY)
   } catch (e) {
     console.error('Failed to clear exam state:', e)
   }

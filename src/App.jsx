@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ConfigProvider } from 'antd'
+import { ConfigProvider, Button } from 'antd'
 import './App.css'
 import ExamPage from './components/ExamPage'
 import HomePage from './components/HomePage'
@@ -87,7 +87,7 @@ export default function App() {
             <span>试卷: {data.papers.length} 份</span>
             <span>总题: {data.questions.length} 道</span>
             {page !== 'home' && (
-              <button className="btn-text" onClick={() => setPage('home')}>返回首页</button>
+              <Button type="link" onClick={() => setPage('home')}>返回首页</Button>
             )}
           </div>
         </header>

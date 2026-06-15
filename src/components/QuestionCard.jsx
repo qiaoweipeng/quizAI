@@ -19,8 +19,8 @@
  * - onSubmit: function - 交卷函数
  * - showSubmit: boolean - 是否显示交卷按钮
  */
-import { LeftOutlined, RightOutlined, RetweetOutlined, OrderedListOutlined, VerticalLeftOutlined, VerticalRightOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons'
-import { Tooltip, Popconfirm } from 'antd'
+import { LeftOutlined, RightOutlined, RetweetOutlined, OrderedListOutlined, VerticalLeftOutlined, VerticalRightOutlined, CheckOutlined, CloseOutlined, BarChartOutlined, DownOutlined, QuestionCircleOutlined, EllipsisOutlined } from '@ant-design/icons'
+import { Tooltip, Popconfirm, Button, Dropdown, Space } from 'antd'
 
 export default function QuestionCard({
   question,
@@ -40,10 +40,26 @@ export default function QuestionCard({
   onToggleViewMode,
   sidebarHidden,
   onToggleSidebar,
-  showConfirmNext
+  showConfirmNext,
+  showResultModal,
+  onShowResult,
+  showParse,
+  onToggleShowParse,
+  showWrongOnly,
+  onToggleShowWrongOnly,
+  isWrongOnlyMode = false,
+  wrongQuestionIndices = []
 }) {
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
-  const isLast = currentIndex === total - 1
+  
+  // 在只看错题模式下，计算在错题列表中的位置
+  const wrongIdx = isWrongOnlyMode ? wrongQuestionIndices.indexOf(currentIndex) : -1
+  const isFirstWrong = wrongIdx === 0
+  const isLastWrong = wrongIdx === wrongQuestionIndices.length - 1
+  
+  // 判断导航按钮是否禁用
+  const isPrevDisabled = isWrongOnlyMode ? isFirstWrong : currentIndex === 0
+  const isNextDisabled = isWrongOnlyMode ? isLastWrong : currentIndex === total - 1
 
   const renderOption = (opt, idx) => {
     // 判断题使用完整选项文字作为key，其他题型使用第一个字符
@@ -67,6 +83,25 @@ export default function QuestionCard({
       optionClass = selected ? 'selected' : ''
     }
 
+    // 回顾模式下的图标显示
+    let Icon = null
+    let iconStyle = {}
+    if (isReviewMode) {
+      if (selected && isCorrect) {
+        // 用户选对了
+        Icon = CheckOutlined
+        iconStyle = { color: '#52c41a' }
+      } else if (selected && !isCorrect) {
+        // 用户选错了
+        Icon = CloseOutlined
+        iconStyle = { color: '#ff4d4f' }
+      } else if (!selected && isCorrect && isWrong) {
+        // 正确答案但用户没选（题目答错时显示）
+        Icon = CheckOutlined
+        iconStyle = { color: '#52c41a' }
+      }
+    }
+
     return (
       <div
         key={idx}
@@ -74,6 +109,7 @@ export default function QuestionCard({
         onClick={() => !isReviewMode && onSelectOption(key)}
       >
         <span className="option-text">{opt}</span>
+        {Icon && <Icon style={{ marginLeft: 8, fontSize: 16, ...iconStyle }} />}
       </div>
     )
   }
@@ -81,42 +117,59 @@ export default function QuestionCard({
   return (
     <div className="exam-card">
       <div className="exam-toolbar">
+        {isReviewMode && (
+          <Space.Compact>
+            <Button className="toolbar-btn result-btn" onClick={onShowResult} style={{ minWidth: '100px' }}>
+              考试结果
+            </Button>
+            <Dropdown 
+              menu={{
+                items: [
+                  {
+                    key: 'showParse',
+                    label: showParse ? '不看解析' : '查看解析',
+                    onClick: onToggleShowParse
+                  },
+                  {
+                    key: 'showWrongOnly',
+                    label: showWrongOnly ? '全部题目' : '只看错题',
+                    onClick: onToggleShowWrongOnly
+                  }
+                ]
+              }}
+              placement="bottomRight"
+            >
+              <Button className="toolbar-btn" icon={<EllipsisOutlined />} />
+            </Dropdown>
+          </Space.Compact>
+        )}
         {!isReviewMode && (
           <Tooltip title={autoNext ? '切换为手动切题' : '切换为自动切题'}>
-            <button 
-              className={`toolbar-btn auto-next-btn ${autoNext ? 'active' : ''}`}
-              onClick={onToggleAutoNext}
-            >
+            <Button className={`toolbar-btn auto-next-btn ${autoNext ? 'active' : ''}`} onClick={onToggleAutoNext}>
               <RetweetOutlined />
-            </button>
+            </Button>
           </Tooltip>
         )}
         <Tooltip title={viewMode === 'overview' ? '切换为单题模式' : '切换为全览模式'}>
-          <button 
-            className={`toolbar-btn view-mode-btn ${viewMode === 'overview' ? 'active' : ''}`}
-            onClick={onToggleViewMode}
-          >
+          <Button className={`toolbar-btn view-mode-btn ${viewMode === 'overview' ? 'active' : ''}`} onClick={onToggleViewMode}>
             <OrderedListOutlined />
-          </button>
+          </Button>
         </Tooltip>
         <Tooltip title={sidebarHidden ? '显示侧边栏' : '隐藏侧边栏'}>
-          <button 
-            className={`toolbar-btn sidebar-toggle-btn ${sidebarHidden ? 'active' : ''}`}
-            onClick={onToggleSidebar}
-          >
+          <Button className={`toolbar-btn sidebar-toggle-btn ${sidebarHidden ? 'active' : ''}`} onClick={onToggleSidebar}>
             {sidebarHidden ? <VerticalRightOutlined /> : <VerticalLeftOutlined />}
-          </button>
+          </Button>
         </Tooltip>
       </div>
       <div className="card-content">
         <div className="exam-header">
-          <span className="q-index">第 {currentIndex + 1} / {total} 题</span>
+          <span className="q-index">
+            {isWrongOnlyMode 
+              ? `第 ${wrongIdx + 1} / ${wrongQuestionIndices.length} 题`
+              : `第 ${currentIndex + 1} / ${total} 题`
+            }
+          </span>
           <span className={`q-type-badge type-${question.type}`}>{typeMap[question.type]}</span>
-          {isReviewMode && question.status && (
-            <span className={`overview-status ${question.status}`}>
-              {question.status === 'correct' ? <CheckOutlined /> : question.status === 'wrong' ? <CloseOutlined /> : null}
-            </span>
-          )}
         </div>
 
         <div className="question-content">
@@ -124,9 +177,9 @@ export default function QuestionCard({
           <div className="options-list">
             {question.options.map(renderOption)}
           </div>
-          {isReviewMode && question.parse && (
+          {isReviewMode && showParse && question.parse && (
             <div className="parse-box show">
-              <div className="parse-title">📖 解析</div>
+              <div className="parse-title"><QuestionCircleOutlined /> 解析</div>
               <div className="parse-text">{question.parse}</div>
               <div className="parse-answer">
                 正确答案：{question.answer.join(', ')} · 你的答案：{question.userAns?.length ? question.userAns.join(', ') : '未选'}
@@ -138,17 +191,16 @@ export default function QuestionCard({
 
       {showNav && (
         <div className="exam-nav">
-          <button disabled={currentIndex === 0} onClick={onPrev}><LeftOutlined /></button>
-          <button disabled={isLast} onClick={onNext}><RightOutlined /></button>
+          <Button disabled={isPrevDisabled} onClick={onPrev} icon={<LeftOutlined />} />
+          <Button disabled={isNextDisabled} onClick={onNext} icon={<RightOutlined />} />
           {!isReviewMode && showSubmit && (
             <Popconfirm
               title="确定交卷？"
               okText="确定"
               cancelText="取消"
               onConfirm={onSubmit}
-              overlayStyle={{ width: 280, padding: '16px 20px' }}
             >
-              <button className="btn-primary">交卷</button>
+              <Button className="btn-primary">交卷</Button>
             </Popconfirm>
           )}
         </div>
@@ -157,7 +209,7 @@ export default function QuestionCard({
       {/* 自动切题模式下多选题的确认按钮 */}
       {showConfirmNext && (
         <div className="exam-nav">
-          <button className="btn-primary confirm-next-btn" onClick={onNext}>确认并下一题</button>
+          <Button className="btn-primary confirm-next-btn" onClick={onNext}>确认并下一题</Button>
         </div>
       )}
     </div>

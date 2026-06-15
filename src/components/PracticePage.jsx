@@ -13,6 +13,8 @@
  * - setPage: function - 页面切换函数
  */
 import { useState } from 'react'
+import { Button } from 'antd'
+import { QuestionCircleOutlined } from '@ant-design/icons'
 
 export default function PracticePage({ state, setPage }) {
   const [s, setS] = useState(state)
@@ -60,7 +62,7 @@ export default function PracticePage({ state, setPage }) {
     <div className="practice-page">
       <div className="practice-header">
         <span>专项练习 · {typeMap[q.type]} · 第 {s.current + 1} / {total} 题</span>
-        <button className="btn-text" onClick={() => { if (confirm('确定退出练习？')) setPage('home') }}>退出</button>
+        <Button type="link" onClick={() => { if (confirm('确定退出练习？')) setPage('home') }}>退出</Button>
       </div>
 
       <div className="practice-card">
@@ -87,13 +89,13 @@ export default function PracticePage({ state, setPage }) {
 
         {!hasParse && (
           <div className="practice-actions">
-            <button className="btn-secondary" onClick={showParse}>查看解析</button>
+            <Button className="btn-secondary" onClick={showParse}>查看解析</Button>
           </div>
         )}
 
         {hasParse && (
           <div className="parse-box show">
-            <div className="parse-title">📖 解析</div>
+            <div className="parse-title"><QuestionCircleOutlined /> 解析</div>
             <div className="parse-text">{q.parse || '暂无解析'}</div>
             <div className="parse-answer">
               正确答案：{q.answer.join(', ')} · 你的答案：{currentAns.length ? currentAns.join(', ') : '未选'}
@@ -102,8 +104,8 @@ export default function PracticePage({ state, setPage }) {
         )}
 
         <div className="exam-nav">
-          <button disabled={s.current === 0} onClick={prev}>上一题</button>
-          <button onClick={next}>{isLast ? '结束练习' : '下一题'}</button>
+          <Button disabled={s.current === 0} onClick={prev}>上一题</Button>
+          <Button onClick={next}>{isLast ? '结束练习' : '下一题'}</Button>
         </div>
       </div>
     </div>

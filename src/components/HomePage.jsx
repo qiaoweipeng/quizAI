@@ -13,7 +13,7 @@
  * - setPracticeState: function - 设置练习状态函数
  */
 import { useState } from 'react'
-import { Modal, Select, InputNumber, Table, Button } from 'antd'
+import { Modal, Select, InputNumber, Table, Button, Radio } from 'antd'
 import { EXAM_TIME, shuffleArray } from '../utils/examUtils'
 
 export default function HomePage({ data, setPage, setExamState, setPracticeState }) {
@@ -22,7 +22,8 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
   const [fixedModalOpen, setFixedModalOpen] = useState(false)
   const [selectedPaper, setSelectedPaper] = useState(null)
   const [practiceType, setPracticeType] = useState('single')
-  const [practiceCount, setPracticeCount] = useState(50)
+  const [practiceCount, setPracticeCount] = useState(10)
+  const [practiceMode, setPracticeMode] = useState('free')
 
   const handleRandomExam = () => {
     if (data.questions.length < 200) {
@@ -60,19 +61,33 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
   }
 
   const handleStartPractice = () => {
-    const pool = data.questions.filter(q => q.type === practiceType)
-    if (pool.length === 0) {
-      Modal.warning({
-        title: '暂无题目',
-        content: '该题型暂无题目',
-      })
-      return
+    if (practiceMode === 'free') {
+      const pool = data.questions.filter(q => q.type === practiceType)
+      if (pool.length === 0) {
+        Modal.warning({
+          title: '暂无题目',
+          content: '该题型暂无题目',
+        })
+        return
+      }
+      const n = Math.min(practiceCount, pool.length)
+      const questions = shuffleArray(pool).slice(0, n)
+      setPracticeState({ questions, current: 0, answers: {}, showParse: {} })
+      setPage('practice-exam')
+      setPracticeModalOpen(false)
+    } else if (practiceMode === 'all') {
+      const questions = data.questions
+      if (questions.length === 0) {
+        Modal.warning({
+          title: '暂无题目',
+          content: '题库暂无题目',
+        })
+        return
+      }
+      setPracticeState({ questions, current: 0, answers: {}, showParse: {} })
+      setPage('practice-exam')
+      setPracticeModalOpen(false)
     }
-    const n = Math.min(practiceCount, pool.length)
-    const questions = shuffleArray(pool).slice(0, n)
-    setPracticeState({ questions, current: 0, answers: {}, showParse: {} })
-    setPage('practice-exam')
-    setPracticeModalOpen(false)
   }
 
   const handleStartFixed = (paper) => {
@@ -148,7 +163,7 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
             <p style={{ textAlign: 'left' }}>不计时</p>
             <p style={{ textAlign: 'left' }}>即时查看解析</p>
 
-            <button className="btn-primary" style={{ width: '100%', fontSize: '1em' }}>进入练习</button>
+            <Button className="btn-primary" style={{ width: '100%', fontSize: '1em' }}>进入练习</Button>
           </div>
         </div>
       </div>
@@ -240,29 +255,51 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
       >
         <div style={{ padding: '16px 0' }}>
           <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>选择题型</label>
-            <Select
-              value={practiceType}
-              onChange={setPracticeType}
-              style={{ width: '100%' }}
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
+              <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
+              练习模式
+            </label>
+            <Radio.Group
+              block
+              value={practiceMode}
+              onChange={(e) => setPracticeMode(e.target.value)}
+              optionType="button"
+              buttonStyle="solid"
               options={[
-                { value: 'single', label: '单选题' },
-                { value: 'multiple', label: '多选题' },
-                { value: 'judge', label: '判断题' },
+                { label: '自由选题', value: 'free' },
+                { label: '全部题目', value: 'all' },
+                { label: '全部错题', value: 'wrong', disabled: true },
               ]}
             />
           </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>题目数量</label>
-            <InputNumber
-              min={1}
-              max={availableCount}
-              value={practiceCount}
-              onChange={(val) => setPracticeCount(Math.max(1, Math.min(availableCount, val || 1)))}
-              style={{ width: '100%' }}
-            />
-            <div style={{ marginTop: 8, color: '#999' }}>该题型共 {availableCount} 道可用</div>
-          </div>
+          {practiceMode === 'free' && (
+            <>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>选择题型</label>
+                <Select
+                  value={practiceType}
+                  onChange={setPracticeType}
+                  style={{ width: '100%' }}
+                  options={[
+                    { value: 'single', label: '单选题' },
+                    { value: 'multiple', label: '多选题' },
+                    { value: 'judge', label: '判断题' },
+                  ]}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>题目数量</label>
+                <InputNumber
+                  min={1}
+                  max={availableCount}
+                  value={practiceCount}
+                  onChange={(val) => setPracticeCount(Math.max(1, Math.min(availableCount, val || 1)))}
+                  style={{ width: '100%' }}
+                />
+                <div style={{ marginTop: 8, color: '#999' }}>该题型共 {availableCount} 道可用</div>
+              </div>
+            </>
+          )}
         </div>
       </Modal>
     </div>

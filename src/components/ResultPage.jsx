@@ -12,6 +12,7 @@
  * - setPage: function - 页面切换函数
  */
 import { useState } from 'react'
+import { Button } from 'antd'
 import { formatTime, calcScore } from '../utils/examUtils'
 
 export default function ResultPage({ examState, setPage }) {
@@ -90,9 +91,9 @@ export default function ResultPage({ examState, setPage }) {
         </div>
 
         <div className="result-actions">
-          <button className="btn-secondary" onClick={() => setPage('home')}>返回首页</button>
+          <Button className="btn-secondary" onClick={() => setPage('home')}>返回首页</Button>
           {wrongList.length > 0 && (
-            <button className="btn-primary" onClick={() => setShowReviewModal(true)}>错题预览 ({wrongList.length})</button>
+            <Button className="btn-primary" onClick={() => setShowReviewModal(true)}>错题预览 ({wrongList.length})</Button>
           )}
         </div>
       </div>
@@ -103,7 +104,7 @@ export default function ResultPage({ examState, setPage }) {
           <div className="review-modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3>📝 错题预览（共 {wrongList.length} 道）</h3>
-              <button className="modal-close" onClick={() => setShowReviewModal(false)}>×</button>
+              <Button className="modal-close" onClick={() => setShowReviewModal(false)}>×</Button>
             </div>
             <div className="modal-body">
               {wrongList.map(({ idx, q, ans, status }) => (
@@ -144,7 +145,7 @@ export default function ResultPage({ examState, setPage }) {
               ))}
             </div>
             <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowReviewModal(false)}>关闭</button>
+              <Button className="btn-secondary" onClick={() => setShowReviewModal(false)}>关闭</Button>
             </div>
           </div>
         </div>
