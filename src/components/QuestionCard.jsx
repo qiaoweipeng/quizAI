@@ -37,6 +37,7 @@
  * @param {function} onToggleShowWrongOnly - 切换只看错题回调
  * @param {boolean} isWrongOnlyMode - 是否处于只看错题模式
  * @param {array} wrongQuestionIndices - 错题索引列表
+ * @param {function} onReExamWrong - 重考错题回调
  */
 import { LeftOutlined, RightOutlined, RetweetOutlined, OrderedListOutlined, VerticalLeftOutlined, VerticalRightOutlined, CheckOutlined, CloseOutlined, BarChartOutlined, DownOutlined, QuestionCircleOutlined, EllipsisOutlined } from '@ant-design/icons'
 import { Button, Space, Dropdown, Tooltip, Popconfirm } from 'antd'
@@ -67,7 +68,8 @@ export default function QuestionCard({
   showWrongOnly,
   onToggleShowWrongOnly,
   isWrongOnlyMode = false,
-  wrongQuestionIndices = []
+  wrongQuestionIndices = [],
+  onReExamWrong
 }) {
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
   
@@ -153,6 +155,20 @@ export default function QuestionCard({
                     key: 'showWrongOnly',
                     label: showWrongOnly ? '全部题目' : '只看错题',
                     onClick: onToggleShowWrongOnly
+                  },
+                  {
+                    key: 'reExamWrong',
+                    label: (
+                      <Popconfirm
+                        title="确认重考错题？"
+                        description="将重新开始答题，当前答案将被清空。"
+                        onConfirm={onReExamWrong}
+                        okText="确认"
+                        cancelText="取消"
+                      >
+                        <span>重考错题</span>
+                      </Popconfirm>
+                    )
                   }
                 ]
               }}

@@ -24,7 +24,7 @@
  */
 import { useState, useEffect, useRef } from 'react'
 import { calcScore, clearExamState, STORAGE_KEY } from '../utils/examUtils'
-import { Modal, Tooltip, FloatButton, Button, notification, Dropdown, Space } from 'antd'
+import { Modal, Tooltip, FloatButton, Button, notification, Dropdown, Space, Popconfirm, message } from 'antd'
 import { LeftOutlined, RightOutlined, RollbackOutlined, VerticalLeftOutlined, VerticalRightOutlined, CheckOutlined, CloseOutlined, VerticalAlignTopOutlined, QuestionCircleOutlined, BarChartOutlined, DownOutlined, EllipsisOutlined } from '@ant-design/icons'
 import ExamTimer from './ExamTimer'
 import QuestionSidebar from './QuestionSidebar'
@@ -211,6 +211,40 @@ export default function ExamPage({ examState, setPage }) {
     setState(prev => ({ ...prev, finished: true }))
   }
 
+  const reExamWrong = () => {
+    const wrongQuestions = state.questions.filter(qq => qq.status === 'wrong')
+    
+    if (wrongQuestions.length === 0) {
+      message.info('没有错题需要重考')
+      return
+    }
+    
+    const resetQuestions = wrongQuestions.map(qq => ({
+      ...qq,
+      status: null,
+      userAns: null
+    }))
+    
+    setState({
+      questions: resetQuestions,
+      answers: {},
+      current: 0,
+      mode: 'exam',
+      finished: false,
+      startTime: Date.now(),
+      timeLeft: 90 * 60,
+      paperName: `${state.paperName} - 错题重考`,
+      autoNext: state.autoNext,
+      showPreselectNotification: false
+    })
+    
+    setShowParse(false)
+    setShowWrongOnly(false)
+    setShowResultModal(false)
+    
+    message.success(`错题重考已开始，共 ${wrongQuestions.length} 道错题需要重考`)
+  }
+
   const q = state.questions[state.current]
   const total = state.questions.length
   const answered = Object.keys(state.answers).length
@@ -308,6 +342,20 @@ export default function ExamPage({ examState, setPage }) {
                       key: 'showWrongOnly',
                       label: showWrongOnly ? '全部题目' : '只看错题',
                       onClick: () => setShowWrongOnly(!showWrongOnly)
+                    },
+                    {
+                      key: 'reExamWrong',
+                      label: (
+                        <Popconfirm
+                          title="确认重考错题？"
+                          description="将重新开始答题，当前答案将被清空。"
+                          onConfirm={reExamWrong}
+                          okText="确认"
+                          cancelText="取消"
+                        >
+                          <span>重考错题</span>
+                        </Popconfirm>
+                      )
                     }
                   ]
                 }}
@@ -496,6 +544,7 @@ export default function ExamPage({ examState, setPage }) {
               onToggleShowWrongOnly={() => setShowWrongOnly(!showWrongOnly)}
               isWrongOnlyMode={isReviewMode && showWrongOnly}
               wrongQuestionIndices={wrongQuestionIndices}
+              onReExamWrong={reExamWrong}
             />
           </>
         ) : (
