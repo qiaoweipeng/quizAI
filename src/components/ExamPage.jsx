@@ -83,6 +83,13 @@ export default function ExamPage({ examState, setPage }) {
   const sidebarRef = useRef(null)
   const [showParse, setShowParse] = useState(true)
   const [showWrongOnly, setShowWrongOnly] = useState(false)
+  const [examHistory, setExamHistory] = useState([])
+
+  useEffect(() => {
+    if (examResult?.history) {
+      setExamHistory(examResult.history)
+    }
+  }, [examResult])
 
   /**
    * 一键预答所有题目
@@ -178,12 +185,11 @@ export default function ExamPage({ examState, setPage }) {
    * 使用 examResult 状态防止重复计算。
    */
   useEffect(() => {
-    if (state.finished && !examResult) {
+    if (state.finished) {
       clearInterval(timerRef.current)
-      clearExamState() // 考试结束后清除存储
-      calculateResult()
+      clearExamState()
     }
-  }, [state.finished])
+  }, [state.finished, clearExamState])
 
   /**
    * 计算考试结果
@@ -232,7 +238,18 @@ export default function ExamPage({ examState, setPage }) {
       questionsWithStatus
     }
 
-    setExamResult(result)
+    const newHistory = [
+      ...examHistory,
+      {
+        round: examHistory.length + 1,
+        total: questions.length,
+        correct,
+        wrong
+      }
+    ]
+
+    setExamHistory(newHistory)
+    setExamResult({ ...result, history: newHistory })
     setState(prev => ({ 
       ...prev, 
       mode: 'review',
@@ -248,6 +265,9 @@ export default function ExamPage({ examState, setPage }) {
    */
   const submitExam = () => {
     setState(prev => ({ ...prev, finished: true }))
+    setTimeout(() => {
+      calculateResult()
+    }, 0)
   }
 
   /**
@@ -283,6 +303,7 @@ export default function ExamPage({ examState, setPage }) {
       showPreselectNotification: false
     })
     
+    setExamResult(null)
     setShowParse(false)
     setShowWrongOnly(false)
     setShowResultModal(false)
@@ -458,8 +479,9 @@ export default function ExamPage({ examState, setPage }) {
                           onConfirm={reExamWrong}
                           okText="确认"
                           cancelText="取消"
+                          disabled={wrongQuestionIndices.length === 0}
                         >
-                          <span>重考错题</span>
+                          <span>{wrongQuestionIndices.length === 0 ? '无错题可重考' : '重考错题'}</span>
                         </Popconfirm>
                       )
                     }
@@ -631,11 +653,11 @@ export default function ExamPage({ examState, setPage }) {
               total={total}
               isReviewMode={isReviewMode}
               onSelectOption={selectOption}
-              showNav={!state.autoNext || (isLast && total - answered === 0)}
+              showNav={!state.autoNext}
               onPrev={isReviewMode && showWrongOnly ? goPrevWrong : () => goQuestion(state.current - 1)}
               onNext={isReviewMode && showWrongOnly ? goNextWrong : () => goQuestion(state.current + 1)}
               onSubmit={submitExam}
-              showSubmit={!isReviewMode && isLast && total - answered === 0}
+              showSubmit={false}
               autoNext={state.autoNext}
               onToggleAutoNext={() => setState(prev => ({ ...prev, autoNext: !prev.autoNext }))}
               viewMode={viewMode}

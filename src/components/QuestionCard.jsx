@@ -165,8 +165,9 @@ export default function QuestionCard({
                         onConfirm={onReExamWrong}
                         okText="确认"
                         cancelText="取消"
+                        disabled={wrongQuestionIndices.length === 0}
                       >
-                        <span>重考错题</span>
+                        <span>{wrongQuestionIndices.length === 0 ? '无错题可重考' : '重考错题'}</span>
                       </Popconfirm>
                     )
                   }
@@ -227,7 +228,9 @@ export default function QuestionCard({
       {showNav && (
         <div className="exam-nav">
           <Button disabled={isPrevDisabled} onClick={onPrev} icon={<LeftOutlined />} />
-          <Button disabled={isNextDisabled} onClick={onNext} icon={<RightOutlined />} />
+          <Tooltip title={isNextDisabled ? (sidebarHidden ? '没有下一道题了！请打开侧边栏，查看答题情况。' : '没有下一道题了') : ''}>
+            <Button disabled={isNextDisabled} onClick={onNext} icon={<RightOutlined />} />
+          </Tooltip>
           {!isReviewMode && showSubmit && (
             <Popconfirm
               title="确定交卷？"
