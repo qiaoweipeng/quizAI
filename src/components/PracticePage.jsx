@@ -19,7 +19,7 @@
  * @param {function} setPage - 页面切换函数
  */
 import { useState } from 'react'
-import { Button } from 'antd'
+import { Button, Modal } from 'antd'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 
 export default function PracticePage({ state, setPage }) {
@@ -50,7 +50,13 @@ export default function PracticePage({ state, setPage }) {
 
   const next = () => {
     if (isLast) {
-      if (confirm('已经是最后一题，是否结束练习？')) setPage('home')
+      Modal.confirm({
+        title: '结束练习',
+        content: '已经是最后一题，是否结束练习？',
+        okText: '确定',
+        cancelText: '取消',
+        onOk: () => setPage('home')
+      })
     } else {
       setS(prev => ({ ...prev, current: prev.current + 1 }))
     }
@@ -58,6 +64,18 @@ export default function PracticePage({ state, setPage }) {
 
   const prev = () => {
     if (s.current > 0) setS(prev => ({ ...prev, current: prev.current - 1 }))
+  }
+
+  const handleExit = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    Modal.confirm({
+      title: '确认退出',
+      content: '确定退出练习？',
+      okText: '确定',
+      cancelText: '取消',
+      onOk: () => setPage('home')
+    })
   }
 
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
@@ -68,7 +86,7 @@ export default function PracticePage({ state, setPage }) {
     <div className="practice-page">
       <div className="practice-header">
         <span>专项练习 · {typeMap[q.type]} · 第 {s.current + 1} / {total} 题</span>
-        <Button type="link" onClick={() => { if (confirm('确定退出练习？')) setPage('home') }}>退出</Button>
+        <Button className="btn-link" onClick={handleExit}>退出</Button>
       </div>
 
       <div className="practice-card">
@@ -86,7 +104,6 @@ export default function PracticePage({ state, setPage }) {
             }
             return (
               <div key={idx} className={cls} onClick={() => !hasParse && selectOption(key)}>
-                <span className="option-key">{key}</span>
                 <span className="option-text">{opt}</span>
               </div>
             )

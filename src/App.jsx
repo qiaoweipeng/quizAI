@@ -116,10 +116,10 @@ export default function App() {
             </div>
             <div className="header-actions">
               {page !== 'home' && (
-                <Button type="link" onClick={() => setPage('home')}>返回首页</Button>
+                <Button className="btn-link" onClick={() => setPage('home')}>返回首页</Button>
               )}
               <Button 
-                type="link" 
+                className="btn-link"
                 icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
                 onClick={toggleFullscreen}
               />

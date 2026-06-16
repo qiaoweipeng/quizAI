@@ -70,6 +70,21 @@
   text-decoration: underline;
 }
 
+.btn-link {
+  background: transparent !important;
+  border: none !important;
+  color: #1890ff !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  height: auto !important;
+}
+
+.btn-link:hover {
+  background: transparent !important;
+  color: #40a9ff !important;
+  text-decoration: underline !important;
+}
+
 .app-main {
   flex: 1;
   max-width: 1200px;
