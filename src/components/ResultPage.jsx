@@ -13,7 +13,8 @@
  */
 import { useState } from 'react'
 import { Button } from 'antd'
-import { formatTime, calcScore } from '../utils/examUtils'
+import { calcScore } from '../utils/examUtils'
+import ResultDisplay from './ResultDisplay'
 
 export default function ResultPage({ examState, setPage }) {
   if (!examState) return null
@@ -42,53 +43,31 @@ export default function ResultPage({ examState, setPage }) {
     }
   })
 
-  // 转换为百分制：每道题 0.5 分，满分 = 题目数 × 0.5
   const maxScore = questions.length * 0.5
   const rawPercent = maxScore > 0 ? (rawScore / maxScore) * 100 : 0
-  // 最低分不低于0分
   const clampedPercent = Math.max(0, rawPercent)
-  // 分数显示：整数显示整数，小数显示小数
   const score = clampedPercent % 1 === 0 ? Math.round(clampedPercent) : clampedPercent
   const passed = score >= 60
   const wrongList = details.filter(d => d.status === 'wrong' || d.status === 'unanswered')
 
-  // 错题预览模态框状态
+  const result = {
+    score,
+    passed,
+    paperName,
+    total,
+    correct,
+    wrong,
+    unanswered,
+    usedTime
+  }
+
   const [showReviewModal, setShowReviewModal] = useState(false)
 
   return (
     <div className="result-page">
       <div className="result-card">
         <h2>📊 考试结果</h2>
-        <div className="paper-name">{paperName}</div>
-        <div className={`score-circle ${passed ? 'pass' : 'fail'}`}>
-          <div className="score-num">{Number.isInteger(score) ? score : score.toFixed(1)}</div>
-        </div>
-        <div className={`pass-badge ${passed ? 'pass' : 'fail'}`}>
-          {passed ? '✅ 合格' : '❌ 不合格'}
-        </div>
-
-        <div className="result-stats">
-          <div className="stat-item">
-            <div className="stat-num">{total}</div>
-            <div className="stat-label">总题数</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-num" style={{color:'#00b894'}}>{correct}</div>
-            <div className="stat-label">正确</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-num" style={{color:'#d63031'}}>{wrong}</div>
-            <div className="stat-label">错误</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-num">{unanswered}</div>
-            <div className="stat-label">未答</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-num">{formatTime(usedTime)}</div>
-            <div className="stat-label">用时</div>
-          </div>
-        </div>
+        <ResultDisplay result={result} showTotal={true} />
 
         <div className="result-actions">
           <Button className="btn-secondary" onClick={() => setPage('home')}>返回首页</Button>
@@ -98,7 +77,6 @@ export default function ResultPage({ examState, setPage }) {
         </div>
       </div>
 
-      {/* 错题预览模态框 */}
       {showReviewModal && (
         <div className="modal-overlay" onClick={() => setShowReviewModal(false)}>
           <div className="review-modal" onClick={e => e.stopPropagation()}>

@@ -5,18 +5,18 @@
  * - ExamTimer: 倒计时显示
  * - QuestionSidebar: 题目导航侧边栏
  * - QuestionCard: 题目卡片
- * - PreselectModal: 一键预答弹窗
  * - ExamResultModal: 考试结果弹窗
  * 
  * 主要功能：
- * - 90分钟倒计时
- * - 题目导航侧边栏（按题型分组）
+ * - 90分钟倒计时（剩余10分钟变红警示）
+ * - 题目导航侧边栏（按题型分组，显示答题状态）
  * - 单题模式和全览模式切换
- * - 自动切题功能
- * - 一键预答功能
- * - 考试结果计算与展示
- * - 错题回顾模式
- * - 考试状态持久化（刷新页面不丢失）
+ * - 自动切题功能（单选/判断题答对后自动跳转）
+ * - 一键预答功能（单选选A、多选全选、判断选对）
+ * - 考试结果计算与展示（弹窗形式）
+ * - 错题回顾模式（查看错题和解析）
+ * - 考试状态持久化（刷新页面不丢失，localStorage存储）
+ * - 全览模式滚动定位（点击侧边栏题目自动滚动居中）
  * 
  * Props:
  * - examState: object - 考试状态（题目、答案、时间等）
@@ -84,7 +84,14 @@ export default function ExamPage({ examState, setPage }) {
   const [showParse, setShowParse] = useState(true)
   const [showWrongOnly, setShowWrongOnly] = useState(false)
 
-  // 一键预选题
+  /**
+   * 一键预答所有题目
+   * 
+   * 自动填充所有题目的默认答案：
+   * - 单选题：选A
+   * - 判断题：选第一个选项（通常是"对"）
+   * - 多选题：全选所有选项
+   */
   const preselectAll = () => {
     const newAnswers = {}
     state.questions.forEach((qq, idx) => {
@@ -100,7 +107,12 @@ export default function ExamPage({ examState, setPage }) {
     setState(prev => ({ ...prev, answers: newAnswers }))
   }
 
-  // 一键预选通知 - 只有首次开始考试时显示（刷新页面不显示）
+  /**
+   * 一键预选通知
+   * 
+   * 考试开始1秒后显示通知，提示用户可以一键预答所有题目。
+   * 使用 preselectModalShown 状态标记，确保刷新页面后不再显示。
+   */
   useEffect(() => {
     if (state.preselectModalShown) return
 
@@ -127,7 +139,12 @@ export default function ExamPage({ examState, setPage }) {
     return () => clearTimeout(timer)
   }, [])
 
-  // 计时器
+  /**
+   * 考试计时器
+   * 
+   * 每秒减少1秒时间，当时间耗尽时自动结束考试。
+   * 使用 timerRef 保存定时器引用，确保组件卸载时能正确清除。
+   */
   useEffect(() => {
     if (state.finished) return
     timerRef.current = setInterval(() => {
@@ -142,14 +159,24 @@ export default function ExamPage({ examState, setPage }) {
     return () => clearInterval(timerRef.current)
   }, [state.finished])
 
-  // 保存考试状态到 localStorage
+  /**
+   * 考试状态持久化
+   * 
+   * 将考试状态保存到 localStorage，支持刷新页面后恢复考试进度。
+   * 考试结束后不再保存（避免重复提交）。
+   */
   useEffect(() => {
     if (state && !state.finished) {
       saveExamState(state)
     }
   }, [state])
 
-  // 考试结束时计算结果并清除存储
+  /**
+   * 考试结束处理
+   * 
+   * 当考试结束时（finished=true），计算考试结果并清除 localStorage 中的状态。
+   * 使用 examResult 状态防止重复计算。
+   */
   useEffect(() => {
     if (state.finished && !examResult) {
       clearInterval(timerRef.current)
@@ -158,6 +185,13 @@ export default function ExamPage({ examState, setPage }) {
     }
   }, [state.finished])
 
+  /**
+   * 计算考试结果
+   * 
+   * 遍历所有题目，统计正确、错误、未答数量，计算百分制分数。
+   * 每题0.5分，满分=题目数×0.5。
+   * 计算完成后更新状态为回顾模式，并显示结果弹窗。
+   */
   const calculateResult = () => {
     const { questions, answers } = state
     let rawScore = 0
@@ -207,10 +241,21 @@ export default function ExamPage({ examState, setPage }) {
     setShowResultModal(true)
   }
 
+  /**
+   * 交卷
+   * 
+   * 将考试状态标记为已完成，触发结果计算。
+   */
   const submitExam = () => {
     setState(prev => ({ ...prev, finished: true }))
   }
 
+  /**
+   * 错题重考
+   * 
+   * 收集所有答错的题目，重置为新的考试状态，重新开始答题。
+   * 保留原有的自动切题设置，但不显示一键预选通知。
+   */
   const reExamWrong = () => {
     const wrongQuestions = state.questions.filter(qq => qq.status === 'wrong')
     
@@ -251,19 +296,29 @@ export default function ExamPage({ examState, setPage }) {
   const isLast = state.current === total - 1
   const isReviewMode = state.mode === 'review'
 
-  // 只看错题模式下的题目索引列表
+  /**
+   * 错题索引列表
+   * 
+   * 收集所有状态为 wrong 的题目索引，用于只看错题模式的导航。
+   */
   const wrongQuestionIndices = state.questions
     .map((qq, idx) => ({ qq, idx }))
     .filter(({ qq }) => qq.status === 'wrong')
     .map(({ idx }) => idx)
 
-  // 当前在错题列表中的位置
+  /**
+   * 当前在错题列表中的位置
+   */
   const currentWrongIndex = wrongQuestionIndices.indexOf(state.current)
 
-  // 获取当前题目（考虑只看错题模式）
+  /**
+   * 获取当前题目
+   * 
+   * 在只看错题模式下，从错题列表中获取当前题目；
+   * 如果当前题目不在错题列表中，则返回第一个错题。
+   */
   const getCurrentQuestion = () => {
     if (isReviewMode && showWrongOnly && wrongQuestionIndices.length > 0) {
-      // 如果当前题目不在错题列表中，取第一个错题
       if (currentWrongIndex === -1) {
         return state.questions[wrongQuestionIndices[0]]
       }
@@ -274,6 +329,16 @@ export default function ExamPage({ examState, setPage }) {
 
   const currentQ = getCurrentQuestion() || state.questions[state.current] || state.questions[0]
 
+  /**
+   * 选择选项
+   * 
+   * 处理用户点击选项的逻辑：
+   * - 单选题/判断题：替换当前答案
+   * - 多选题：切换选中状态（选中的取消，未选中的添加）
+   * - 支持自动切题功能（单选/判断题答对后自动跳转到下一题）
+   * 
+   * @param {string} key - 选项键（A、B、C、D等）
+   */
   const selectOption = (key) => {
     if (state.finished || isReviewMode) return
     const currentAns = state.answers[state.current] || []
@@ -289,23 +354,48 @@ export default function ExamPage({ examState, setPage }) {
       ...prev,
       answers: { ...prev.answers, [prev.current]: nextAns }
     }))
-    // 自动切题
+    // 自动切题（单选/判断题）
     if (state.autoNext && !isLast && currentQ.type !== 'multiple') {
       setTimeout(() => goQuestion(state.current + 1), 200)
     }
   }
 
+  /**
+   * 跳转题目
+   * 
+   * 切换到指定索引的题目，并在全览模式下自动滚动到该题目位置。
+   * 使用 setTimeout 确保 DOM 更新后再执行滚动。
+   * 
+   * @param {number} idx - 目标题目索引
+   */
   const goQuestion = (idx) => {
     setState(prev => ({ ...prev, current: idx }))
+    if (viewMode === 'overview') {
+      setTimeout(() => {
+        const overviewItem = document.querySelector(`.overview-item[data-original-index="${idx}"]`)
+        if (overviewItem) {
+          overviewItem.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 50)
+    }
   }
 
-  // 只看错题模式下的导航
+  /**
+   * 跳转到下一道错题
+   * 
+   * 在只看错题模式下，跳转到当前错题的下一道错题。
+   */
   const goNextWrong = () => {
     if (currentWrongIndex < wrongQuestionIndices.length - 1) {
       setState(prev => ({ ...prev, current: wrongQuestionIndices[currentWrongIndex + 1] }))
     }
   }
 
+  /**
+   * 跳转到上一道错题
+   * 
+   * 在只看错题模式下，跳转到当前错题的上一道错题。
+   */
   const goPrevWrong = () => {
     if (currentWrongIndex > 0) {
       setState(prev => ({ ...prev, current: wrongQuestionIndices[currentWrongIndex - 1] }))
@@ -386,6 +476,7 @@ export default function ExamPage({ examState, setPage }) {
             <div 
               key={originalIdx} 
               className={`overview-item ${originalIdx === state.current ? 'current' : ''} ${statusClass}`}
+              data-original-index={originalIdx}
               onClick={() => goQuestion(originalIdx)}
             >
               <div className="overview-header">

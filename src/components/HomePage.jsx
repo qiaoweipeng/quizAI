@@ -57,6 +57,17 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
   const [practiceCount, setPracticeCount] = useState(10)
   const [practiceMode, setPracticeMode] = useState('free')
 
+  /**
+   * 开始随机卷考试
+   * 
+   * 从题库中随机抽取200道题生成试卷：
+   * - 单选题：100道
+   * - 多选题：40道
+   * - 判断题：60道
+   * 
+   * 题目顺序固定：前100道单选，101-140道多选，141-200道判断。
+   * 使用时间戳生成唯一试卷名称，确保刷新页面后不会加载上一次的考试状态。
+   */
   const handleRandomExam = () => {
     if (data.questions.length < 200) {
       Modal.warning({
@@ -70,10 +81,8 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
     const single = shuffleArray(all.filter(q => q.type === 'single')).slice(0, 100)
     const multiple = shuffleArray(all.filter(q => q.type === 'multiple')).slice(0, 40)
     const judge = shuffleArray(all.filter(q => q.type === 'judge')).slice(0, 60)
-    // 顺序固定：前100道单选，101-140道多选，141-200道判断（不再打乱整个数组）
     const questions = [...single, ...multiple, ...judge]
 
-    // 生成唯一的试卷名称，确保每次生成的试卷都不同，用于区分刷新恢复
     const timestamp = Date.now().toString(36)
 
     setExamState({
@@ -93,6 +102,13 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
     setRandomModalOpen(false)
   }
 
+  /**
+   * 开始练习模式
+   * 
+   * 根据选择的练习模式准备题目：
+   * - free模式：从指定题型中随机抽取指定数量的题目
+   * - all模式：使用全部题目
+   */
   const handleStartPractice = () => {
     if (practiceMode === 'free') {
       const pool = data.questions.filter(q => q.type === practiceType)
@@ -123,6 +139,14 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
     }
   }
 
+  /**
+   * 开始固定卷考试
+   * 
+   * 使用预设的试卷数据开始考试。
+   * 考试前清除 localStorage 中的旧考试状态，确保新考试不会加载上一次的结果。
+   * 
+   * @param {object} paper - 试卷对象
+   */
   const handleStartFixed = (paper) => {
     const questions = paper.questions || []
     if (questions.length === 0) {
@@ -132,7 +156,6 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
       })
       return
     }
-    // 清除 localStorage 中的旧考试状态，确保新考试不会加载上一次的结果
     localStorage.removeItem('exam_state')
     setExamState({
       mode: 'fixed',
