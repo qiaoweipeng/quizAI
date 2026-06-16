@@ -1,86 +1,79 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { ConfigProvider, Button } from 'antd'
 import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
 import './App.css'
-import ExamPage from './components/ExamPage'
-import HomePage from './components/HomePage'
-import ResultPage from './components/ResultPage'
-import PracticePage from './components/PracticePage'
-import { loadJsonFiles } from './utils/examUtils'
-
-// 从 localStorage 恢复考试状态
-function loadExamState() {
-  try {
-    const saved = localStorage.getItem('exam_state')
-    if (saved) {
-      return JSON.parse(saved)
-    }
-  } catch (e) {
-    console.error('Failed to load exam state:', e)
-  }
-  return null
-}
+import ExamPage from './components/exam/ExamPage'
+import HomePage from './components/home/HomePage'
+import ResultPage from './components/result/ResultPage'
+import PracticePage from './components/practice/PracticePage'
+import { loadJsonFiles, loadExamState } from './utils/examUtils'
+import useExamStore from './store/examStore'
 
 export default function App() {
-  // 尝试从 localStorage 恢复考试状态
-  const savedExamState = loadExamState()
-  const [page, setPageState] = useState(savedExamState ? 'exam' : 'home') // home | exam | result | practice-exam
-  const [data, setData] = useState({ papers: [], questions: [] })
-  const [examState, setExamState] = useState(savedExamState || null)
-  const [practiceState, setPracticeState] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  const {
+    currentPage,
+    setCurrentPage,
+    examData,
+    setExamData,
+    examState,
+    setExamState,
+    practiceState,
+    setPracticeState,
+    resetAllState,
+    loading,
+    setLoading,
+    isFullscreen,
+    setIsFullscreen
+  } = useExamStore()
 
-  // 自定义setPage，同步更新浏览器历史记录
+  useEffect(() => {
+    const saved = loadExamState()
+    if (saved) {
+      setExamState(saved)
+      setCurrentPage('exam')
+    }
+  }, [])
+
   const setPage = (newPage) => {
-    if (newPage !== page) {
-      setPageState(newPage)
-      // 如果返回首页，清除考试状态缓存
+    if (newPage !== currentPage) {
+      setCurrentPage(newPage)
       if (newPage === 'home') {
-        localStorage.removeItem('exam_state')
+        resetAllState()
       }
-      // 添加到浏览器历史记录
       window.history.pushState({ page: newPage }, '', `#${newPage}`)
     }
   }
 
-  // 处理浏览器前进/后退
   useEffect(() => {
     const handlePopState = (e) => {
       if (e.state && e.state.page) {
-        setPageState(e.state.page)
+        setCurrentPage(e.state.page)
       } else {
-        // 如果没有state，返回首页
-        setPageState('home')
+        setCurrentPage('home')
       }
     }
 
-    // 监听popstate事件
     window.addEventListener('popstate', handlePopState)
 
-    // 初始化时检查URL hash
     const hash = window.location.hash.slice(1)
     if (['exam', 'result', 'practice-exam'].includes(hash)) {
-      setPageState(hash)
+      setCurrentPage(hash)
     }
 
-    // 清理函数
     return () => {
       window.removeEventListener('popstate', handlePopState)
     }
   }, [])
 
-  // 组件加载时从json文件夹读取数据
   useEffect(() => {
     const initData = async () => {
       const jsonData = await loadJsonFiles()
-      setData(jsonData)
+      setExamData(jsonData)
       setLoading(false)
     }
     initData()
   }, [])
 
-  // 全屏切换
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen()
@@ -93,7 +86,6 @@ export default function App() {
     }
   }
 
-  // 监听全屏状态变化
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement)
@@ -108,14 +100,14 @@ export default function App() {
     <ConfigProvider>
       <div className="app">
         <header className="app-header">
-          {page !== 'exam' && <h1>🧯 {page === 'home' && '消防理论考试系统'}</h1>}
+          {currentPage !== 'exam' && <h1>🧯 {currentPage === 'home' && '消防理论考试系统'}</h1>}
           <div className="header-right">
             <div className="header-stats">
-              <span>试卷: {data.papers.length} 份</span>
-              <span>总题: {data.questions.length} 道</span>
+              <span>试卷: {examData.papers.length} 份</span>
+              <span>总题: {examData.questions.length} 道</span>
             </div>
             <div className="header-actions">
-              {page !== 'home' && (
+              {currentPage !== 'home' && (
                 <Button className="btn-link" onClick={() => setPage('home')}>返回首页</Button>
               )}
               <Button 
@@ -135,10 +127,10 @@ export default function App() {
             </div>
           ) : (
             <>
-              {page === 'home' && <HomePage data={data} setPage={setPage} setExamState={setExamState} setPracticeState={setPracticeState} />}
-              {page === 'exam' && <ExamPage examState={examState} setPage={setPage} />}
-              {page === 'result' && <ResultPage examState={examState} setPage={setPage} />}
-              {page === 'practice-exam' && <PracticePage state={practiceState} setPage={setPage} />}
+              {currentPage === 'home' && <HomePage data={examData} setPage={setPage} setExamState={setExamState} setPracticeState={setPracticeState} />}
+              {currentPage === 'exam' && <ExamPage key={examState?.paperName || Date.now()} />}
+              {currentPage === 'result' && <ResultPage examState={examState} setPage={setPage} />}
+              {currentPage === 'practice-exam' && <PracticePage state={practiceState} setPage={setPage} />}
             </>
           )}
         </main>

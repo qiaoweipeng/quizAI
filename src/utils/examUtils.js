@@ -104,6 +104,28 @@ export function clearExamState() {
   }
 }
 
+// 从 localStorage 加载考试状态
+export function loadExamState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      return JSON.parse(saved)
+    }
+  } catch (e) {
+    console.error('Failed to load exam state:', e)
+  }
+  return null
+}
+
+// 保存考试状态到 localStorage
+export function saveExamState(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch (e) {
+    console.error('Failed to save exam state:', e)
+  }
+}
+
 export function scoreMultiple(userAns, correctAns) {
   if (!userAns || userAns.length === 0) return 0
   const userSet = new Set(userAns)

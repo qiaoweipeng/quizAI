@@ -41,6 +41,8 @@
  */
 import { LeftOutlined, RightOutlined, RetweetOutlined, OrderedListOutlined, VerticalLeftOutlined, VerticalRightOutlined, CheckOutlined, CloseOutlined, BarChartOutlined, DownOutlined, QuestionCircleOutlined, EllipsisOutlined } from '@ant-design/icons'
 import { Button, Space, Dropdown, Tooltip, Popconfirm } from 'antd'
+import useExamStore from '../../store/examStore.ts'
+import QuestionOption from './QuestionOption'
 
 export default function QuestionCard({
   question,
@@ -58,19 +60,22 @@ export default function QuestionCard({
   onToggleAutoNext,
   viewMode,
   onToggleViewMode,
-  sidebarHidden,
   onToggleSidebar,
   showConfirmNext,
-  showResultModal,
-  onShowResult,
-  showParse,
-  onToggleShowParse,
-  showWrongOnly,
-  onToggleShowWrongOnly,
   isWrongOnlyMode = false,
   wrongQuestionIndices = [],
   onReExamWrong
 }) {
+  const {
+    sidebarHidden,
+    showParse,
+    toggleShowParse,
+    showWrongOnly,
+    toggleShowWrongOnly,
+    showResultModal,
+    setShowResultModal
+  } = useExamStore()
+
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
   
   // 在只看错题模式下，计算在错题列表中的位置
@@ -83,55 +88,22 @@ export default function QuestionCard({
   const isNextDisabled = isWrongOnlyMode ? isLastWrong : currentIndex === total - 1
 
   const renderOption = (opt, idx) => {
-    // 判断题使用完整选项文字作为key，其他题型使用第一个字符
     const key = question.type === 'judge' ? opt : opt.charAt(0)
     const selected = isReviewMode ? question.userAns?.includes(key) : currentAns.includes(key)
     const isCorrect = question.answer.includes(key)
-    // 判断这道题是否答错了
     const isWrong = isReviewMode && question.status === 'wrong'
-    let optionClass = ''
-
-    if (isReviewMode) {
-      // 用户选择的答案始终是蓝色加粗
-      if (selected) {
-        optionClass = 'selected'
-      }
-      // 如果这道题答错了，正确答案显示绿色加粗
-      if (isWrong && isCorrect) {
-        optionClass += ' correct-answer'
-      }
-    } else {
-      optionClass = selected ? 'selected' : ''
-    }
-
-    // 回顾模式下的图标显示
-    let Icon = null
-    let iconStyle = {}
-    if (isReviewMode) {
-      if (selected && isCorrect) {
-        // 用户选对了
-        Icon = CheckOutlined
-        iconStyle = { color: '#52c41a' }
-      } else if (selected && !isCorrect) {
-        // 用户选错了
-        Icon = CloseOutlined
-        iconStyle = { color: '#ff4d4f' }
-      } else if (!selected && isCorrect && isWrong) {
-        // 正确答案但用户没选（题目答错时显示）
-        Icon = CheckOutlined
-        iconStyle = { color: '#52c41a' }
-      }
-    }
 
     return (
-      <div
-        key={idx}
-        className={`option-row ${optionClass} ${isReviewMode ? 'readonly' : ''}`}
+      <QuestionOption
+        key={key}
+        opt={opt}
+        questionType={question.type}
+        isReviewMode={isReviewMode}
+        selected={selected}
+        isCorrect={isCorrect}
+        isWrong={isWrong}
         onClick={() => !isReviewMode && onSelectOption(key)}
-      >
-        <span className="option-text">{opt}</span>
-        {Icon && <Icon style={{ marginLeft: 8, fontSize: 16, ...iconStyle }} />}
-      </div>
+      />
     )
   }
 
@@ -140,7 +112,7 @@ export default function QuestionCard({
       <div className="exam-toolbar">
         {isReviewMode && (
           <Space.Compact>
-            <Button className="toolbar-btn result-btn" onClick={onShowResult} style={{ minWidth: '100px' }}>
+            <Button className="toolbar-btn result-btn" onClick={() => setShowResultModal(true)} style={{ minWidth: '100px' }}>
               考试结果
             </Button>
             <Dropdown 
@@ -149,12 +121,12 @@ export default function QuestionCard({
                   {
                     key: 'showParse',
                     label: showParse ? '不看解析' : '查看解析',
-                    onClick: onToggleShowParse
+                    onClick: toggleShowParse
                   },
                   {
                     key: 'showWrongOnly',
                     label: showWrongOnly ? '全部题目' : '只看错题',
-                    onClick: onToggleShowWrongOnly
+                    onClick: toggleShowWrongOnly
                   },
                   {
                     key: 'reExamWrong',

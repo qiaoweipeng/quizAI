@@ -21,6 +21,7 @@
 import { useState } from 'react'
 import { Button, Modal } from 'antd'
 import { QuestionCircleOutlined } from '@ant-design/icons'
+import QuestionOption from '../exam/QuestionOption'
 
 export default function PracticePage({ state, setPage }) {
   const [s, setS] = useState(state)
@@ -82,6 +83,26 @@ export default function PracticePage({ state, setPage }) {
   const currentAns = s.answers[s.current] || []
   const hasParse = s.showParse[s.current]
 
+  const renderOption = (opt, idx) => {
+    const key = q.type === 'judge' ? opt : opt.charAt(0)
+    const selected = currentAns.includes(key)
+    const isCorrect = q.answer.includes(key)
+    const isWrong = hasParse && !isCorrect && selected
+
+    return (
+      <QuestionOption
+        key={key}
+        opt={opt}
+        questionType={q.type}
+        isReviewMode={hasParse}
+        selected={selected}
+        isCorrect={isCorrect}
+        isWrong={isWrong}
+        onClick={() => !hasParse && selectOption(key)}
+      />
+    )
+  }
+
   return (
     <div className="practice-page">
       <div className="practice-header">
@@ -92,22 +113,7 @@ export default function PracticePage({ state, setPage }) {
       <div className="practice-card">
         <div className="question-text">{q.question}</div>
         <div className="options-list">
-          {q.options.map((opt, idx) => {
-            const key = opt.charAt(0)
-            const selected = currentAns.includes(key)
-            let cls = 'option-row'
-            if (hasParse) {
-              if (q.answer.includes(key)) cls += ' correct'
-              else if (selected && !q.answer.includes(key)) cls += ' wrong'
-            } else if (selected) {
-              cls += ' selected'
-            }
-            return (
-              <div key={idx} className={cls} onClick={() => !hasParse && selectOption(key)}>
-                <span className="option-text">{opt}</span>
-              </div>
-            )
-          })}
+          {q.options.map(renderOption)}
         </div>
 
         {!hasParse && (

@@ -22,7 +22,7 @@
  * @param {boolean} showTotal - 是否显示总题数（默认 false）
  */
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons'
-import { formatTime } from '../utils/examUtils'
+import { formatTime } from '../../utils/examUtils'
 
 function formatUsedTime(seconds) {
   if (seconds < 60) {

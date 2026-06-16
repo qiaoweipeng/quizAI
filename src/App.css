@@ -1553,14 +1553,18 @@
 }
 
 .result-modal-body {
-  height: 100%;
-  padding: 40px;
-  overflow-y: auto;
+  padding: 10px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.result-modal-body-left {
+  text-align: left;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 .result-title {

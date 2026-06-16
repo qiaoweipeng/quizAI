@@ -11,7 +11,7 @@
  * @param {number} timeLeft - 剩余时间（秒）
  * @param {boolean} [visible=true] - 是否显示计时器
  */
-import { formatFullTime } from '../utils/examUtils'
+import { formatFullTime } from '../../utils/examUtils'
 
 export default function ExamTimer({ timeLeft, visible = true }) {
   if (!visible) return null
