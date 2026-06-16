@@ -30,7 +30,9 @@ export default function ExamResultModal({ visible, result, onClose }) {
         height: 500, 
         padding: 0 
       }}
-      maskStyle={{ backdropFilter: 'blur(8px)', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+      styles={{ 
+        mask: { backdropFilter: 'blur(8px)', backgroundColor: 'rgba(0, 0, 0, 0.5)' } 
+      }}
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <TitleIcon style={{ fontSize: 24, color: isPassed ? '#52c41a' : '#ff4d4f' }} />
