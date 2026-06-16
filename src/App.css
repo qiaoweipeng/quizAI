@@ -8,6 +8,17 @@
   -ms-user-select: none;
 }
 
+/* 灰色文字样式 */
+.text-gray {
+  color: #999 !important;
+  opacity: 0.8 !important;
+}
+
+/* 直接定位 notification 描述文字 */
+.ant-notification-notice-description {
+  color: #999 !important;
+}
+
 .app-header {
   background: #fff;
   border-bottom: 1px solid #e8e8e8;
@@ -823,7 +834,7 @@
 
 .question-text {
   font-size: 16px;
-  font-weight: 300;
+  font-weight: 700;
   line-height: 1.7;
   margin-bottom: 24px;
   user-select: none;
@@ -1745,7 +1756,7 @@
 
 .overview-question {
   font-size: 16px;
-  font-weight: 300;
+  font-weight: 700;
   color: #333;
   line-height: 1.5;
   margin-bottom: 8px;

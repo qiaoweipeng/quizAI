@@ -1,21 +1,26 @@
 /**
  * 题目导航侧边栏组件
  * 
- * 功能：显示所有题目编号，支持快速跳转
- * - 按题型分组显示（单选1-100，多选101-140，判断141-200）
+ * 显示所有题目编号的导航面板，支持快速跳转和状态查看。
+ * 
+ * 功能特性：
+ * - 按题型分组显示（单选、多选、判断）
  * - 显示答题状态（已答/未答）
- * - 回顾模式下显示对错状态
+ * - 回顾模式下显示对错状态（正确/错误/未答）
+ * - 当前题目高亮显示，带动画效果
+ * - 支持错题过滤显示
  * 
  * Props:
- * - questions: array - 题目数组
- * - current: number - 当前题目索引
- * - answers: object - 答案对象
- * - isReviewMode: boolean - 是否为回顾模式
- * - onGoQuestion: function - 跳转题目函数
- * - showSubmit: boolean - 是否显示交卷按钮
- * - onSubmit: function - 交卷函数
+ * @param {array} questions - 题目数组
+ * @param {number} current - 当前题目索引
+ * @param {object} answers - 用户答案对象
+ * @param {boolean} isReviewMode - 是否为回顾模式
+ * @param {function} onGoQuestion - 跳转题目回调
+ * @param {boolean} showSubmit - 是否显示交卷按钮
+ * @param {function} onSubmit - 交卷回调
+ * @param {string} [filter='all'] - 过滤条件（'all' | 'wrong'）
  */
-import { Divider, Popconfirm, BorderBeam, Button } from 'antd'
+import { Divider, Button, BorderBeam, Popconfirm } from 'antd'
 
 export default function QuestionSidebar({ 
   questions, 
@@ -150,7 +155,7 @@ export default function QuestionSidebar({
             onConfirm={onSubmit}
             overlayStyle={{ width: 280, padding: '16px 20px' }}
           >
-            <Button className="btn-submit-exam">交卷</Button>
+            <Button type="primary" size="large" style={{ width: '100%' }}>交卷</Button>
           </Popconfirm>
         </div>
       )}

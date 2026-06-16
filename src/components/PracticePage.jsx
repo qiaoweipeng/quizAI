@@ -1,16 +1,22 @@
 /**
  * 练习模式页面组件
  * 
- * 功能：专项练习界面，支持：
- * - 单题模式答题
- * - 即时查看解析
- * - 显示正确答案和用户答案对比
+ * 专项练习界面，无时间限制，支持即时查看解析。
+ * 
+ * 功能特性：
+ * - 单题模式答题，支持单选/多选/判断题型
+ * - 即时查看解析和正确答案
+ * - 显示用户答案与正确答案对比
  * - 自由切换上一题/下一题
- * - 无时间限制
+ * - 无时间限制，学习压力小
  * 
  * Props:
- * - state: object - 练习状态（题目、答案、当前题索引等）
- * - setPage: function - 页面切换函数
+ * @param {object} state - 练习状态对象
+ * @param {array} state.questions - 题目数组
+ * @param {object} state.answers - 用户答案对象
+ * @param {number} state.current - 当前题目索引
+ * @param {object} state.showParse - 解析显示状态
+ * @param {function} setPage - 页面切换函数
  */
 import { useState } from 'react'
 import { Button } from 'antd'

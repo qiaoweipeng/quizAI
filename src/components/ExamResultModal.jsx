@@ -1,16 +1,26 @@
 /**
  * 考试结果模态框组件
  * 
- * 功能：展示考试结果
- * - 分数显示
- * - 及格/不及格状态（带Logo和Title）
- * - 正确/错误/未答统计
- * - 用时统计
+ * 展示考试最终成绩和统计信息的弹窗组件。
+ * 
+ * 功能特性：
+ * - 圆形分数展示（及格绿色，不及格红色）
+ * - 及格状态标识（合格/不合格）
+ * - 正确/错误/未答数量统计
+ * - 考试用时统计
  * 
  * Props:
- * - visible: boolean - 是否显示
- * - result: object - 考试结果对象
- * - onClose: function - 关闭弹窗函数
+ * @param {boolean} visible - 弹窗是否可见
+ * @param {object} result - 考试结果对象
+ * @param {number} result.score - 分数（百分制）
+ * @param {boolean} result.passed - 是否及格
+ * @param {string} result.paperName - 试卷名称
+ * @param {number} result.total - 总题数
+ * @param {number} result.correct - 正确数
+ * @param {number} result.wrong - 错误数
+ * @param {number} result.unanswered - 未答数
+ * @param {number} result.usedTime - 用时（秒）
+ * @param {function} onClose - 关闭弹窗回调函数
  */
 import { Modal } from 'antd'
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons'

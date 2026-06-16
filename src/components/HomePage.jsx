@@ -1,22 +1,54 @@
 /**
  * 首页组件
  * 
- * 功能：系统首页，展示三种模式入口
- * - 固定考卷：选择固定试卷进行考试（弹框选择）
- * - 随机考卷：从题库随机抽取题目生成试卷（弹框选择）
- * - 练习模式：自由选择题型和数量进行练习（弹框选择）
+ * 系统入口页面，提供三种学习模式的选择入口。
+ * 
+ * 功能特性：
+ * - 固定考卷模式：选择预设试卷进行模拟考试
+ * - 随机考卷模式：从题库随机抽取200道题生成试卷
+ * - 练习模式：自由选择题型和题目数量进行专项练习
+ * - 空状态提示：题库为空时显示提示信息
  * 
  * Props:
- * - data: { papers, questions } - 试卷和题目数据
- * - setPage: function - 页面切换函数
- * - setExamState: function - 设置考试状态函数
- * - setPracticeState: function - 设置练习状态函数
+ * @param {object} data - 题库数据对象
+ * @param {array} data.papers - 固定试卷列表
+ * @param {array} data.questions - 题目总题库
+ * @param {function} setPage - 页面切换函数
+ * @param {function} setExamState - 设置考试状态函数
+ * @param {function} setPracticeState - 设置练习状态函数
  */
 import { useState } from 'react'
-import { Modal, Select, InputNumber, Table, Button, Radio } from 'antd'
+import { Modal, Button, Table, Select, InputNumber, Radio, ConfigProvider } from 'antd'
+import { createStyles } from 'antd-style'
 import { EXAM_TIME, shuffleArray } from '../utils/examUtils'
 
+// 渐变按钮样式
+const useStyle = createStyles(({ prefixCls, css }) => ({
+  linearGradientButton: css`
+    &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
+      > span {
+        position: relative;
+      }
+
+      &::before {
+        content: '';
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        position: absolute;
+        inset: -1px;
+        opacity: 1;
+        transition: all 0.3s;
+        border-radius: inherit;
+      }
+
+      &:hover::before {
+        opacity: 0;
+      }
+    }
+  `,
+}))
+
 export default function HomePage({ data, setPage, setExamState, setPracticeState }) {
+  const { styles } = useStyle()
   const [randomModalOpen, setRandomModalOpen] = useState(false)
   const [practiceModalOpen, setPracticeModalOpen] = useState(false)
   const [fixedModalOpen, setFixedModalOpen] = useState(false)
@@ -54,7 +86,8 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
       timeLeft: EXAM_TIME,
       finished: false,
       startTime: Date.now(),
-      autoNext: false
+      autoNext: false,
+      showPreselectNotification: true
     })
     setPage('exam')
     setRandomModalOpen(false)
@@ -111,7 +144,8 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
       timeLeft: EXAM_TIME,
       finished: false,
       startTime: Date.now(),
-      autoNext: false
+      autoNext: false,
+      showPreselectNotification: true
     })
     setPage('exam')
     setFixedModalOpen(false)
@@ -163,7 +197,13 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
             <p style={{ textAlign: 'left' }}>不计时</p>
             <p style={{ textAlign: 'left' }}>即时查看解析</p>
 
-            <Button className="btn-primary" style={{ width: '100%', fontSize: '1em' }}>进入练习</Button>
+            <ConfigProvider
+              button={{
+                className: styles.linearGradientButton,
+              }}
+            >
+              <Button type="primary" size="large" style={{ width: '100%' }}>进入练习</Button>
+            </ConfigProvider>
           </div>
         </div>
       </div>
@@ -218,7 +258,7 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
             size="large"
             disabled={!selectedPaper}
             onClick={() => selectedPaper && handleStartFixed(selectedPaper)}
-            style={{ minWidth: 200, height: 48, fontSize: 16 }}
+            style={{ width: 250 }}
           >
             开始考试
           </Button>
@@ -235,11 +275,11 @@ export default function HomePage({ data, setPage, setExamState, setPracticeState
       >
         <div style={{ padding: '16px 0' }}>
           <p style={{ marginBottom: 16 }}>将从总题库 <b>{data.questions.length}</b> 道题中随机抽取：</p>
-          <ul style={{ paddingLeft: 24, lineHeight: 2 }}>
+          <ul style={{ paddingLeft: 24, lineHeight: 2, listStyle: 'none' }}>
             <li>单选题：100 道</li>
             <li>多选题：40 道</li>
             <li>判断题：60 道</li>
-            <li>合计：200 道 · 满分 100 分 · 及格 60 分</li>
+            <li>合计：200 道 ｜ 满分 100 分 ｜ 合格 60 分</li>
             <li>考试时间：90 分钟</li>
           </ul>
         </div>

@@ -1,16 +1,19 @@
 /**
  * 随机卷设置页面组件
  * 
- * 功能：从总题库随机抽取题目生成试卷
- * - 单选题：100道
- * - 多选题：40道
- * - 判断题：60道
- * 合计200道题，与真实考试一致
+ * 从总题库随机抽取题目生成试卷的设置页面。
+ * 
+ * 功能特性：
+ * - 验证题库是否足够（至少200道题）
+ * - 随机抽取：单选题100道、多选题40道、判断题60道
+ * - 题目顺序固定：单选→多选→判断
+ * - 生成唯一试卷名称（含时间戳）
  * 
  * Props:
- * - data: { papers, questions } - 试卷和题目数据
- * - setPage: function - 页面切换函数
- * - setExamState: function - 设置考试状态函数
+ * @param {object} data - 题库数据对象
+ * @param {array} data.questions - 题目总题库
+ * @param {function} setPage - 页面切换函数
+ * @param {function} setExamState - 设置考试状态函数
  */
 import { Button } from 'antd'
 import { EXAM_TIME, shuffleArray, clearExamState } from '../utils/examUtils'
