@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ConfigProvider, Button } from 'antd'
+import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
 import './App.css'
 import ExamPage from './components/ExamPage'
 import HomePage from './components/HomePage'
@@ -28,6 +29,7 @@ export default function App() {
   const [examState, setExamState] = useState(savedExamState || null)
   const [practiceState, setPracticeState] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   // 自定义setPage，同步更新浏览器历史记录
   const setPage = (newPage) => {
@@ -78,17 +80,50 @@ export default function App() {
     initData()
   }, [])
 
+  // 全屏切换
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen()
+        .then(() => setIsFullscreen(true))
+        .catch(err => console.error('全屏失败:', err))
+    } else {
+      document.exitFullscreen()
+        .then(() => setIsFullscreen(false))
+        .catch(err => console.error('退出全屏失败:', err))
+    }
+  }
+
+  // 监听全屏状态变化
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement)
+    }
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+    }
+  }, [])
+
   return (
     <ConfigProvider>
       <div className="app">
         <header className="app-header">
           {page !== 'exam' && <h1>🧯 {page === 'home' && '消防理论考试系统'}</h1>}
-          <div className="header-stats">
-            <span>试卷: {data.papers.length} 份</span>
-            <span>总题: {data.questions.length} 道</span>
-            {page !== 'home' && (
-              <Button type="link" onClick={() => setPage('home')}>返回首页</Button>
-            )}
+          <div className="header-right">
+            <div className="header-stats">
+              <span>试卷: {data.papers.length} 份</span>
+              <span>总题: {data.questions.length} 道</span>
+            </div>
+            <div className="header-actions">
+              {page !== 'home' && (
+                <Button type="link" onClick={() => setPage('home')}>返回首页</Button>
+              )}
+              <Button 
+                type="link" 
+                icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+                onClick={toggleFullscreen}
+              />
+            </div>
           </div>
         </header>
 

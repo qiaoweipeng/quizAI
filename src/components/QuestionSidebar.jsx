@@ -56,7 +56,7 @@ export default function QuestionSidebar({
     return (
       <div key={originalIdx} style={{ display: 'inline-block' }}>
         {isCurrent ? (
-          <BorderBeam duration={1} color={[{ color: '#7c3aed ', percent: 0 }, { color: '#06b6d4', percent: 49 }, { color: '#67e8f9', percent: 100 }]}>
+          <BorderBeam duration={0.8} color={[{ color: '#8b5cf6', percent: 0 }, { color: '#06b6d4', percent: 40 }, { color: '#ec4899', percent: 70 }, { color: '#8b5cf6', percent: 100 }]}>
             
             <Button
               style={{ border: '1px solid #d9d9d9' }}

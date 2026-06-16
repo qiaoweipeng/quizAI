@@ -36,12 +36,26 @@
   font-weight: 700;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
 .header-stats {
   display: flex;
   align-items: center;
   gap: 20px;
   font-size: 14px;
   color: #666;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .btn-text {
@@ -685,7 +699,10 @@
 }
 
 .qnum-btn.current {
-  color: #ff4d4f;
+  color: #7c3aed;
+  font-weight: 600;
+  border-color: #7c3aed;
+  background: rgba(124, 58, 237, 0.05);
 }
 
 .qnum-btn.answered {
@@ -850,6 +867,10 @@
   padding: 6px 20px;
   cursor: pointer;
   transition: all 0.2s;
+}
+
+.option-row:hover .option-text {
+  font-weight: 600;
 }
 
 .option-row.selected .option-text {
@@ -1672,7 +1693,7 @@
   padding: 12px 16px;
   border-radius: 8px;
   margin-bottom: 10px;
-  cursor: pointer;
+  cursor: default;
   transition: all 0.2s;
   border: 1px solid transparent;
   background: transparent;
@@ -1686,6 +1707,26 @@
 .overview-item.current {
   background: transparent;
   border-color: transparent;
+}
+
+.overview-item:active {
+  border-color: transparent;
+}
+
+@keyframes highlight-pulse {
+  0% {
+    background: rgba(124, 58, 237, 0.15);
+  }
+  30% {
+    background: rgba(124, 58, 237, 0.15);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+.overview-item.highlight {
+  animation: highlight-pulse 1.8s ease-out;
 }
 
 .overview-header {
@@ -1734,6 +1775,10 @@
 /* 全览模式的选项文字 */
 .overview-item .option-text {
   font-size: 14px;
+}
+
+.overview-item .option-row {
+  cursor: pointer;
 }
 
 .overview-options {

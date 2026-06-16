@@ -364,17 +364,33 @@ export default function ExamPage({ examState, setPage }) {
    * 跳转题目
    * 
    * 切换到指定索引的题目，并在全览模式下自动滚动到该题目位置。
-   * 使用 setTimeout 确保 DOM 更新后再执行滚动。
+   * 使用 IntersectionObserver 监听题目元素进入视口后再触发突出动画，
+   * 确保动画在题目真正可见时才开始显示。
    * 
    * @param {number} idx - 目标题目索引
+   * @param {boolean} fromSidebar - 是否从侧边栏点击（默认false，从题目卡片点击）
    */
-  const goQuestion = (idx) => {
+  const goQuestion = (idx, fromSidebar = false) => {
     setState(prev => ({ ...prev, current: idx }))
-    if (viewMode === 'overview') {
+    if (viewMode === 'overview' && fromSidebar) {
       setTimeout(() => {
         const overviewItem = document.querySelector(`.overview-item[data-original-index="${idx}"]`)
         if (overviewItem) {
           overviewItem.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                overviewItem.classList.add('highlight')
+                setTimeout(() => {
+                  overviewItem.classList.remove('highlight')
+                }, 1800)
+                observer.disconnect()
+              }
+            })
+          }, { threshold: 0.3 })
+          
+          observer.observe(overviewItem)
         }
       }, 50)
     }
@@ -597,7 +613,7 @@ export default function ExamPage({ examState, setPage }) {
           current={state.current}
           answers={state.answers}
           isReviewMode={isReviewMode}
-          onGoQuestion={goQuestion}
+          onGoQuestion={(idx) => goQuestion(idx, true)}
           showSubmit={!isReviewMode && total - answered === 0}
           onSubmit={submitExam}
           filter={showWrongOnly ? 'wrong' : 'all'}
