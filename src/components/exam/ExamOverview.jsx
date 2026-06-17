@@ -18,10 +18,11 @@
  * @param {array} wrongQuestionIndices - 错题索引列表
  * @param {function} setState - 状态更新函数
  */
-import { Button, Space, Dropdown, Tooltip, Popconfirm } from 'antd'
-import { RollbackOutlined, VerticalLeftOutlined, VerticalRightOutlined, CheckOutlined, CloseOutlined, QuestionCircleOutlined, EllipsisOutlined } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { message } from 'antd'
 import useExamStore from '../../store/examStore.ts'
 import QuestionOption from './QuestionOption'
+import ExamToolbar from './ExamToolbar'
 import { getOptionKey } from '../../utils/examUtils'
 
 export default function ExamOverview({
@@ -39,12 +40,18 @@ export default function ExamOverview({
   wrongQuestionIndices,
   updateExamState
 }) {
-  const { toggleShowParse, toggleShowWrongOnly, setShowResultModal } = useExamStore()
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
 
   const filteredQuestions = showWrongOnly
     ? questions.filter((qq, idx) => qq.status === 'wrong')
     : questions
+
+  const handleDoubleClickQuestion = (qq) => {
+    if (qq.id) {
+      navigator.clipboard.writeText(qq.id)
+      message.success(`题目ID ${qq.id} 已复制`)
+    }
+  }
 
   const handleOptionClick = (e, qq, ans, idx) => {
     e.stopPropagation()
@@ -70,59 +77,15 @@ export default function ExamOverview({
 
   return (
     <div className="exam-overview">
-      <div className="exam-toolbar">
-        {isReviewMode && (
-          <Space.Compact>
-            <Button className="toolbar-btn result-btn" onClick={() => setShowResultModal(true)} style={{ minWidth: '100px' }}>
-              考试结果
-            </Button>
-            <Dropdown 
-              menu={{
-                items: [
-                  {
-                    key: 'showParse',
-                    label: showParse ? '不看解析' : '查看解析',
-                    onClick: toggleShowParse
-                  },
-                  {
-                    key: 'showWrongOnly',
-                    label: showWrongOnly ? '全部题目' : '只看错题',
-                    onClick: toggleShowWrongOnly
-                  },
-                  {
-                    key: 'reExamWrong',
-                    label: (
-                      <Popconfirm
-                        title="确认重考错题？"
-                        description="将重新开始答题，当前答案将被清空。"
-                        onConfirm={onReExamWrong}
-                        okText="确认"
-                        cancelText="取消"
-                        disabled={wrongQuestionIndices.length === 0}
-                      >
-                        <span>{wrongQuestionIndices.length === 0 ? '无错题可重考' : '重考错题'}</span>
-                      </Popconfirm>
-                    )
-                  }
-                ]
-              }}
-              placement="bottomRight"
-            >
-              <Button className="toolbar-btn" icon={<EllipsisOutlined />} />
-            </Dropdown>
-          </Space.Compact>
-        )}
-        <Tooltip title="返回单题模式">
-          <Button className="toolbar-btn" onClick={() => onToggleViewMode('single')}>
-            <RollbackOutlined />
-          </Button>
-        </Tooltip>
-        <Tooltip title={sidebarHidden ? '显示侧边栏' : '隐藏侧边栏'}>
-          <Button className="toolbar-btn sidebar-toggle-btn" onClick={onToggleSidebar}>
-            {sidebarHidden ? <VerticalRightOutlined /> : <VerticalLeftOutlined />}
-          </Button>
-        </Tooltip>
-      </div>
+      <ExamToolbar
+        isReviewMode={isReviewMode}
+        viewMode="overview"
+        sidebarHidden={sidebarHidden}
+        onToggleViewMode={() => onToggleViewMode('single')}
+        onToggleSidebar={onToggleSidebar}
+        onReExamWrong={onReExamWrong}
+        wrongQuestionIndices={wrongQuestionIndices}
+      />
       {filteredQuestions.map((qq, idx) => {
         const originalIdx = questions.indexOf(qq)
         const ans = answers[originalIdx] || []
@@ -135,11 +98,11 @@ export default function ExamOverview({
             className={`overview-item ${originalIdx === current ? 'current' : ''} ${statusClass}`}
             data-original-index={originalIdx}
             onClick={() => onGoQuestion(originalIdx)}
+            onDoubleClick={() => handleDoubleClickQuestion(qq)}
           >
             <div className="overview-header">
               <span className="overview-index">{displayIndex}</span>
               <span className={`overview-type type-${qq.type}`}>{typeMap[qq.type]}</span>
-              <span className="overview-id">{qq.id}</span>
             </div>
             <div className="overview-question">{qq.question}</div>
             <div className="options-list">

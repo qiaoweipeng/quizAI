@@ -22,7 +22,7 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
 
       &::before {
         content: '';
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: var(--practice-gradient);
         position: absolute;
         inset: -1px;
         opacity: 1;
@@ -87,9 +87,9 @@ export default function PracticeModeSelector({ questions, setPracticeState, setP
           </div>
         </div>
         <div className="practice-content">
-          <p style={{ textAlign: 'left' }}>自选题型<span style={{ color: '#999', fontSize: '0.85em' }}>（单选/多选/判断）</span>和数量</p>
-          <p style={{ textAlign: 'left' }}>不计时</p>
-          <p style={{ textAlign: 'left' }}>即时查看解析</p>
+          <p className="practice-item">自选题型<span className="practice-hint">（单选/多选/判断）</span>和数量</p>
+          <p className="practice-item">不计时</p>
+          <p className="practice-item">即时查看解析</p>
 
           <ConfigProvider
             button={{

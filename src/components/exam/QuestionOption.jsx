@@ -40,17 +40,17 @@ export default function QuestionOption({
   }
 
   let Icon = null
-  let iconStyle = {}
+  let iconClassName = ''
   if (isReviewMode) {
     if (selected && isCorrect) {
       Icon = CheckOutlined
-      iconStyle = { color: '#52c41a' }
+      iconClassName = 'icon-correct'
     } else if (selected && !isCorrect) {
       Icon = CloseOutlined
-      iconStyle = { color: '#ff4d4f' }
+      iconClassName = 'icon-wrong'
     } else if (!selected && isCorrect && isWrong) {
       Icon = CheckOutlined
-      iconStyle = { color: '#52c41a' }
+      iconClassName = 'icon-correct'
     }
   }
 
@@ -61,7 +61,7 @@ export default function QuestionOption({
       onClick={onClick}
     >
       <span className="option-text">{opt}</span>
-      {Icon && <Icon style={{ marginLeft: 8, fontSize: 16, ...iconStyle }} />}
+      {Icon && <Icon className={`review-icon ${iconClassName}`} />}
     </div>
   )
 }

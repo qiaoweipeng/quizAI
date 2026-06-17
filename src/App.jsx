@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
-import { ConfigProvider, Button } from 'antd'
-import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
+import { ConfigProvider, Button, Layout } from 'antd'
+import { FullscreenOutlined, FullscreenExitOutlined, RobotOutlined } from '@ant-design/icons'
 import './App.css'
+
+const { Header, Content, Footer } = Layout
 import ExamPage from './components/exam/ExamPage'
 import HomePage from './components/home/HomePage'
 import ResultPage from './components/result/ResultPage'
@@ -100,28 +102,29 @@ export default function App() {
 
   return (
     <ConfigProvider>
-      <div className="app">
-        <header className="app-header">
-          {currentPage !== 'exam' && <h1>📚 {currentPage === 'home' && '智能刷题系统'}</h1>}
-          <div className="header-right">
-            <div className="header-stats">
-              <span>试卷: {examData.papers.length} 份</span>
-              <span>总题: {examData.questions.length} 道</span>
+      <Layout className="app">
+        <Header className="app-header">
+          {currentPage !== 'exam' && (
+            <div className="header-logo">
+              <RobotOutlined className="logo-icon" />
+              {currentPage === 'home' && <span className="logo-text">智能刷题系统</span>}
             </div>
+          )}
+          <div className="header-right">
             <div className="header-actions">
               {currentPage !== 'home' && (
                 <Button className="btn-link" onClick={() => setPage('home')}>返回首页</Button>
               )}
               <Button 
-                className="btn-link"
+                className="btn-fullscreen"
                 icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
                 onClick={toggleFullscreen}
               />
             </div>
           </div>
-        </header>
+        </Header>
 
-        <main className="app-main">
+        <Content className="app-main">
           {loading ? (
             <div className="loading-page">
               <div className="loading-spinner"></div>
@@ -135,8 +138,17 @@ export default function App() {
               {currentPage === 'practice-exam' && <PracticePage state={practiceState} setPage={setPage} />}
             </>
           )}
-        </main>
-      </div>
+        </Content>
+
+        {currentPage !== 'exam' && (
+          <Footer className="app-footer">
+            <div className="footer-content">
+              <p>你只管学，其余的交给我！</p>
+              <p className="footer-version">Design by 乔伟鹏—V1.3</p>
+            </div>
+          </Footer>
+        )}
+      </Layout>
     </ConfigProvider>
   )
 }

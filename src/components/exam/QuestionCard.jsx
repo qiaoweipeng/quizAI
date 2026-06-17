@@ -39,10 +39,11 @@
  * @param {array} wrongQuestionIndices - 错题索引列表
  * @param {function} onReExamWrong - 重考错题回调
  */
-import { LeftOutlined, RightOutlined, RetweetOutlined, OrderedListOutlined, VerticalLeftOutlined, VerticalRightOutlined, CheckOutlined, CloseOutlined, BarChartOutlined, DownOutlined, QuestionCircleOutlined, EllipsisOutlined } from '@ant-design/icons'
-import { Button, Space, Dropdown, Tooltip, Popconfirm } from 'antd'
+import { LeftOutlined, RightOutlined, CheckOutlined, CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { Button, Tooltip, Popconfirm, message } from 'antd'
 import useExamStore from '../../store/examStore.ts'
 import QuestionOption from './QuestionOption'
+import ExamToolbar from './ExamToolbar'
 import { getOptionKey } from '../../utils/examUtils'
 
 export default function QuestionCard({
@@ -67,15 +68,7 @@ export default function QuestionCard({
   wrongQuestionIndices = [],
   onReExamWrong
 }) {
-  const {
-    sidebarHidden,
-    showParse,
-    toggleShowParse,
-    showWrongOnly,
-    toggleShowWrongOnly,
-    showResultModal,
-    setShowResultModal
-  } = useExamStore()
+  const { sidebarHidden, showParse } = useExamStore()
 
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
   
@@ -108,68 +101,26 @@ export default function QuestionCard({
     )
   }
 
+  const handleDoubleClickQuestion = () => {
+    if (question.id) {
+      navigator.clipboard.writeText(question.id)
+      message.success(`题目ID ${question.id} 已复制`)
+    }
+  }
+
   return (
     <div className="exam-card">
-      <div className="exam-toolbar">
-        {isReviewMode && (
-          <Space.Compact>
-            <Button className="toolbar-btn result-btn" onClick={() => setShowResultModal(true)} style={{ minWidth: '100px' }}>
-              考试结果
-            </Button>
-            <Dropdown 
-              menu={{
-                items: [
-                  {
-                    key: 'showParse',
-                    label: showParse ? '不看解析' : '查看解析',
-                    onClick: toggleShowParse
-                  },
-                  {
-                    key: 'showWrongOnly',
-                    label: showWrongOnly ? '全部题目' : '只看错题',
-                    onClick: toggleShowWrongOnly
-                  },
-                  {
-                    key: 'reExamWrong',
-                    label: (
-                      <Popconfirm
-                        title="确认重考错题？"
-                        description="将重新开始答题，当前答案将被清空。"
-                        onConfirm={onReExamWrong}
-                        okText="确认"
-                        cancelText="取消"
-                        disabled={wrongQuestionIndices.length === 0}
-                      >
-                        <span>{wrongQuestionIndices.length === 0 ? '无错题可重考' : '重考错题'}</span>
-                      </Popconfirm>
-                    )
-                  }
-                ]
-              }}
-              placement="bottomRight"
-            >
-              <Button className="toolbar-btn" icon={<EllipsisOutlined />} />
-            </Dropdown>
-          </Space.Compact>
-        )}
-        {!isReviewMode && (
-          <Tooltip title={autoNext ? '切换为手动切题' : '切换为自动切题'}>
-            <Button className={`toolbar-btn auto-next-btn ${autoNext ? 'active' : ''}`} onClick={onToggleAutoNext}>
-              <RetweetOutlined />
-            </Button>
-          </Tooltip>
-        )}
-        <Tooltip title={viewMode === 'overview' ? '切换为单题模式' : '切换为全览模式'}>
-          <Button className={`toolbar-btn view-mode-btn ${viewMode === 'overview' ? 'active' : ''}`} onClick={onToggleViewMode}>
-            <OrderedListOutlined />
-          </Button>
-        </Tooltip>
-        <Tooltip title={sidebarHidden ? '显示侧边栏' : '隐藏侧边栏'}>
-          <Button className={`toolbar-btn sidebar-toggle-btn ${sidebarHidden ? 'active' : ''}`} onClick={onToggleSidebar}>
-            {sidebarHidden ? <VerticalRightOutlined /> : <VerticalLeftOutlined />}
-          </Button>
-        </Tooltip>
-      </div>
+      <ExamToolbar
+        isReviewMode={isReviewMode}
+        viewMode={viewMode}
+        sidebarHidden={sidebarHidden}
+        autoNext={autoNext}
+        onToggleAutoNext={onToggleAutoNext}
+        onToggleViewMode={onToggleViewMode}
+        onToggleSidebar={onToggleSidebar}
+        onReExamWrong={onReExamWrong}
+        wrongQuestionIndices={wrongQuestionIndices}
+      />
       <div className="card-content">
         <div className="exam-header">
           <span className="q-index">
@@ -182,8 +133,7 @@ export default function QuestionCard({
         </div>
 
         <div className="question-content">
-          <div className="question-id" title="题目ID">{question.id}</div>
-          <div className="question-text">{question.question}</div>
+          <div className="question-text" onDoubleClick={handleDoubleClickQuestion}>{question.question}</div>
           <div className="options-list">
             {question.options.map(renderOption)}
           </div>

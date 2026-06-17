@@ -1,0 +1,61 @@
+/* ===== 智能刷题系统 - 主题颜色配置 ===== */
+/* 修改此处颜色值即可全局调整系统外观 */
+
+:root {
+  /* ===== 主色调 - 蓝色系 ===== */
+  --primary-color: #1890ff;
+  --primary-light: #40a9ff;
+  --primary-bg: #e6f7ff;
+  
+  /* ===== 装饰渐变 - 紫色渐变（用于特定按钮等装饰） ===== */
+  --accent-color: #667eea;
+  --accent-dark: #764ba2;
+  --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
+  /* ===== 成功状态 - 绿色 ===== */
+  --success-color: #52c41a;
+  --success-bg: #f6ffed;
+  --success-border: #b7eb8f;
+  
+  /* ===== 警告状态 - 黄色/橙色 ===== */
+  --warning-color: #faad14;
+  --warning-bg: #fffbe6;
+  --warning-border: #ffe58f;
+  --warning-dark: #d48806;
+  
+  /* ===== 错误状态 - 红色 ===== */
+  --error-color: #ff4d4f;
+  --error-bg: #fff2f0;
+  --error-border: #ffccc7;
+  --error-light: #ff7875;
+  
+  /* ===== 文字颜色 - 由深到浅 ===== */
+  --text-primary: #1a1a1a;
+  --text-secondary: #333;
+  --text-tertiary: #555;
+  --text-muted: #666;
+  --text-light: #888;
+  --text-disabled: #999;
+  
+  /* ===== 背景颜色 ===== */
+  --bg-primary: #fff;
+  --bg-secondary: #fafafa;
+  --bg-tertiary: #f0f0f0;
+  --bg-hover: #f5f5f5;
+  
+  /* ===== 边框颜色 ===== */
+  --border-color: #d9d9d9;
+  --border-light: #e8e8e8;
+  --border-thin: #eee;
+  
+  /* ===== 题型颜色 ===== */
+  --single-color: #1890ff;
+  --single-bg: #e6f7ff;
+  --multiple-color: #fa8c16;
+  --multiple-bg: #fff7e6;
+  --judge-color: #52c41a;
+  --judge-bg: #f6ffed;
+  
+  /* ===== 练习模式渐变 ===== */
+  --practice-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
