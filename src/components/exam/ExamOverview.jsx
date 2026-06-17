@@ -22,6 +22,7 @@ import { Button, Space, Dropdown, Tooltip, Popconfirm } from 'antd'
 import { RollbackOutlined, VerticalLeftOutlined, VerticalRightOutlined, CheckOutlined, CloseOutlined, QuestionCircleOutlined, EllipsisOutlined } from '@ant-design/icons'
 import useExamStore from '../../store/examStore.ts'
 import QuestionOption from './QuestionOption'
+import { getOptionKey } from '../../utils/examUtils'
 
 export default function ExamOverview({
   questions,
@@ -49,7 +50,7 @@ export default function ExamOverview({
     e.stopPropagation()
     if (isReviewMode) return
     
-    const key = qq.type === 'judge' ? qq.options[idx] : qq.options[idx].charAt(0)
+    const key = qq.type === 'judge' ? qq.options[idx] : getOptionKey(qq.options[idx])
     let newAns = [...ans]
     if (qq.type === 'multiple') {
       if (newAns.includes(key)) {
@@ -138,11 +139,12 @@ export default function ExamOverview({
             <div className="overview-header">
               <span className="overview-index">{displayIndex}</span>
               <span className={`overview-type type-${qq.type}`}>{typeMap[qq.type]}</span>
+              <span className="overview-id">{qq.id}</span>
             </div>
             <div className="overview-question">{qq.question}</div>
             <div className="options-list">
               {qq.options.map((opt, optIdx) => {
-                const key = qq.type === 'judge' ? opt : opt.charAt(0)
+                const key = qq.type === 'judge' ? opt : getOptionKey(opt)
                 const selected = isReviewMode ? qq.userAns?.includes(key) : ans.includes(key)
                 const isCorrect = qq.answer.includes(key)
                 const isWrong = isReviewMode && qq.status === 'wrong'

@@ -10,6 +10,7 @@
  */
 import { Button } from 'antd'
 import QuestionOption from '../exam/QuestionOption'
+import { getOptionKey } from '../../utils/examUtils'
 
 export default function WrongAnswerModal({ visible, wrongList, onClose }) {
   if (!visible) return null
@@ -24,7 +25,7 @@ export default function WrongAnswerModal({ visible, wrongList, onClose }) {
         <div className="modal-body">
           {wrongList.map(({ idx, q, ans, status }) => {
             const renderOption = (opt, optIdx) => {
-              const key = q.type === 'judge' ? opt : opt.charAt(0)
+              const key = q.type === 'judge' ? opt : getOptionKey(opt)
               const selected = ans?.includes(key)
               const isCorrect = q.answer.includes(key)
               const isWrong = status === 'wrong'

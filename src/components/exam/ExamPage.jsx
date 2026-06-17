@@ -19,7 +19,7 @@
  * - 考试状态持久化（刷新页面不丢失，localStorage存储）
  * - 全览模式滚动定位（点击侧边栏题目自动滚动居中）
  */
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { clearExamState, saveExamState } from '../../utils/examUtils'
 import { Button, Tooltip, FloatButton, notification, message } from 'antd'
 import { VerticalAlignTopOutlined } from '@ant-design/icons'
@@ -59,9 +59,14 @@ export default function ExamPage() {
   const timerRef = useRef(null)
   const examStateRef = useRef(examState)
   const preselectShownRef = useRef(false)
+  const [showBackToTop, setShowBackToTop] = useState(false)
 
   useEffect(() => {
-    preselectShownRef.current = false
+    if (examState?.preselectModalShown) {
+      preselectShownRef.current = true
+    } else {
+      preselectShownRef.current = false
+    }
   }, [])
 
   useEffect(() => {
@@ -117,6 +122,28 @@ export default function ExamPage() {
     
     return () => clearInterval(timerRef.current)
   }, [])
+
+  useEffect(() => {
+    if (viewMode !== 'overview') return
+
+    const handleScroll = () => {
+      const overviewEl = document.querySelector('.exam-overview')
+      if (overviewEl) {
+        setShowBackToTop(overviewEl.scrollTop > 100)
+      }
+    }
+
+    const overviewEl = document.querySelector('.exam-overview')
+    if (overviewEl) {
+      overviewEl.addEventListener('scroll', handleScroll, { passive: true })
+    }
+
+    return () => {
+      if (overviewEl) {
+        overviewEl.removeEventListener('scroll', handleScroll)
+      }
+    }
+  }, [viewMode])
 
   useEffect(() => {
     if (examState && !examState.finished) {
@@ -294,7 +321,7 @@ export default function ExamPage() {
             updateExamState={updateExamState}
           />
         )}
-        {viewMode === 'overview' && (
+        {viewMode === 'overview' && showBackToTop && (
           <div className="back-to-top-fixed">
             <FloatButton
               icon={<VerticalAlignTopOutlined />}

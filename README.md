@@ -1,18 +1,18 @@
-# 消防-理论考试系统
+# 智能刷题系统
 
-消防理论考试系统是一款专为消防设施操作员资格考试设计的在线学习与模拟考试平台。系统提供多种考试模式，帮助考生高效备考，提升考试通过率。
+智能刷题系统是一款通用的在线学习与模拟考试平台，支持多种题型和考试模式，帮助用户高效备考，提升学习效果。
 
 ## 系统定位
 
-- **目标用户**: 消防设施操作员（监控方向）备考人员
-- **核心价值**: 提供真实的模拟考试环境，帮助考生熟悉考试形式和题型
-- **数据来源**: 基于鉴定站最新真题和考试大纲构建题库
+- **目标用户**: 需要刷题备考的各类学习者（资格考试、认证考试、学业考试等）
+- **核心价值**: 提供真实的模拟考试环境，支持多种题型，帮助考生熟悉考试形式和题型
+- **数据来源**: 基于JSON文件管理题库，支持自定义导入各类题目数据
 
 ## 系统功能
 
 ### 1. 考试功能
 
-系统提供两大核心模式，满足不同备考需求：
+系统提供两大核心模式，满足不同学习需求：
 
 **考试模式**
 
@@ -32,7 +32,7 @@
 
 ### 2. 界面设计
 
-- **设计风格**：简约清爽，专注答题体验
+- **设计风格**：简约清爽，专注答题体验，基于 Ant Design 设计系统
 - **设备适配**：目前仅适配PC端，建议使用桌面浏览器访问
 - **答题界面**：提供两种视图模式，可自由切换
   - **单题模式**：每次展示一道题，支持手动切换或答后自动跳转
@@ -46,6 +46,7 @@
 - **自动切题**：支持答题后自动跳转到下一题
 - **侧边栏导航**：快速跳转到任意题目
 - **时间警告**：考试剩余10分钟时自动提醒
+- **题目ID显示**：答题时显示题目ID，便于排查重复题目
 
 ## 项目结构
 
@@ -56,18 +57,33 @@ fire-exam-react/
 │       ├── paper-index.json   # 试卷索引文件（记录所有试卷）
 │       ├── paper-1.json       # 试卷文件1
 │       ├── paper-2.json       # 试卷文件2
-│       ├── exam-papers.json   # 旧格式文件（向后兼容）
 │       └── README.md          # 数据格式说明
 ├── src/                   # 源代码
-│   ├── assets/            # 资源文件
 │   ├── components/        # 组件目录
-│   │   ├── HomePage.jsx          # 首页组件
-│   │   ├── FixedListPage.jsx     # 固定卷选择页
-│   │   ├── RandomSetupPage.jsx   # 随机卷设置页
-│   │   ├── PracticeSetupPage.jsx # 练习模式设置页
-│   │   ├── ExamPage.jsx          # 考试页面
-│   │   ├── ResultPage.jsx        # 考试结果页
-│   │   └── PracticePage.jsx      # 练习模式页面
+│   │   ├── exam/              # 考试相关组件
+│   │   │   ├── ExamPage.jsx           # 考试主页面
+│   │   │   ├── ExamOverview.jsx       # 全览模式组件
+│   │   │   ├── ExamResultModal.jsx    # 考试结果弹窗
+│   │   │   ├── ExamTimer.jsx          # 倒计时组件
+│   │   │   ├── QuestionCard.jsx       # 题目卡片组件
+│   │   │   ├── QuestionOption.jsx     # 选项组件
+│   │   │   └── QuestionSidebar.jsx    # 题目导航侧边栏
+│   │   ├── home/              # 首页相关组件
+│   │   │   ├── HomePage.jsx           # 首页组件
+│   │   │   ├── ExamModeSelector.jsx   # 考试模式选择器
+│   │   │   └── PracticeModeSelector.jsx # 练习模式选择器
+│   │   ├── practice/          # 练习相关组件
+│   │   │   └── PracticePage.jsx       # 练习页面
+│   │   └── result/            # 结果相关组件
+│   │       ├── ResultPage.jsx         # 结果页面
+│   │       ├── ResultDisplay.jsx      # 结果展示组件
+│   │       └── WrongAnswerModal.jsx   # 错题预览弹窗
+│   ├── hooks/             # 自定义Hooks
+│   │   └── useExamLogic.js      # 考试核心逻辑Hook
+│   ├── store/             # 状态管理
+│   │   └── examStore.ts         # Zustand状态管理
+│   ├── types/             # TypeScript类型定义
+│   │   └── index.ts             # 全局类型定义
 │   ├── utils/             # 工具函数
 │   │   └── examUtils.js          # 工具函数（加载文件、计分、格式化等）
 │   ├── App.css            # 主样式
@@ -84,10 +100,13 @@ fire-exam-react/
 
 ## 技术栈
 
-- **前端框架**: React 18
+- **前端框架**: React 19
 - **构建工具**: Vite 5
 - **包管理器**: pnpm
-- **样式**: CSS3
+- **UI组件库**: Ant Design 6
+- **状态管理**: Zustand
+- **类型系统**: TypeScript
+- **样式**: CSS3 + Ant Design
 - **数据存储**: JSON 文件（支持多文件管理）
 
 ## 快速开始
@@ -131,12 +150,12 @@ pnpm preview
   "papers": [
     {
       "id": "paper-1",
-      "name": "2026年中级消防设施操作员[监控]历年真题练习（卷A）",
+      "name": "历年真题练习（卷A）",
       "file": "paper-1.json"
     },
     {
       "id": "paper-2",
-      "name": "2026年中级消防设施操作员[监控]模拟试卷（卷B）",
+      "name": "模拟试卷（卷B）",
       "file": "paper-2.json"
     }
   ]
@@ -170,34 +189,9 @@ pnpm preview
 
 ## 题目数据格式
 
-题目数据存储在 `public/json/` 文件夹中，支持两种格式：
-
-**格式一：多文件模式（推荐）**
-- `paper-index.json` - 试卷索引
+题目数据存储在 `public/json/` 文件夹中，采用**多文件模式**：
+- `paper-index.json` - 试卷索引文件
 - `paper-xxx.json` - 各试卷文件
-
-**格式二：单文件模式（向后兼容）**
-```json
-{
-  "papers": [
-    {
-      "id": "1",
-      "name": "试卷名称",
-      "questions": [
-        {
-          "id": "dx-1",
-          "type": "single",
-          "question": "题目内容",
-          "options": ["A. 选项1", "B. 选项2", "C. 选项3", "D. 选项4"],
-          "answer": ["A"],
-          "parse": "解析内容"
-        }
-      ]
-    }
-  ],
-  "questions": []
-}
-```
 
 ### 字段说明
 
@@ -211,15 +205,9 @@ pnpm preview
 
 ## 添加新题目
 
-**推荐方式**（多文件模式）：
-1. 在 `paper-index.json` 中添加试卷条目
-2. 创建对应的试卷文件
+1. 在 `paper-index.json` 中添加试卷条目（包含 id、name、file）
+2. 创建对应的试卷文件（如 `paper-3.json`）
 3. 无需修改代码，刷新页面即可加载
-
-**旧方式**（单文件模式）：
-1. 编辑 `public/json/exam-papers.json` 文件
-2. 按照格式添加题目数据
-3. 刷新页面即可加载新题目
 
 ## 注意事项
 
@@ -227,7 +215,35 @@ pnpm preview
 - JSON 文件名建议使用英文，避免编码问题
 - 确保题目 ID 唯一，避免重复
 - 目前系统仅适配 PC 端，建议使用桌面浏览器访问
-- 多试卷模式下，试卷文件名需与 `paper-index.json` 中的 `file` 字段对应
+- 试卷文件名需与 `paper-index.json` 中的 `file` 字段对应
+
+### 依赖更新规范
+
+> **重要**：如果项目依赖发生变化（新增/删除/升级依赖包），或者 `package.json`、`pnpm-lock.yaml` 文件有任何修改，**必须先执行 `pnpm install` 更新依赖**，然后再进行开发或构建。
+
+```bash
+# 更新依赖（必须执行）
+pnpm install
+
+# 开发模式
+pnpm dev
+
+# 构建生产版本
+pnpm build
+```
+
+**为什么必须执行 `pnpm install`？**
+
+1. **锁定依赖版本**：`pnpm-lock.yaml` 文件记录了每个依赖的确切版本，确保开发环境和部署环境使用相同的依赖版本
+2. **避免 Netlify 构建失败**：如果推送的代码包含新的依赖但没有运行 `pnpm install`，Netlify 在构建时可能会找不到新依赖，导致构建失败
+3. **保持一致性**：确保团队成员使用相同的依赖版本，避免"在我电脑上能跑"的问题
+
+**何时需要执行 `pnpm install`？**
+
+- 修改了 `package.json` 文件中的 `dependencies` 或 `devDependencies`
+- 从远程仓库拉取了包含依赖变更的代码
+- 删除了 `node_modules` 文件夹
+- 首次克隆项目后
 
 ## 开发说明
 
@@ -235,17 +251,23 @@ pnpm preview
 - 题目数据通过 fetch API 从 public 文件夹加载
 - 支持热更新，修改代码后自动刷新
 - 组件采用模块化设计，便于维护和扩展
+- 使用 Zustand 进行全局状态管理
+- 使用 TypeScript 进行类型安全开发
+- 使用 Ant Design 组件库构建 UI
 
 ## 部署说明
 
 ### GitHub + Netlify 部署
 
-1. 将项目推送到 GitHub 仓库
-2. 登录 Netlify，点击「New site from Git」
-3. 选择你的 GitHub 仓库
-4. 配置构建命令：`pnpm build`
-5. 配置发布目录：`dist`
-6. 点击「Deploy site」完成部署
+> **部署前重要提醒**：确保在推送代码到 GitHub 之前，已经在本地执行过 `pnpm install`，并且 `pnpm-lock.yaml` 文件已经更新。否则 Netlify 在构建时可能会因为依赖版本不匹配而失败。
+
+1. 在本地执行 `pnpm install` 更新依赖
+2. 将项目推送到 GitHub 仓库
+3. 登录 Netlify，点击「New site from Git」
+4. 选择你的 GitHub 仓库
+5. 配置构建命令：`pnpm build`
+6. 配置发布目录：`dist`
+7. 点击「Deploy site」完成部署
 
 ### 其他部署方式
 
@@ -301,9 +323,10 @@ npx serve
  - ✅ 组件按功能模块重组目录结构
  - ✅ 考试结果分析优化：新增按题型统计错误数量、历史记录持久化
  - ✅ 依赖升级：React 19.2.7、Ant Design 6.4.4、Vite 5.4.21
-
-
-
+ - ✅ 题目ID显示功能：答题时显示题目ID，便于排查重复题目
+ - ✅ 随机选题去重优化：确保生成的试卷中没有重复题目
+ - ✅ 错题重考去重优化：确保重考的错题中没有重复题目
+ - ✅ 移除旧方式（单文件模式）支持，统一使用多文件模式
 
 ### v1.2
 

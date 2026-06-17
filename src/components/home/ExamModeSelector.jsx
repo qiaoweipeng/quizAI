@@ -18,20 +18,39 @@ export default function ExamModeSelector({ papers, questions, setExamState, setP
   const [fixedModalOpen, setFixedModalOpen] = useState(false)
   const [selectedPaper, setSelectedPaper] = useState(null)
 
+  const uniqueById = (arr) => {
+    const seen = new Set()
+    return arr.filter(q => {
+      if (seen.has(q.id)) return false
+      seen.add(q.id)
+      return true
+    })
+  }
+
   const handleRandomExam = () => {
-    if (questions.length < 200) {
+    const availableSingle = questions.filter(q => q.type === 'single')
+    const availableMultiple = questions.filter(q => q.type === 'multiple')
+    const availableJudge = questions.filter(q => q.type === 'judge')
+    
+    const neededSingle = 100
+    const neededMultiple = 40
+    const neededJudge = 60
+    
+    if (availableSingle.length < neededSingle || 
+        availableMultiple.length < neededMultiple || 
+        availableJudge.length < neededJudge) {
       Modal.warning({
         title: '题库不足',
-        content: `总题库不足200题（当前 ${questions.length} 道），无法生成随机卷`,
+        content: `当前题库数量不足以生成随机卷：\n单选题：${availableSingle.length}/${neededSingle} \n多选题：${availableMultiple.length}/${neededMultiple} \n判断题：${availableJudge.length}/${neededJudge}`,
       })
       return
     }
 
-    const all = questions
-    const single = shuffleArray(all.filter(q => q.type === 'single')).slice(0, 100)
-    const multiple = shuffleArray(all.filter(q => q.type === 'multiple')).slice(0, 40)
-    const judge = shuffleArray(all.filter(q => q.type === 'judge')).slice(0, 60)
-    const examQuestions = [...single, ...multiple, ...judge]
+    const single = shuffleArray([...availableSingle]).slice(0, neededSingle)
+    const multiple = shuffleArray([...availableMultiple]).slice(0, neededMultiple)
+    const judge = shuffleArray([...availableJudge]).slice(0, neededJudge)
+    
+    const examQuestions = uniqueById([...single, ...multiple, ...judge])
 
     const timestamp = Date.now().toString(36)
 

@@ -43,6 +43,7 @@ import { LeftOutlined, RightOutlined, RetweetOutlined, OrderedListOutlined, Vert
 import { Button, Space, Dropdown, Tooltip, Popconfirm } from 'antd'
 import useExamStore from '../../store/examStore.ts'
 import QuestionOption from './QuestionOption'
+import { getOptionKey } from '../../utils/examUtils'
 
 export default function QuestionCard({
   question,
@@ -88,7 +89,7 @@ export default function QuestionCard({
   const isNextDisabled = isWrongOnlyMode ? isLastWrong : currentIndex === total - 1
 
   const renderOption = (opt, idx) => {
-    const key = question.type === 'judge' ? opt : opt.charAt(0)
+    const key = question.type === 'judge' ? opt : getOptionKey(opt)
     const selected = isReviewMode ? question.userAns?.includes(key) : currentAns.includes(key)
     const isCorrect = question.answer.includes(key)
     const isWrong = isReviewMode && question.status === 'wrong'
@@ -181,6 +182,7 @@ export default function QuestionCard({
         </div>
 
         <div className="question-content">
+          <div className="question-id" title="题目ID">{question.id}</div>
           <div className="question-text">{question.question}</div>
           <div className="options-list">
             {question.options.map(renderOption)}

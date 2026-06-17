@@ -22,6 +22,7 @@ import { useState } from 'react'
 import { Button, Modal } from 'antd'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import QuestionOption from '../exam/QuestionOption'
+import { getOptionKey } from '../../utils/examUtils'
 
 export default function PracticePage({ state, setPage }) {
   const [s, setS] = useState(state)
@@ -84,7 +85,7 @@ export default function PracticePage({ state, setPage }) {
   const hasParse = s.showParse[s.current]
 
   const renderOption = (opt, idx) => {
-    const key = q.type === 'judge' ? opt : opt.charAt(0)
+    const key = q.type === 'judge' ? opt : getOptionKey(opt)
     const selected = currentAns.includes(key)
     const isCorrect = q.answer.includes(key)
     const isWrong = hasParse && !isCorrect && selected

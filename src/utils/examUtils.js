@@ -16,8 +16,24 @@ export const STORAGE_KEY = 'exam_state'
 // ===================== 工具函数 =====================
 
 /**
+ * 提取选项的键（字母）
+ * 支持多种选项格式：
+ * - "A. 选项1" → "A"
+ * - "(A)选项2" → "A"
+ * - "A 选项3" → "A"
+ * - "（A）选项4" → "A"
+ * 
+ * @param {string} opt - 选项文本
+ * @returns {string} 选项键（如 "A", "B" 等）
+ */
+export function getOptionKey(opt) {
+  const match = opt.match(/^[\(\s]*([a-zA-Z])[\)\.\s]*/)
+  return match ? match[1].toUpperCase() : opt.charAt(0).toUpperCase()
+}
+
+/**
  * 从json文件夹读取所有题目文件
- * 支持多试卷模式（通过paper-index.json索引）和单文件模式（向后兼容）
+ * 通过paper-index.json索引加载各试卷文件
  * 
  * @returns {Object} { papers: 试卷数组, questions: 所有题目数组 }
  */

@@ -56,8 +56,10 @@ export default function App() {
     window.addEventListener('popstate', handlePopState)
 
     const hash = window.location.hash.slice(1)
-    if (['exam', 'result', 'practice-exam'].includes(hash)) {
+    if (['exam', 'result', 'practice-exam', 'home'].includes(hash)) {
       setCurrentPage(hash)
+    } else {
+      setCurrentPage('home')
     }
 
     return () => {
@@ -100,7 +102,7 @@ export default function App() {
     <ConfigProvider>
       <div className="app">
         <header className="app-header">
-          {currentPage !== 'exam' && <h1>🧯 {currentPage === 'home' && '消防理论考试系统'}</h1>}
+          {currentPage !== 'exam' && <h1>📚 {currentPage === 'home' && '智能刷题系统'}</h1>}
           <div className="header-right">
             <div className="header-stats">
               <span>试卷: {examData.papers.length} 份</span>

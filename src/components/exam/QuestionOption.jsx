@@ -13,6 +13,7 @@
  * @param {function} [onClick] - 点击回调（答题模式下）
  */
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
+import { getOptionKey } from '../../utils/examUtils'
 
 export default function QuestionOption({
   opt,
@@ -23,8 +24,7 @@ export default function QuestionOption({
   isWrong,
   onClick
 }) {
-  // 判断题使用完整选项文字作为key，其他题型使用第一个字符
-  const key = questionType === 'judge' ? opt : opt.charAt(0)
+  const key = questionType === 'judge' ? opt : getOptionKey(opt)
 
   let optionClass = ''
 

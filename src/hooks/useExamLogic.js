@@ -132,9 +132,7 @@ export function useExamLogic() {
    */
   const submitExam = useCallback(() => {
     updateExamState({ finished: true })
-    setTimeout(() => {
-      calculateResult()
-    }, 0)
+    calculateResult()
   }, [updateExamState, calculateResult])
 
   /**
@@ -151,7 +149,14 @@ export function useExamLogic() {
       return 0
     }
     
-    const resetQuestions = wrongQuestions.map(qq => ({
+    const seenIds = new Set()
+    const uniqueWrongQuestions = wrongQuestions.filter(qq => {
+      if (seenIds.has(qq.id)) return false
+      seenIds.add(qq.id)
+      return true
+    })
+    
+    const resetQuestions = uniqueWrongQuestions.map(qq => ({
       ...qq,
       status: null,
       userAns: null
@@ -167,7 +172,7 @@ export function useExamLogic() {
       timeLeft: 90 * 60,
       paperName: `${examState.paperName} - 错题重考`,
       autoNext: examState.autoNext,
-      showPreselectNotification: false
+      preselectModalShown: true
     })
     
     setExamResult(null)
@@ -175,7 +180,7 @@ export function useExamLogic() {
     setShowWrongOnly(false)
     setShowResultModal(false)
     
-    return wrongQuestions.length
+    return uniqueWrongQuestions.length
   }, [examState, setExamState, setExamResult, setShowParse, setShowWrongOnly, setShowResultModal])
 
   /**
