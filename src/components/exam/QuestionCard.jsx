@@ -40,7 +40,7 @@
  * @param {function} onReExamWrong - 重考错题回调
  */
 import { LeftOutlined, RightOutlined, CheckOutlined, CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import { Button, Tooltip, Popconfirm, message } from 'antd'
+import { Button, Tooltip, Popconfirm, message, Dropdown, Menu } from 'antd'
 import useExamStore from '../../store/examStore.ts'
 import QuestionOption from './QuestionOption'
 import ExamToolbar from './ExamToolbar'
@@ -68,7 +68,7 @@ export default function QuestionCard({
   wrongQuestionIndices = [],
   onReExamWrong
 }) {
-  const { sidebarHidden, showParse } = useExamStore()
+  const { sidebarHidden, showParse, addToWrongBook, wrongBook } = useExamStore()
 
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
   
@@ -108,6 +108,14 @@ export default function QuestionCard({
     }
   }
 
+  const isQuestionWrong = isReviewMode && question.status === 'wrong'
+  const isInWrongBook = wrongBook.includes(question.id)
+
+  const handleAddToWrongBook = () => {
+    addToWrongBook(question.id)
+    message.success('已移入错题本')
+  }
+
   return (
     <div className="exam-card">
       <ExamToolbar
@@ -133,7 +141,25 @@ export default function QuestionCard({
         </div>
 
         <div className="question-content">
-          <div className="question-text" onDoubleClick={handleDoubleClickQuestion}>{question.question}</div>
+          {isQuestionWrong ? (
+            <Dropdown 
+              menu={{
+                items: [
+                  {
+                    key: 'add',
+                    label: isInWrongBook ? '已在错题本' : '移入错题本',
+                    onClick: handleAddToWrongBook,
+                    disabled: isInWrongBook
+                  }
+                ]
+              }}
+              trigger={['contextMenu']}
+            >
+              <div className="question-text" onDoubleClick={handleDoubleClickQuestion}>{question.question}</div>
+            </Dropdown>
+          ) : (
+            <div className="question-text" onDoubleClick={handleDoubleClickQuestion}>{question.question}</div>
+          )}
           <div className="options-list">
             {question.options.map(renderOption)}
           </div>

@@ -22,7 +22,8 @@ export function useExamLogic() {
     setShowResultModal, 
     setShowParse, 
     setShowWrongOnly,
-    updateExamState
+    updateExamState,
+    wrongBook
   } = useExamStore()
 
   /**
@@ -153,8 +154,12 @@ export function useExamLogic() {
     const uniqueWrongQuestions = wrongQuestions.filter(qq => {
       if (seenIds.has(qq.id)) return false
       seenIds.add(qq.id)
-      return true
+      return !wrongBook.includes(qq.id)
     })
+    
+    if (uniqueWrongQuestions.length === 0) {
+      return 0
+    }
     
     const resetQuestions = uniqueWrongQuestions.map(qq => ({
       ...qq,

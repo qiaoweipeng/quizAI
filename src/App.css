@@ -93,7 +93,7 @@
   text-decoration: underline !important;
 }
 
-.btn-fullscreen {
+.btn-icon {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -107,11 +107,11 @@
   transition: transform 0.15s ease !important;
 }
 
-.btn-fullscreen:hover {
+.btn-icon:hover {
   color: var(--text-secondary) !important;
 }
 
-.btn-fullscreen:active {
+.btn-icon:active {
   transform: scale(0.9) !important;
 }
 

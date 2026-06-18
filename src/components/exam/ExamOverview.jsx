@@ -19,7 +19,7 @@
  * @param {function} setState - 状态更新函数
  */
 import { CheckOutlined, CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import { message } from 'antd'
+import { message, Dropdown, Menu } from 'antd'
 import useExamStore from '../../store/examStore.ts'
 import QuestionOption from './QuestionOption'
 import ExamToolbar from './ExamToolbar'
@@ -40,6 +40,7 @@ export default function ExamOverview({
   wrongQuestionIndices,
   updateExamState
 }) {
+  const { addToWrongBook, wrongBook } = useExamStore()
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
 
   const filteredQuestions = showWrongOnly
@@ -92,19 +93,44 @@ export default function ExamOverview({
         const statusClass = isReviewMode && qq.status ? `status-${qq.status}` : ''
         const displayIndex = showWrongOnly ? idx + 1 : originalIdx + 1
         
+        const isQuestionWrong = isReviewMode && qq.status === 'wrong'
+        const isInWrongBook = wrongBook.includes(qq.id)
+
+        const handleAddToWrongBook = () => {
+          addToWrongBook(qq.id)
+          message.success('已移入错题本')
+        }
+
         return (
           <div 
             key={originalIdx} 
             className={`overview-item ${originalIdx === current ? 'current' : ''} ${statusClass}`}
             data-original-index={originalIdx}
             onClick={() => onGoQuestion(originalIdx)}
-            onDoubleClick={() => handleDoubleClickQuestion(qq)}
           >
             <div className="overview-header">
               <span className="overview-index">{displayIndex}</span>
               <span className={`overview-type type-${qq.type}`}>{typeMap[qq.type]}</span>
             </div>
-            <div className="overview-question">{qq.question}</div>
+            {isQuestionWrong ? (
+              <Dropdown 
+                menu={{
+                  items: [
+                    {
+                      key: 'add',
+                      label: isInWrongBook ? '已在错题本' : '移入错题本',
+                      onClick: handleAddToWrongBook,
+                      disabled: isInWrongBook
+                    }
+                  ]
+                }}
+                trigger={['contextMenu']}
+              >
+                <div className="overview-question" onDoubleClick={() => handleDoubleClickQuestion(qq)}>{qq.question}</div>
+              </Dropdown>
+            ) : (
+              <div className="overview-question" onDoubleClick={() => handleDoubleClickQuestion(qq)}>{qq.question}</div>
+            )}
             <div className="options-list">
               {qq.options.map((opt, optIdx) => {
                 const key = qq.type === 'judge' ? opt : getOptionKey(opt)

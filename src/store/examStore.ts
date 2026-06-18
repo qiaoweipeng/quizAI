@@ -117,6 +117,20 @@ interface ExamStore {
   /** 考试历史记录列表 */
   examHistory: ExamHistoryRecord[]
 
+  // ===== 错题本 =====
+
+  /** 错题本（存储错题ID） */
+  wrongBook: string[]
+
+  /** 添加错题到错题本 */
+  addToWrongBook: (questionId: string) => void
+
+  /** 从错题本移除错题 */
+  removeFromWrongBook: (questionId: string) => void
+
+  /** 清空错题本 */
+  clearWrongBook: () => void
+
   // ===== 操作方法 =====
 
   /**
@@ -233,6 +247,7 @@ const useExamStore = create<ExamStore>()(
       showParse: true,
       showWrongOnly: false,
       examHistory: [],
+      wrongBook: [],
 
       // ===== 操作方法 =====
       setViewMode: (mode) => set({ viewMode: mode }),
@@ -248,6 +263,15 @@ const useExamStore = create<ExamStore>()(
       addExamHistory: (record) => set((state) => ({
         examHistory: [...state.examHistory, record]
       })),
+      addToWrongBook: (questionId) => set((state) => ({
+        wrongBook: state.wrongBook.includes(questionId) 
+          ? state.wrongBook 
+          : [...state.wrongBook, questionId]
+      })),
+      removeFromWrongBook: (questionId) => set((state) => ({
+        wrongBook: state.wrongBook.filter(id => id !== questionId)
+      })),
+      clearWrongBook: () => set({ wrongBook: [] }),
       resetExamState: () => set({
         viewMode: 'single',
         showResultModal: false,
@@ -274,7 +298,8 @@ const useExamStore = create<ExamStore>()(
       name: 'exam-store',
       partialize: (state) => ({
         examState: state.examState,
-        examHistory: state.examHistory
+        examHistory: state.examHistory,
+        wrongBook: state.wrongBook
       })
     }
   )
