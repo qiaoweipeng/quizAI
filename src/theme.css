@@ -59,3 +59,32 @@
   /* ===== 练习模式渐变 ===== */
   --practice-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
+
+body.dark {
+  --text-primary: #f5f5f5;
+  --text-secondary: #e8e8e8;
+  --text-tertiary: #bfbfbf;
+  --text-muted: #999;
+  --text-light: #666;
+  --text-disabled: #4d4d4d;
+  
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #242424;
+  --bg-tertiary: #2d2d2d;
+  --bg-hover: #333;
+  
+  --border-color: #434343;
+  --border-light: #383838;
+  --border-thin: #2a2a2a;
+  
+  --success-bg: #1a365d;
+  --success-border: #1e4d7b;
+  
+  --warning-bg: #3d2e18;
+  --warning-border: #5a4220;
+  
+  --error-bg: #4a1a1a;
+  --error-border: #6b2626;
+  
+  --primary-bg: #1a365d;
+}

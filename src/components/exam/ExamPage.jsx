@@ -21,7 +21,7 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { clearExamState, saveExamState } from '../../utils/examUtils'
-import { Button, Tooltip, FloatButton, notification, message } from 'antd'
+import { Button, Tooltip, FloatButton, App } from 'antd'
 import { VerticalAlignTopOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import ExamTimer from './ExamTimer'
 import QuestionSidebar from './QuestionSidebar'
@@ -49,6 +49,8 @@ export default function ExamPage() {
     resetAllState,
     setCurrentPage
   } = useExamStore()
+
+  const { message, notification } = App.useApp()
 
   const {
     preselectAll,

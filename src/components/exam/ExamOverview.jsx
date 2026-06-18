@@ -19,7 +19,7 @@
  * @param {function} setState - 状态更新函数
  */
 import { CheckOutlined, CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import { message, Dropdown, Menu } from 'antd'
+import { Dropdown, Menu, App } from 'antd'
 import useExamStore from '../../store/examStore.ts'
 import QuestionOption from './QuestionOption'
 import ExamToolbar from './ExamToolbar'
@@ -41,6 +41,7 @@ export default function ExamOverview({
   updateExamState
 }) {
   const { addToWrongBook, wrongBook } = useExamStore()
+  const { message } = App.useApp()
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
 
   const filteredQuestions = showWrongOnly
@@ -101,7 +102,64 @@ export default function ExamOverview({
           message.success('已移入错题本')
         }
 
-        return (
+        return isQuestionWrong ? (
+            <Dropdown 
+              menu={{
+                items: [
+                  {
+                    key: 'add',
+                    label: isInWrongBook ? '已在错题本' : '移入错题本',
+                    onClick: handleAddToWrongBook,
+                    disabled: isInWrongBook
+                  }
+                ]
+              }}
+              trigger={['contextMenu']}
+            >
+              <div 
+                key={originalIdx} 
+                className={`overview-item ${originalIdx === current ? 'current' : ''} ${statusClass}`}
+                data-original-index={originalIdx}
+                onClick={() => onGoQuestion(originalIdx)}
+              >
+                <div className="overview-header">
+                  <span className="overview-index" onDoubleClick={() => handleDoubleClickQuestion(qq)}>{displayIndex}</span>
+                  <span className={`overview-type type-${qq.type}`}>{typeMap[qq.type]}</span>
+                </div>
+                <div className="overview-question" onDoubleClick={() => handleDoubleClickQuestion(qq)}>{qq.question}</div>
+                <div className="options-list">
+              {qq.options.map((opt, optIdx) => {
+                const key = qq.type === 'judge' ? opt : getOptionKey(opt)
+                const selected = isReviewMode ? qq.userAns?.includes(key) : ans.includes(key)
+                const isCorrect = qq.answer.includes(key)
+                const isWrong = isReviewMode && qq.status === 'wrong'
+                
+                return (
+                  <QuestionOption
+                    key={key}
+                    opt={opt}
+                    questionType={qq.type}
+                    isReviewMode={isReviewMode}
+                    selected={selected}
+                    isCorrect={isCorrect}
+                    isWrong={isWrong}
+                    onClick={(e) => handleOptionClick(e, qq, ans, optIdx)}
+                  />
+                )
+              })}
+            </div>
+            {isReviewMode && showParse && qq.parse && (
+                <div className="parse-box show">
+                  <div className="parse-title"><QuestionCircleOutlined /> 解析</div>
+                  <div className="parse-text">{qq.parse}</div>
+                  <div className="parse-answer">
+                    正确答案：{qq.answer.join(', ')} · 你的答案：{qq.userAns?.length ? qq.userAns.join(', ') : '未选'}
+                  </div>
+                </div>
+              )}
+            </div>
+          </Dropdown>
+        ) : (
           <div 
             key={originalIdx} 
             className={`overview-item ${originalIdx === current ? 'current' : ''} ${statusClass}`}
@@ -109,28 +167,10 @@ export default function ExamOverview({
             onClick={() => onGoQuestion(originalIdx)}
           >
             <div className="overview-header">
-              <span className="overview-index">{displayIndex}</span>
+              <span className="overview-index" onDoubleClick={() => handleDoubleClickQuestion(qq)}>{displayIndex}</span>
               <span className={`overview-type type-${qq.type}`}>{typeMap[qq.type]}</span>
             </div>
-            {isQuestionWrong ? (
-              <Dropdown 
-                menu={{
-                  items: [
-                    {
-                      key: 'add',
-                      label: isInWrongBook ? '已在错题本' : '移入错题本',
-                      onClick: handleAddToWrongBook,
-                      disabled: isInWrongBook
-                    }
-                  ]
-                }}
-                trigger={['contextMenu']}
-              >
-                <div className="overview-question" onDoubleClick={() => handleDoubleClickQuestion(qq)}>{qq.question}</div>
-              </Dropdown>
-            ) : (
-              <div className="overview-question" onDoubleClick={() => handleDoubleClickQuestion(qq)}>{qq.question}</div>
-            )}
+            <div className="overview-question" onDoubleClick={() => handleDoubleClickQuestion(qq)}>{qq.question}</div>
             <div className="options-list">
               {qq.options.map((opt, optIdx) => {
                 const key = qq.type === 'judge' ? opt : getOptionKey(opt)
@@ -162,8 +202,7 @@ export default function ExamOverview({
               </div>
             )}
           </div>
-        )
-      })}
+        )})}
     </div>
   )
 }

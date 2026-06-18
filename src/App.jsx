@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { ConfigProvider, Button, Layout, Modal, Drawer, Table, Space, message, Badge, Popconfirm } from 'antd'
-import { FullscreenOutlined, FullscreenExitOutlined, RobotOutlined, FileExcelOutlined, DeleteOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { ConfigProvider, Button, Layout, Modal, Drawer, Table, Space, Badge, Popconfirm, App } from 'antd'
+import { theme } from 'antd'
+import { FullscreenOutlined, FullscreenExitOutlined, RobotOutlined, FileExcelOutlined, DeleteOutlined, QuestionCircleOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import './App.css'
 
 const { Header, Content, Footer } = Layout
@@ -12,7 +13,91 @@ import PracticePage from './components/practice/PracticePage'
 import { loadJsonFiles, loadExamState } from './utils/examUtils'
 import useExamStore from './store/examStore'
 
-export default function App() {
+function WrongBookDrawer({ 
+  showWrongBookModal, 
+  setShowWrongBookModal, 
+  wrongBook, 
+  removeFromWrongBook, 
+  clearWrongBook, 
+  examData, 
+  setSelectedQuestion, 
+  setShowQuestionDetail 
+}) {
+  const { message } = App.useApp()
+
+  return (
+    <Drawer
+      title={<><FileExcelOutlined style={{ marginRight: 8, color: '#1890ff', fontSize: 20 }} /><span>我的错题本</span></>}
+      open={showWrongBookModal}
+      onClose={() => setShowWrongBookModal(false)}
+      footer={
+        <Space>
+          <Popconfirm
+            title="确认清空错题本？"
+            description="清空后所有错题将被移除，此操作不可恢复。"
+            onConfirm={() => {
+              clearWrongBook()
+              message.success('错题本已清空')
+            }}
+            okText="确认"
+            cancelText="取消"
+          >
+            <Button danger>一键清空错题本</Button>
+          </Popconfirm>
+        </Space>
+      }
+      width={800}
+      placement="right"
+    >
+      <Table
+        dataSource={wrongBook.map(id => {
+          const question = examData.questions.find(q => q.id === id)
+          return {
+            key: id,
+            id,
+            content: question?.question || '未知题目',
+            type: question?.type === 'single' ? '单选题' : question?.type === 'multiple' ? '多选题' : '判断题'
+          }
+        })}
+        columns={[
+          { title: '题目ID', dataIndex: 'id', key: 'id', width: 120 },
+          { title: '题目类型', dataIndex: 'type', key: 'type', width: 100 },
+          { title: '题目内容', dataIndex: 'content', key: 'content', ellipsis: true },
+          { 
+            title: '操作', 
+            key: 'action', 
+            width: 100,
+            render: (_, record) => (
+              <Button 
+                type="text" 
+                danger 
+                icon={<DeleteOutlined />} 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  removeFromWrongBook(record.id)
+                  message.success('已从错题本移除')
+                }}
+              >移除</Button>
+            )
+          }
+        ]}
+        pagination={false}
+        locale={{ emptyText: '错题本为空' }}
+        onRow={(record) => ({
+          onClick: () => {
+            const question = examData.questions.find(q => q.id === record.id)
+            if (question) {
+              setSelectedQuestion(question)
+              setShowQuestionDetail(true)
+            }
+          }
+        })}
+      />
+    </Drawer>
+  )
+}
+
+export default function RootApp() {
   const {
     currentPage,
     setCurrentPage,
@@ -27,6 +112,8 @@ export default function App() {
     setLoading,
     isFullscreen,
     setIsFullscreen,
+    darkMode,
+    toggleDarkMode,
     wrongBook,
     removeFromWrongBook,
     clearWrongBook
@@ -108,25 +195,41 @@ export default function App() {
     }
   }, [])
 
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark')
+    } else {
+      document.body.classList.remove('dark')
+    }
+  }, [darkMode])
+
   return (
-    <ConfigProvider>
+    <ConfigProvider
+        theme={{
+          algorithm: darkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
+          token: {
+            colorPrimary: '#1890ff',
+          },
+        }}
+      >
+      <App>
       <Layout className="app">
         <Header className="app-header">
-          {currentPage !== 'exam' && (
-            <div className="header-logo">
-              <RobotOutlined className="logo-icon" />
-              {currentPage === 'home' && <span className="logo-text">智能刷题系统</span>}
-            </div>
-          )}
+          <div className="header-logo" onClick={() => setPage('home')}>
+            <RobotOutlined className="logo-icon" />
+            {currentPage === 'home' && <span className="logo-text">智能刷题系统</span>}
+          </div>
           <div className="header-right">
             <div className="header-actions">
-              {currentPage !== 'home' && (
-                <Button className="btn-link" onClick={() => setPage('home')}>返回首页</Button>
-              )}
               <Button 
                 className="btn-icon"
                 icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
                 onClick={toggleFullscreen}
+              />
+              <Button 
+                className="btn-icon"
+                icon={darkMode ? <SunOutlined /> : <MoonOutlined />}
+                onClick={toggleDarkMode}
               />
               <Button 
                 className="btn-icon"
@@ -141,7 +244,7 @@ export default function App() {
           </div>
         </Header>
 
-        <Content className="app-main">
+        <Content className={`app-main ${currentPage === 'exam' ? 'exam-content' : ''}`}>
           {loading ? (
             <div className="loading-page">
               <div className="loading-spinner"></div>
@@ -157,73 +260,16 @@ export default function App() {
           )}
         </Content>
 
-        <Drawer
-          title={<><FileExcelOutlined style={{ marginRight: 8, color: '#1890ff', fontSize: 20 }} /><span>我的错题本</span></>}
-          open={showWrongBookModal}
-          onClose={() => setShowWrongBookModal(false)}
-          footer={
-            <Space>
-              <Popconfirm
-                title="确认清空错题本？"
-                description="清空后所有错题将被移除，此操作不可恢复。"
-                onConfirm={() => {
-                  clearWrongBook()
-                  message.success('错题本已清空')
-                }}
-                okText="确认"
-                cancelText="取消"
-              >
-                <Button danger>一键清空错题本</Button>
-              </Popconfirm>
-            </Space>
-          }
-          width={800}
-          placement="right"
-        >
-          <Table
-            dataSource={wrongBook.map(id => {
-              const question = examData.questions.find(q => q.id === id)
-              return {
-                key: id,
-                id,
-                content: question?.question || '未知题目',
-                type: question?.type === 'single' ? '单选题' : question?.type === 'multiple' ? '多选题' : '判断题'
-              }
-            })}
-            columns={[
-              { title: '题目ID', dataIndex: 'id', key: 'id', width: 120 },
-              { title: '题目类型', dataIndex: 'type', key: 'type', width: 100 },
-              { title: '题目内容', dataIndex: 'content', key: 'content', ellipsis: true },
-              { 
-                title: '操作', 
-                key: 'action', 
-                width: 100,
-                render: (_, record) => (
-                  <Button 
-                    type="text" 
-                    danger 
-                    icon={<DeleteOutlined />} 
-                    onClick={() => {
-                      removeFromWrongBook(record.id)
-                      message.success('已从错题本移除')
-                    }}
-                  >移除</Button>
-                )
-              }
-            ]}
-            pagination={false}
-            locale={{ emptyText: '错题本为空' }}
-            onRow={(record) => ({
-              onClick: () => {
-                const question = examData.questions.find(q => q.id === record.id)
-                if (question) {
-                  setSelectedQuestion(question)
-                  setShowQuestionDetail(true)
-                }
-              }
-            })}
-          />
-        </Drawer>
+        <WrongBookDrawer
+          showWrongBookModal={showWrongBookModal}
+          setShowWrongBookModal={setShowWrongBookModal}
+          wrongBook={wrongBook}
+          removeFromWrongBook={removeFromWrongBook}
+          clearWrongBook={clearWrongBook}
+          examData={examData}
+          setSelectedQuestion={setSelectedQuestion}
+          setShowQuestionDetail={setShowQuestionDetail}
+        />
 
         <Drawer
           title={`题目 ${selectedQuestion?.id}`}
@@ -286,6 +332,7 @@ export default function App() {
           </Footer>
         )}
       </Layout>
+      </App>
     </ConfigProvider>
   )
 }

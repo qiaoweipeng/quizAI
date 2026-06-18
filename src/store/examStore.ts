@@ -63,6 +63,15 @@ interface ExamStore {
   /** 设置全屏状态 */
   setIsFullscreen: (fullscreen: boolean) => void
 
+  /** 是否暗黑模式 */
+  darkMode: boolean
+
+  /** 设置暗黑模式 */
+  setDarkMode: (darkMode: boolean) => void
+
+  /** 切换暗黑模式 */
+  toggleDarkMode: () => void
+
   // ===== 题库数据 =====
 
   /** 题库数据 */
@@ -213,6 +222,9 @@ const useExamStore = create<ExamStore>()(
       setLoading: (loading) => set({ loading }),
       isFullscreen: false,
       setIsFullscreen: (fullscreen) => set({ isFullscreen: fullscreen }),
+      darkMode: false,
+      setDarkMode: (darkMode) => set({ darkMode }),
+      toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
 
       // ===== 题库数据 =====
       examData: { papers: [], questions: [] },
@@ -299,7 +311,8 @@ const useExamStore = create<ExamStore>()(
       partialize: (state) => ({
         examState: state.examState,
         examHistory: state.examHistory,
-        wrongBook: state.wrongBook
+        wrongBook: state.wrongBook,
+        darkMode: state.darkMode
       })
     }
   )

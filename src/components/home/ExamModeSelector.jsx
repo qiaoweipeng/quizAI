@@ -10,11 +10,12 @@
  * @param {function} setPage - 页面切换函数
  */
 import { useState } from 'react'
-import { Modal, Button, Table, Radio } from 'antd'
+import { Button, Table, Radio, Modal, App } from 'antd'
 import { FileDoneOutlined, FileSyncOutlined } from '@ant-design/icons'
 import { EXAM_TIME, shuffleArray } from '../../utils/examUtils'
 
 export default function ExamModeSelector({ papers, questions, setExamState, setPage }) {
+  const { modal } = App.useApp()
   const [randomModalOpen, setRandomModalOpen] = useState(false)
   const [fixedModalOpen, setFixedModalOpen] = useState(false)
   const [selectedPaper, setSelectedPaper] = useState(null)
@@ -40,7 +41,7 @@ export default function ExamModeSelector({ papers, questions, setExamState, setP
     if (availableSingle.length < neededSingle || 
         availableMultiple.length < neededMultiple || 
         availableJudge.length < neededJudge) {
-      Modal.warning({
+      modal.warning({
         title: '题库不足',
         content: `当前题库数量不足以生成随机卷：\n单选题：${availableSingle.length}/${neededSingle} \n多选题：${availableMultiple.length}/${neededMultiple} \n判断题：${availableJudge.length}/${neededJudge}`,
       })
@@ -79,7 +80,7 @@ export default function ExamModeSelector({ papers, questions, setExamState, setP
   const handleStartFixed = (paper) => {
     const examQuestions = paper.questions || []
     if (examQuestions.length === 0) {
-      Modal.warning({
+      modal.warning({
         title: '试卷无题目',
         content: '该试卷没有题目',
       })

@@ -20,7 +20,8 @@
  * @param {function} onSubmit - 交卷回调
  * @param {string} [filter='all'] - 过滤条件（'all' | 'wrong'）
  */
-import { Divider, Button, BorderBeam, Popconfirm } from 'antd'
+import { Divider, Button, BorderBeam, Popconfirm, Dropdown, App } from 'antd'
+import useExamStore from '../../store/examStore.ts'
 
 export default function QuestionSidebar({ 
   questions, 
@@ -32,6 +33,8 @@ export default function QuestionSidebar({
   onSubmit,
   filter = 'all' // 'all' | 'wrong'
 }) {
+  const { addToWrongBook, wrongBook } = useExamStore()
+  const { message } = App.useApp()
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
 
   // 根据过滤条件获取题目索引列表
@@ -47,34 +50,76 @@ export default function QuestionSidebar({
 
   const filteredIndices = getFilteredIndices()
 
-  // 渲染单个题目按钮
   const renderButton = (originalIdx, displayNum) => {
     const qq = questions[originalIdx]
     const hasAns = !!answers[originalIdx]
     const isCurrent = originalIdx === current
     const statusClass = isReviewMode && qq.status ? qq.status : ''
+    const isQuestionWrong = isReviewMode && qq.status === 'wrong'
+    const isInWrongBook = wrongBook.includes(qq.id)
+
+    const handleAddToWrongBook = () => {
+      addToWrongBook(qq.id)
+      message.success('已移入错题本')
+    }
+
+    const button = (
+      <Button
+        style={isCurrent ? { border: '1px solid #d9d9d9' } : {}}
+        className={`qnum-btn ${isCurrent ? 'current' : ''} ${hasAns ? 'answered' : ''} ${statusClass}`}
+        onClick={() => onGoQuestion(originalIdx)}
+        title={`${typeMap[qq.type]} · ${qq.question.substring(0, 20)}...`}
+      >
+        {displayNum}
+      </Button>
+    )
+
     return (
       <div key={originalIdx} style={{ display: 'inline-block' }}>
         {isCurrent ? (
-          <BorderBeam duration={0.8} color={[{ color: '#8b5cf6', percent: 0 }, { color: '#06b6d4', percent: 40 }, { color: '#ec4899', percent: 70 }, { color: '#8b5cf6', percent: 100 }]}>
-            
-            <Button
-              style={{ border: '1px solid #d9d9d9' }}
-              className={`qnum-btn ${isCurrent ? 'current' : ''} ${hasAns ? 'answered' : ''} ${statusClass}`}
-              onClick={() => onGoQuestion(originalIdx)}
-              title={`${typeMap[qq.type]} · ${qq.question.substring(0, 20)}...`}
+          isQuestionWrong ? (
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'add',
+                    label: isInWrongBook ? '已在错题本' : '移入错题本',
+                    onClick: handleAddToWrongBook,
+                    disabled: isInWrongBook
+                  }
+                ]
+              }}
+              trigger={['contextMenu']}
             >
-              {displayNum}
-            </Button>
-          </BorderBeam>
+              <BorderBeam duration={0.8} color={[{ color: '#8b5cf6', percent: 0 }, { color: '#06b6d4', percent: 40 }, { color: '#ec4899', percent: 70 }, { color: '#8b5cf6', percent: 100 }]}>
+                {button}
+              </BorderBeam>
+            </Dropdown>
+          ) : (
+            <BorderBeam duration={0.8} color={[{ color: '#8b5cf6', percent: 0 }, { color: '#06b6d4', percent: 40 }, { color: '#ec4899', percent: 70 }, { color: '#8b5cf6', percent: 100 }]}>
+              {button}
+            </BorderBeam>
+          )
         ) : (
-          <Button
-            className={`qnum-btn ${hasAns ? 'answered' : ''} ${statusClass}`}
-            onClick={() => onGoQuestion(originalIdx)}
-            title={`${typeMap[qq.type]} · ${qq.question.substring(0, 20)}...`}
-          >
-            {displayNum}
-          </Button>
+          isQuestionWrong ? (
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'add',
+                    label: isInWrongBook ? '已在错题本' : '移入错题本',
+                    onClick: handleAddToWrongBook,
+                    disabled: isInWrongBook
+                  }
+                ]
+              }}
+              trigger={['contextMenu']}
+            >
+              {button}
+            </Dropdown>
+          ) : (
+            button
+          )
         )}
       </div>
     )

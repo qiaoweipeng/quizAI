@@ -19,13 +19,14 @@
  * @param {function} setPage - 页面切换函数
  */
 import { useState } from 'react'
-import { Button, Modal } from 'antd'
+import { Button, Modal, App } from 'antd'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import QuestionOption from '../exam/QuestionOption'
 import { getOptionKey } from '../../utils/examUtils'
 
 export default function PracticePage({ state, setPage }) {
   const [s, setS] = useState(state)
+  const { modal } = App.useApp()
   const q = s.questions[s.current]
   const total = s.questions.length
   const isLast = s.current === total - 1
@@ -52,7 +53,7 @@ export default function PracticePage({ state, setPage }) {
 
   const next = () => {
     if (isLast) {
-      Modal.confirm({
+      modal.confirm({
         title: '结束练习',
         content: '已经是最后一题，是否结束练习？',
         okText: '确定',
@@ -71,7 +72,7 @@ export default function PracticePage({ state, setPage }) {
   const handleExit = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    Modal.confirm({
+    modal.confirm({
       title: '确认退出',
       content: '确定退出练习？',
       okText: '确定',

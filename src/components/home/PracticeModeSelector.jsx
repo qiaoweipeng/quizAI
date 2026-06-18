@@ -9,7 +9,7 @@
  * @param {function} setPage - 页面切换函数
  */
 import { useState } from 'react'
-import { Modal, Button, Radio, Select, InputNumber, ConfigProvider } from 'antd'
+import { Button, Radio, Select, InputNumber, ConfigProvider, Modal, App } from 'antd'
 import { FileSearchOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { shuffleArray } from '../../utils/examUtils'
@@ -40,6 +40,7 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
 
 export default function PracticeModeSelector({ questions, setPracticeState, setPage }) {
   const { styles } = useStyle()
+  const { modal } = App.useApp()
   const [practiceModalOpen, setPracticeModalOpen] = useState(false)
   const [practiceType, setPracticeType] = useState('single')
   const [practiceCount, setPracticeCount] = useState(10)
@@ -51,7 +52,7 @@ export default function PracticeModeSelector({ questions, setPracticeState, setP
     if (practiceMode === 'free') {
       const pool = questions.filter(q => q.type === practiceType)
       if (pool.length === 0) {
-        Modal.warning({
+        modal.warning({
           title: '暂无题目',
           content: '该题型暂无题目',
         })
@@ -65,7 +66,7 @@ export default function PracticeModeSelector({ questions, setPracticeState, setP
     } else if (practiceMode === 'all') {
       const practiceQuestions = questions
       if (practiceQuestions.length === 0) {
-        Modal.warning({
+        modal.warning({
           title: '暂无题目',
           content: '题库暂无题目',
         })

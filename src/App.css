@@ -1,3 +1,10 @@
+* {
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .app {
   min-height: 100vh;
   user-select: none;
@@ -16,6 +23,8 @@
 .ant-notification-notice-description {
   color: var(--text-disabled) !important;
 }
+
+
 
 .app-header {
   background: var(--bg-primary) !important;
@@ -833,7 +842,6 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
   max-width: 1000px;
-  margin: 0 auto;
 }
 
 .exam-main > .exam-overview::-webkit-scrollbar {
@@ -1644,7 +1652,7 @@
 
 /* ===== 考试结果模态框 ===== */
 .result-modal {
-  background: var(--bg-primary);
+  /* background: var(--bg-primary); */
   border-radius: 12px;
   width: 100%;
   height: 100%;

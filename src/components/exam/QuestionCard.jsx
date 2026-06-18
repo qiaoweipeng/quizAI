@@ -40,7 +40,7 @@
  * @param {function} onReExamWrong - 重考错题回调
  */
 import { LeftOutlined, RightOutlined, CheckOutlined, CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import { Button, Tooltip, Popconfirm, message, Dropdown, Menu } from 'antd'
+import { Button, Tooltip, Popconfirm, Dropdown, Menu, App } from 'antd'
 import useExamStore from '../../store/examStore.ts'
 import QuestionOption from './QuestionOption'
 import ExamToolbar from './ExamToolbar'
@@ -69,6 +69,7 @@ export default function QuestionCard({
   onReExamWrong
 }) {
   const { sidebarHidden, showParse, addToWrongBook, wrongBook } = useExamStore()
+  const { message } = App.useApp()
 
   const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
   
@@ -130,49 +131,77 @@ export default function QuestionCard({
         wrongQuestionIndices={wrongQuestionIndices}
       />
       <div className="card-content">
-        <div className="exam-header">
-          <span className="q-index">
-            {isWrongOnlyMode 
-              ? `第 ${wrongIdx + 1} / ${wrongQuestionIndices.length} 题`
-              : `第 ${currentIndex + 1} / ${total} 题`
-            }
-          </span>
-          <span className={`q-type-badge type-${question.type}`}>{typeMap[question.type]}</span>
-        </div>
-
-        <div className="question-content">
-          {isQuestionWrong ? (
-            <Dropdown 
-              menu={{
-                items: [
-                  {
-                    key: 'add',
-                    label: isInWrongBook ? '已在错题本' : '移入错题本',
-                    onClick: handleAddToWrongBook,
-                    disabled: isInWrongBook
+        {isQuestionWrong ? (
+          <Dropdown 
+            menu={{
+              items: [
+                {
+                  key: 'add',
+                  label: isInWrongBook ? '已在错题本' : '移入错题本',
+                  onClick: handleAddToWrongBook,
+                  disabled: isInWrongBook
+                }
+              ]
+            }}
+            trigger={['contextMenu']}
+          >
+            <div>
+              <div className="exam-header">
+                <span className="q-index">
+                  {isWrongOnlyMode 
+                    ? `第 ${wrongIdx + 1} / ${wrongQuestionIndices.length} 题`
+                    : `第 ${currentIndex + 1} / ${total} 题`
                   }
-                ]
-              }}
-              trigger={['contextMenu']}
-            >
-              <div className="question-text" onDoubleClick={handleDoubleClickQuestion}>{question.question}</div>
-            </Dropdown>
-          ) : (
-            <div className="question-text" onDoubleClick={handleDoubleClickQuestion}>{question.question}</div>
-          )}
-          <div className="options-list">
-            {question.options.map(renderOption)}
-          </div>
-          {isReviewMode && showParse && question.parse && (
-            <div className="parse-box show">
-              <div className="parse-title"><QuestionCircleOutlined /> 解析</div>
-              <div className="parse-text">{question.parse}</div>
-              <div className="parse-answer">
-                正确答案：{question.answer.join(', ')} · 你的答案：{question.userAns?.length ? question.userAns.join(', ') : '未选'}
+                </span>
+                <span className={`q-type-badge type-${question.type}`}>{typeMap[question.type]}</span>
+              </div>
+
+              <div className="question-content">
+                <div className="question-text" onDoubleClick={handleDoubleClickQuestion}>{question.question}</div>
+                <div className="options-list">
+                  {question.options.map(renderOption)}
+                </div>
+                {isReviewMode && showParse && question.parse && (
+                  <div className="parse-box show">
+                    <div className="parse-title"><QuestionCircleOutlined /> 解析</div>
+                    <div className="parse-text">{question.parse}</div>
+                    <div className="parse-answer">
+                      正确答案：{question.answer.join(', ')} · 你的答案：{question.userAns?.length ? question.userAns.join(', ') : '未选'}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          )}
-        </div>
+          </Dropdown>
+        ) : (
+          <div>
+            <div className="exam-header">
+              <span className="q-index">
+                {isWrongOnlyMode 
+                  ? `第 ${wrongIdx + 1} / ${wrongQuestionIndices.length} 题`
+                  : `第 ${currentIndex + 1} / ${total} 题`
+                }
+              </span>
+              <span className={`q-type-badge type-${question.type}`}>{typeMap[question.type]}</span>
+            </div>
+
+            <div className="question-content">
+              <div className="question-text" onDoubleClick={handleDoubleClickQuestion}>{question.question}</div>
+              <div className="options-list">
+                {question.options.map(renderOption)}
+              </div>
+              {isReviewMode && showParse && question.parse && (
+                <div className="parse-box show">
+                  <div className="parse-title"><QuestionCircleOutlined /> 解析</div>
+                  <div className="parse-text">{question.parse}</div>
+                  <div className="parse-answer">
+                    正确答案：{question.answer.join(', ')} · 你的答案：{question.userAns?.length ? question.userAns.join(', ') : '未选'}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {showNav && (
