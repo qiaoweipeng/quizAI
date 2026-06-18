@@ -11,6 +11,7 @@
  */
 import { useState } from 'react'
 import { Modal, Button, Table, Radio } from 'antd'
+import { FileDoneOutlined, FileSyncOutlined } from '@ant-design/icons'
 import { EXAM_TIME, shuffleArray } from '../../utils/examUtils'
 
 export default function ExamModeSelector({ papers, questions, setExamState, setPage }) {
@@ -133,12 +134,12 @@ export default function ExamModeSelector({ papers, questions, setExamState, setP
       </div>
 
       <Modal
-        title="📋 固定卷考试"
+        title={<div style={{ display: 'flex', alignItems: 'center' }}><FileDoneOutlined style={{ marginRight: 8, color: '#1890ff', fontSize: 20 }} /><span>固定卷考试</span></div>}
         open={fixedModalOpen}
         onCancel={() => setFixedModalOpen(false)}
         footer={null}
         width={800}
-        styles={{ body: { height: 500, display: 'flex', flexDirection: 'column', overflow: 'hidden' } }}
+        styles={{ body: { height: 500, display: 'flex', flexDirection: 'column', overflow: 'hidden',padding:'0 26px' } }}
       >
         <p style={{ marginBottom: 16, color: '#666', flexShrink: 0 }}>选择一份试卷开始测试一下吧！</p>
         <div style={{ flex: 1, overflowY: 'auto', marginBottom: 16 }}>
@@ -184,14 +185,14 @@ export default function ExamModeSelector({ papers, questions, setExamState, setP
       </Modal>
 
       <Modal
-        title="🎲 随机卷考试"
+        title={<div style={{ display: 'flex', alignItems: 'center' }}><FileSyncOutlined style={{ marginRight: 8, color: '#1890ff', fontSize: 20 }} /><span>随机卷考试</span></div>}
         open={randomModalOpen}
         onOk={handleRandomExam}
         onCancel={() => setRandomModalOpen(false)}
         okText="生成试卷并开考"
         cancelText="取消"
       >
-        <div style={{ padding: '16px 0' }}>
+        <div style={{ padding: '16px 24px' }}>
           <p style={{ marginBottom: 16 }}>将从总题库 <b>{questions.length}</b> 道题中随机抽取：</p>
           <ul style={{ paddingLeft: 24, lineHeight: 2, listStyle: 'none' }}>
             <li>单选题：100 道</li>

@@ -22,7 +22,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { clearExamState, saveExamState } from '../../utils/examUtils'
 import { Button, Tooltip, FloatButton, notification, message } from 'antd'
-import { VerticalAlignTopOutlined } from '@ant-design/icons'
+import { VerticalAlignTopOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import ExamTimer from './ExamTimer'
 import QuestionSidebar from './QuestionSidebar'
 import QuestionCard from './QuestionCard'
@@ -45,7 +45,9 @@ export default function ExamPage() {
     toggleShowParse,
     showWrongOnly,
     toggleShowWrongOnly,
-    updateExamState
+    updateExamState,
+    resetAllState,
+    setCurrentPage
   } = useExamStore()
 
   const {
@@ -83,8 +85,9 @@ export default function ExamPage() {
     const timer = setTimeout(() => {
       const key = `preselect-${Date.now()}`
       notification.open({
-        message: '⚡ 一键预选',
-        description: '自动填充所有题目答案：单选选A、多选全选、判断选对',
+        icon: <ThunderboltOutlined style={{ color: '#faad14' }} />,
+        message: '一键预选',
+        description: '将会自动填充所有题目答案[单选选A、多选全选、判断选对]',
         btn: (
           <Button type="primary" size="small" onClick={() => {
             preselectAll()
@@ -154,7 +157,6 @@ export default function ExamPage() {
   useEffect(() => {
     if (examState?.finished) {
       clearInterval(timerRef.current)
-      clearExamState()
     }
   }, [examState?.finished])
 
@@ -339,7 +341,17 @@ export default function ExamPage() {
       <ExamResultModal
         visible={showResultModal}
         result={useExamStore.getState().examResult}
-        onClose={() => setShowResultModal(false)}
+        onClose={() => {
+          const lastResult = useExamStore.getState().examResult
+          const lastWrongCount = lastResult?.history?.length > 0 
+            ? lastResult.history[lastResult.history.length - 1].wrong 
+            : lastResult?.wrong || 0
+          if (lastWrongCount === 0) {
+            resetAllState()
+          } else {
+            setShowResultModal(false)
+          }
+        }}
       />
     </div>
   )

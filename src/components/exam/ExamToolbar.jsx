@@ -62,14 +62,16 @@ export default function ExamToolbar({
           </Dropdown>
         </Space.Compact>
       )}
-      <Tooltip title={viewMode === 'overview' ? '' : (autoNext ? '切换为手动切题' : '切换为自动切题')}>
-        <div 
-          className={`toolbar-btn auto-next-btn ${!isReviewMode && viewMode === 'single' && autoNext ? 'active' : ''} ${viewMode === 'overview' ? 'toolbar-btn-hidden' : ''}`} 
-          onClick={onToggleAutoNext}
-        >
-          <RetweetOutlined />
-        </div>
-      </Tooltip>
+      {!isReviewMode && (
+        <Tooltip title={viewMode === 'overview' ? '' : (autoNext ? '切换为手动切题' : '切换为自动切题')}>
+          <div 
+            className={`toolbar-btn auto-next-btn ${!isReviewMode && viewMode === 'single' && autoNext ? 'active' : ''} ${viewMode === 'overview' ? 'toolbar-btn-hidden' : ''}`} 
+            onClick={onToggleAutoNext}
+          >
+            <RetweetOutlined />
+          </div>
+        </Tooltip>
+      )}
       <Tooltip title={viewMode === 'overview' ? '切换为单题模式' : '切换为全览模式'}>
         <div className={`toolbar-btn view-mode-btn ${viewMode === 'overview' ? 'active' : ''}`} onClick={onToggleViewMode}>
           {viewMode === 'overview' ? <RollbackOutlined /> : <OrderedListOutlined />}

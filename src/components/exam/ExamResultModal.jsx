@@ -10,7 +10,7 @@
  * @param {function} onClose - 关闭弹窗回调函数
  */
 import { Modal, Table, Tag } from 'antd'
-import { CheckCircleFilled, CloseCircleFilled, LineChartOutlined } from '@ant-design/icons'
+import { LineChartOutlined } from '@ant-design/icons'
 import ResultDisplay from '../result/ResultDisplay'
 import useExamStore from '../../store/examStore'
 
@@ -22,8 +22,6 @@ export default function ExamResultModal({ visible, result, onClose }) {
   if (!displayResult) return null
 
   const isPassed = displayResult.passed
-  const TitleIcon = isPassed ? CheckCircleFilled : CloseCircleFilled
-  const title = isPassed ? '恭喜你成绩合格' : '成绩不合格，请继续努力'
 
   const columns = [
     {
@@ -52,7 +50,7 @@ export default function ExamResultModal({ visible, result, onClose }) {
         return (
           <span>
             <span>{text}</span>
-            {diff > 0 && (
+            {diff > 0 && text > 0 && (
               <span style={{ color: '#52c41a', marginLeft: 4, fontSize: 12 }}>-{diff}</span>
             )}
           </span>
@@ -107,17 +105,8 @@ export default function ExamResultModal({ visible, result, onClose }) {
       }}
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {isReExam ? (
-            <>
-              <LineChartOutlined style={{ fontSize: 24, color: '#1890ff' }} />
-              <span>考试结果分析</span>
-            </>
-          ) : (
-            <>
-              <TitleIcon style={{ fontSize: 24, color: isPassed ? '#52c41a' : '#ff4d4f' }} />
-              <span>{title}</span>
-            </>
-          )}
+          <LineChartOutlined style={{ fontSize: 24, color: '#1890ff' }} />
+          <span>考试结果分析</span>
         </div>
       }
     >

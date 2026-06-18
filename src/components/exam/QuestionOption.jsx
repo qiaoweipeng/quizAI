@@ -58,9 +58,8 @@ export default function QuestionOption({
     <div
       key={key}
       className={`option-row ${optionClass} ${isReviewMode ? 'readonly' : ''}`}
-      onClick={onClick}
     >
-      <span className="option-text">{opt}</span>
+      <span className="option-text" onClick={onClick}>{opt}</span>
       {Icon && <Icon className={`review-icon ${iconClassName}`} />}
     </div>
   )

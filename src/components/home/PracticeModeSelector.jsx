@@ -10,6 +10,7 @@
  */
 import { useState } from 'react'
 import { Modal, Button, Radio, Select, InputNumber, ConfigProvider } from 'antd'
+import { FileSearchOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { shuffleArray } from '../../utils/examUtils'
 
@@ -102,14 +103,14 @@ export default function PracticeModeSelector({ questions, setPracticeState, setP
       </div>
 
       <Modal
-        title="✏️ 专项练习"
+        title={<div style={{ display: 'flex', alignItems: 'center' }}><FileSearchOutlined style={{ marginRight: 8, color: '#1890ff', fontSize: 20 }} /><span>专项练习</span></div>}
         open={practiceModalOpen}
         onOk={handleStartPractice}
         onCancel={() => setPracticeModalOpen(false)}
         okText="开始练习"
         cancelText="取消"
       >
-        <div style={{ padding: '16px 0' }}>
+        <div style={{ padding: '16px 30px' }}>
           <div style={{ marginBottom: 16 }}>
             <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
               <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
