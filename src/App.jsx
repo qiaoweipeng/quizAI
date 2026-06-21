@@ -126,6 +126,7 @@ export default function RootApp() {
   const [promptInstall, setPromptInstall] = useState(null)
   const [isPwaInstalled, setIsPwaInstalled] = useState(false)
   const [showUpdateModal, setShowUpdateModal] = useState(false)
+  const [dataLoading, setDataLoading] = useState(true)
 
   useEffect(() => {
     const saved = loadExamState()
@@ -170,9 +171,16 @@ export default function RootApp() {
 
   useEffect(() => {
     const initData = async () => {
-      const jsonData = await loadJsonFiles()
-      setExamData(jsonData)
-      setLoading(false)
+      try {
+        const jsonData = await loadJsonFiles()
+        console.log('Loaded data:', jsonData)
+        setExamData(jsonData)
+        setDataLoading(false)
+        console.log('Data loading set to false')
+      } catch (error) {
+        console.error('Data load error:', error)
+        setDataLoading(false)
+      }
     }
     initData()
   }, [])
@@ -218,19 +226,21 @@ export default function RootApp() {
       setIsPwaInstalled(true)
     }
 
-    const handleAppUpdateAvailable = () => {
-      setShowUpdateModal(true)
-    }
-
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     window.addEventListener('appinstalled', handleAppInstalled)
-    pwaUpdate && pwaUpdate.addEventListener('updatefound', handleAppUpdateAvailable)
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
       window.removeEventListener('appinstalled', handleAppInstalled)
-      pwaUpdate && pwaUpdate.removeEventListener('updatefound', handleAppUpdateAvailable)
     }
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      pwaUpdate?.()
+    }, 60000)
+
+    return () => clearInterval(interval)
   }, [])
 
   const handleInstallPWA = async () => {
@@ -302,7 +312,7 @@ export default function RootApp() {
         </Header>
 
         <Content className={`app-main ${currentPage === 'exam' ? 'exam-content' : ''}`}>
-          {loading ? (
+          {dataLoading ? (
             <div className="loading-page">
               <div className="loading-spinner"></div>
               <p>正在加载题库数据...</p>
