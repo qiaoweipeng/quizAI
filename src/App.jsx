@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { ConfigProvider, Button, Layout, Modal, Drawer, Table, Space, Badge, Popconfirm, App } from 'antd'
+import { ConfigProvider, Button, Layout, Modal, Drawer, Table, Space, Badge, Popconfirm, App, Tooltip } from 'antd'
 import { theme } from 'antd'
-import { FullscreenOutlined, FullscreenExitOutlined, RobotOutlined, FileExcelOutlined, DeleteOutlined, QuestionCircleOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
+import { FullscreenOutlined, FullscreenExitOutlined, RobotOutlined, FileExcelOutlined, DeleteOutlined, QuestionCircleOutlined, MoonOutlined, SunOutlined, DownloadOutlined } from '@ant-design/icons'
 import './App.css'
 
 const { Header, Content, Footer } = Layout
@@ -12,6 +12,7 @@ import ResultPage from './components/result/ResultPage'
 import PracticePage from './components/practice/PracticePage'
 import { loadJsonFiles, loadExamState } from './utils/examUtils'
 import useExamStore from './store/examStore'
+import { pwaUpdate } from './main.jsx'
 
 function WrongBookDrawer({ 
   showWrongBookModal, 
@@ -122,6 +123,9 @@ export default function RootApp() {
   const [showWrongBookModal, setShowWrongBookModal] = useState(false)
   const [showQuestionDetail, setShowQuestionDetail] = useState(false)
   const [selectedQuestion, setSelectedQuestion] = useState(null)
+  const [promptInstall, setPromptInstall] = useState(null)
+  const [isPwaInstalled, setIsPwaInstalled] = useState(false)
+  const [showUpdateModal, setShowUpdateModal] = useState(false)
 
   useEffect(() => {
     const saved = loadExamState()
@@ -203,6 +207,49 @@ export default function RootApp() {
     }
   }, [darkMode])
 
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault()
+      setPromptInstall(e)
+    }
+
+    const handleAppInstalled = () => {
+      setPromptInstall(null)
+      setIsPwaInstalled(true)
+    }
+
+    const handleAppUpdateAvailable = () => {
+      setShowUpdateModal(true)
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener('appinstalled', handleAppInstalled)
+    pwaUpdate && pwaUpdate.addEventListener('updatefound', handleAppUpdateAvailable)
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.removeEventListener('appinstalled', handleAppInstalled)
+      pwaUpdate && pwaUpdate.removeEventListener('updatefound', handleAppUpdateAvailable)
+    }
+  }, [])
+
+  const handleInstallPWA = async () => {
+    if (promptInstall) {
+      promptInstall.prompt()
+      const { outcome } = await promptInstall.userChoice
+      if (outcome === 'accepted') {
+        setIsPwaInstalled(true)
+        setPromptInstall(null)
+      }
+    }
+  }
+
+  const handleRefreshAndUpdate = () => {
+    pwaUpdate?.refresh(true)
+    setShowUpdateModal(false)
+    window.location.reload()
+  }
+
   return (
     <ConfigProvider
         theme={{
@@ -240,6 +287,16 @@ export default function RootApp() {
                 }
                 onClick={() => setShowWrongBookModal(true)}
               />
+              {promptInstall && !isPwaInstalled && (
+                <Tooltip title="安装应用">
+                  <Button 
+                    className="btn-icon"
+                    type="primary"
+                    icon={<DownloadOutlined />}
+                    onClick={handleInstallPWA}
+                  />
+                </Tooltip>
+              )}
             </div>
           </div>
         </Header>
@@ -331,6 +388,23 @@ export default function RootApp() {
             </div>
           </Footer>
         )}
+
+        <Modal
+          title="应用更新"
+          open={showUpdateModal}
+          onCancel={() => setShowUpdateModal(false)}
+          footer={[
+            <Button key="cancel" onClick={() => setShowUpdateModal(false)}>
+              稍后更新
+            </Button>,
+            <Button key="confirm" type="primary" onClick={handleRefreshAndUpdate}>
+              立即更新
+            </Button>,
+          ]}
+        >
+          <p>检测到新版本可用，是否立即更新？</p>
+          <p>更新后应用将重新加载，当前进度不会丢失。</p>
+        </Modal>
       </Layout>
       </App>
     </ConfigProvider>
