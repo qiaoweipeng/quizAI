@@ -1,13 +1,14 @@
 /**
  * 练习模式页面组件
  * 
- * 专项练习界面，无时间限制，支持即时查看解析。
+ * 复用考试模式的 UI 组件，提供专项练习界面，无时间限制，支持即时查看解析。
  * 
  * 功能特性：
- * - 单题模式答题，支持单选/多选/判断题型
- * - 即时查看解析和正确答案
- * - 显示用户答案与正确答案对比
- * - 自由切换上一题/下一题
+ * - 单题模式和全览模式切换
+ * - 题目导航侧边栏（无题型分组）
+ * - 单选/判断题：选择答案后立即显示解析和对错
+ * - 多选题：选择答案后显示确认按钮，点击后显示解析和对错
+ * - 支持错题本练习
  * - 无时间限制，学习压力小
  * 
  * Props:
@@ -15,129 +16,226 @@
  * @param {array} state.questions - 题目数组
  * @param {object} state.answers - 用户答案对象
  * @param {number} state.current - 当前题目索引
- * @param {object} state.showParse - 解析显示状态
  * @param {function} setPage - 页面切换函数
  */
-import { useState } from 'react'
-import { Button, Modal, App } from 'antd'
-import { QuestionCircleOutlined } from '@ant-design/icons'
-import QuestionOption from '../exam/QuestionOption'
-import { getOptionKey } from '../../utils/examUtils'
+import { useState, useEffect, useCallback } from 'react'
+import { FloatButton } from 'antd'
+import { VerticalAlignTopOutlined } from '@ant-design/icons'
+import QuestionCard from '../exam/QuestionCard'
+import QuestionSidebar from '../exam/QuestionSidebar'
+import ExamOverview from '../exam/ExamOverview'
+import { getOptionKey, calcScore } from '../../utils/examUtils'
 
 export default function PracticePage({ state, setPage }) {
-  const [s, setS] = useState(state)
-  const { modal } = App.useApp()
-  const q = s.questions[s.current]
-  const total = s.questions.length
-  const isLast = s.current === total - 1
+  const [practiceState, setPracticeState] = useState(state)
+  const [viewMode, setViewMode] = useState('single')
+  const [sidebarHidden, setSidebarHidden] = useState(false)
+  const [showBackToTop, setShowBackToTop] = useState(false)
+  const [questionStatus, setQuestionStatus] = useState({})
 
-  const selectOption = (key) => {
-    const currentAns = s.answers[s.current] || []
+  const total = practiceState.questions.length
+  const answered = Object.keys(practiceState.answers).length
+
+  useEffect(() => {
+    if (viewMode !== 'overview') return
+
+    const handleScroll = () => {
+      const overviewEl = document.querySelector('.exam-overview')
+      if (overviewEl) {
+        setShowBackToTop(overviewEl.scrollTop > 100)
+      }
+    }
+
+    const overviewEl = document.querySelector('.exam-overview')
+    if (overviewEl) {
+      overviewEl.addEventListener('scroll', handleScroll, { passive: true })
+    }
+
+    return () => {
+      if (overviewEl) {
+        overviewEl.removeEventListener('scroll', handleScroll)
+      }
+    }
+  }, [viewMode])
+
+  const checkAnswer = useCallback((question, answer) => {
+    const score = calcScore(question, answer)
+    if (!answer || answer.length === 0) {
+      return 'unanswered'
+    } else if (score > 0) {
+      return 'correct'
+    } else {
+      return 'wrong'
+    }
+  }, [])
+
+  const selectOption = useCallback((key) => {
+    const currentQ = practiceState.questions[practiceState.current]
+    const currentAns = practiceState.answers[practiceState.current] || []
     let nextAns
-    if (q.type === 'multiple') {
+    if (currentQ.type === 'multiple') {
       nextAns = currentAns.includes(key)
         ? currentAns.filter(k => k !== key)
         : [...currentAns, key].sort()
     } else {
       nextAns = [key]
     }
-    setS(prev => ({
+    setPracticeState(prev => ({
       ...prev,
       answers: { ...prev.answers, [prev.current]: nextAns }
     }))
-  }
+    if (currentQ.type !== 'multiple') {
+      const status = checkAnswer(currentQ, nextAns)
+      setQuestionStatus(prev => ({ ...prev, [practiceState.current]: status }))
+    }
+  }, [practiceState, checkAnswer])
 
-  const showParse = () => {
-    setS(prev => ({ ...prev, showParse: { ...prev.showParse, [prev.current]: true } }))
-  }
+  const goQuestion = useCallback((idx) => {
+    setPracticeState(prev => ({ ...prev, current: idx }))
+  }, [])
 
   const next = () => {
-    if (isLast) {
-      modal.confirm({
-        title: '结束练习',
-        content: '已经是最后一题，是否结束练习？',
-        okText: '确定',
-        cancelText: '取消',
-        onOk: () => setPage('home')
-      })
-    } else {
-      setS(prev => ({ ...prev, current: prev.current + 1 }))
+    const currentQ = practiceState.questions[practiceState.current]
+    if (currentQ.type === 'multiple') {
+      const currentAns = practiceState.answers[practiceState.current] || []
+      const status = checkAnswer(currentQ, currentAns)
+      setQuestionStatus(prev => ({ ...prev, [practiceState.current]: status }))
+    }
+    if (practiceState.current < total - 1) {
+      goQuestion(practiceState.current + 1)
     }
   }
 
   const prev = () => {
-    if (s.current > 0) setS(prev => ({ ...prev, current: prev.current - 1 }))
+    if (practiceState.current > 0) {
+      goQuestion(practiceState.current - 1)
+    }
   }
 
-  const handleExit = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    modal.confirm({
-      title: '确认退出',
-      content: '确定退出练习？',
-      okText: '确定',
-      cancelText: '取消',
-      onOk: () => setPage('home')
-    })
+  const goQuestionWithScroll = (idx, fromSidebar = false) => {
+    goQuestion(idx)
+    if (viewMode === 'overview' && fromSidebar) {
+      setTimeout(() => {
+        const overviewItem = document.querySelector(`.overview-item[data-original-index="${idx}"]`)
+        if (overviewItem) {
+          overviewItem.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 50)
+    }
   }
 
-  const typeMap = { single: '单选', multiple: '多选', judge: '判断' }
-  const currentAns = s.answers[s.current] || []
-  const hasParse = s.showParse[s.current]
-
-  const renderOption = (opt, idx) => {
-    const key = q.type === 'judge' ? opt : getOptionKey(opt)
-    const selected = currentAns.includes(key)
-    const isCorrect = q.answer.includes(key)
-    const isWrong = hasParse && !isCorrect && selected
-
+  if (!practiceState || !practiceState.questions || practiceState.questions.length === 0) {
     return (
-      <QuestionOption
-        key={key}
-        opt={opt}
-        questionType={q.type}
-        isReviewMode={hasParse}
-        selected={selected}
-        isCorrect={isCorrect}
-        isWrong={isWrong}
-        onClick={() => !hasParse && selectOption(key)}
-      />
+      <div style={{ padding: 20, textAlign: 'center' }}>
+        <p>练习数据加载失败或不存在，请返回首页重新开始</p>
+        <button onClick={() => setPage('home')} style={{ marginTop: 10, padding: '8px 16px' }}>返回首页</button>
+      </div>
     )
   }
 
+  const currentQ = practiceState.questions[practiceState.current]
+  const currentAns = practiceState.answers[practiceState.current] || []
+  const currentStatus = questionStatus[practiceState.current]
+  const isMultipleAnswered = currentQ.type === 'multiple' && currentAns.length > 0
+
+  const questionsWithStatus = practiceState.questions.map((q, idx) => ({
+    ...q,
+    status: questionStatus[idx] || null,
+    userAns: practiceState.answers[idx] || null
+  }))
+
   return (
-    <div className="practice-page">
-      <div className="practice-header">
-        <span>专项练习 · {typeMap[q.type]} · 第 {s.current + 1} / {total} 题</span>
-        <Button className="btn-link" onClick={handleExit}>退出</Button>
-      </div>
-
-      <div className="practice-card">
-        <div className="question-text">{q.question}</div>
-        <div className="options-list">
-          {q.options.map(renderOption)}
-        </div>
-
-        {!hasParse && (
-          <div className="practice-actions">
-            <Button className="btn-secondary" onClick={showParse}>查看解析</Button>
-          </div>
-        )}
-
-        {hasParse && (
-          <div className="parse-box show">
-            <div className="parse-title"><QuestionCircleOutlined /> 解析</div>
-            <div className="parse-text">{q.parse || '暂无解析'}</div>
-            <div className="parse-answer">
-              正确答案：{q.answer.join(', ')} · 你的答案：{currentAns.length ? currentAns.join(', ') : '未选'}
+    <div className="exam-page">
+      <div className={`exam-sidebar ${sidebarHidden ? 'hidden' : ''}`}>
+        <div className="sidebar-header">
+          <div className="answer-stats">
+            <div className="stat-item">
+              <span className="stat-label stat-answered">已答</span>
+              <span className="stat-value">{answered}/{total}</span>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-item">
+              <span className="stat-label stat-unanswered">未答</span>
+              <span className="stat-value">{total - answered}</span>
             </div>
           </div>
-        )}
-
-        <div className="exam-nav">
-          <Button disabled={s.current === 0} onClick={prev}>上一题</Button>
-          <Button onClick={next}>{isLast ? '结束练习' : '下一题'}</Button>
         </div>
+        <QuestionSidebar
+          questions={questionsWithStatus}
+          current={practiceState.current}
+          answers={practiceState.answers}
+          isReviewMode={false}
+          onGoQuestion={(idx) => goQuestionWithScroll(idx, true)}
+          showSubmit={false}
+          onSubmit={() => {}}
+          filter="all"
+          practiceMode
+        />
+      </div>
+
+      <div className={`exam-main ${sidebarHidden ? 'full-width' : ''}`}>
+        {viewMode === 'single' ? (
+          <QuestionCard
+            question={{ ...currentQ, status: currentStatus, userAns: currentAns }}
+            currentAns={currentAns}
+            currentIndex={practiceState.current}
+            total={total}
+            isReviewMode={!!currentStatus}
+            onSelectOption={selectOption}
+            showNav={true}
+            onPrev={prev}
+            onNext={next}
+            onSubmit={() => {}}
+            showSubmit={false}
+            autoNext={false}
+            onToggleAutoNext={() => {}}
+            viewMode={viewMode}
+            onToggleViewMode={() => setViewMode('overview')}
+            onToggleSidebar={() => setSidebarHidden(!sidebarHidden)}
+            showConfirmNext={isMultipleAnswered && !currentStatus}
+            isWrongOnlyMode={false}
+            practiceMode
+          />
+        ) : (
+          <ExamOverview
+            questions={questionsWithStatus}
+            answers={practiceState.answers}
+            current={practiceState.current}
+            isReviewMode={false}
+            showWrongOnly={false}
+            showParse={true}
+            sidebarHidden={sidebarHidden}
+            onGoQuestion={goQuestionWithScroll}
+            onToggleViewMode={setViewMode}
+            onToggleSidebar={() => setSidebarHidden(!sidebarHidden)}
+            onReExamWrong={() => {}}
+            wrongQuestionIndices={[]}
+            updateExamState={(updates) => {
+              setPracticeState(prev => ({ ...prev, ...updates }))
+              if (updates.questions) {
+                updates.questions.forEach((q, idx) => {
+                  if (q.status) {
+                    setQuestionStatus(ps => ({ ...ps, [idx]: q.status }))
+                  }
+                })
+              }
+            }}
+            practiceMode
+          />
+        )}
+        {viewMode === 'overview' && showBackToTop && (
+          <div className="back-to-top-fixed">
+            <FloatButton
+              icon={<VerticalAlignTopOutlined />}
+              onClick={() => {
+                const overviewEl = document.querySelector('.exam-overview')
+                if (overviewEl) {
+                  overviewEl.scrollTo({ top: 0, behavior: 'smooth' })
+                }
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   )

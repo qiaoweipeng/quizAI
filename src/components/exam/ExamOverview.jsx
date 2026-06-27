@@ -23,7 +23,7 @@ import { Dropdown, Menu, App } from 'antd'
 import useExamStore from '../../store/examStore.ts'
 import QuestionOption from './QuestionOption'
 import ExamToolbar from './ExamToolbar'
-import { getOptionKey } from '../../utils/examUtils'
+import { getOptionKey, calcScore } from '../../utils/examUtils'
 
 export default function ExamOverview({
   questions,
@@ -38,7 +38,8 @@ export default function ExamOverview({
   onToggleSidebar,
   onReExamWrong,
   wrongQuestionIndices,
-  updateExamState
+  updateExamState,
+  practiceMode = false
 }) {
   const { addToWrongBook, wrongBook } = useExamStore()
   const { message } = App.useApp()
@@ -72,9 +73,21 @@ export default function ExamOverview({
     }
     
     const originalIdx = questions.indexOf(qq)
-    updateExamState({
-      answers: { ...answers, [originalIdx]: newAns }
-    })
+    
+    if (practiceMode && qq.type !== 'multiple') {
+      const score = calcScore(qq, newAns)
+      const status = score > 0 ? 'correct' : 'wrong'
+      updateExamState({
+        answers: { ...answers, [originalIdx]: newAns },
+        questions: questions.map((q, i) => 
+          i === originalIdx ? { ...q, status, userAns: newAns } : q
+        )
+      })
+    } else {
+      updateExamState({
+        answers: { ...answers, [originalIdx]: newAns }
+      })
+    }
   }
 
   return (
@@ -87,14 +100,16 @@ export default function ExamOverview({
         onToggleSidebar={onToggleSidebar}
         onReExamWrong={onReExamWrong}
         wrongQuestionIndices={wrongQuestionIndices}
+        practiceMode={practiceMode}
       />
       {filteredQuestions.map((qq, idx) => {
         const originalIdx = questions.indexOf(qq)
         const ans = answers[originalIdx] || []
-        const statusClass = isReviewMode && qq.status ? `status-${qq.status}` : ''
+        const shouldShowStatus = isReviewMode || (practiceMode && qq.status)
+        const statusClass = shouldShowStatus && qq.status ? `status-${qq.status}` : ''
         const displayIndex = showWrongOnly ? idx + 1 : originalIdx + 1
         
-        const isQuestionWrong = isReviewMode && qq.status === 'wrong'
+        const isQuestionWrong = shouldShowStatus && qq.status === 'wrong'
         const isInWrongBook = wrongBook.includes(qq.id)
 
         const handleAddToWrongBook = () => {
@@ -130,16 +145,16 @@ export default function ExamOverview({
                 <div className="options-list">
               {qq.options.map((opt, optIdx) => {
                 const key = qq.type === 'judge' ? opt : getOptionKey(opt)
-                const selected = isReviewMode ? qq.userAns?.includes(key) : ans.includes(key)
+                const selected = shouldShowStatus ? qq.userAns?.includes(key) : ans.includes(key)
                 const isCorrect = qq.answer.includes(key)
-                const isWrong = isReviewMode && qq.status === 'wrong'
+                const isWrong = shouldShowStatus && qq.status === 'wrong'
                 
                 return (
                   <QuestionOption
                     key={key}
                     opt={opt}
                     questionType={qq.type}
-                    isReviewMode={isReviewMode}
+                    isReviewMode={shouldShowStatus}
                     selected={selected}
                     isCorrect={isCorrect}
                     isWrong={isWrong}
@@ -148,7 +163,7 @@ export default function ExamOverview({
                 )
               })}
             </div>
-            {isReviewMode && showParse && qq.parse && (
+            {shouldShowStatus && showParse && qq.parse && (
                 <div className="parse-box show">
                   <div className="parse-title"><QuestionCircleOutlined /> 解析</div>
                   <div className="parse-text">{qq.parse}</div>
@@ -174,16 +189,16 @@ export default function ExamOverview({
             <div className="options-list">
               {qq.options.map((opt, optIdx) => {
                 const key = qq.type === 'judge' ? opt : getOptionKey(opt)
-                const selected = isReviewMode ? qq.userAns?.includes(key) : ans.includes(key)
+                const selected = shouldShowStatus ? qq.userAns?.includes(key) : ans.includes(key)
                 const isCorrect = qq.answer.includes(key)
-                const isWrong = isReviewMode && qq.status === 'wrong'
+                const isWrong = shouldShowStatus && qq.status === 'wrong'
                 
                 return (
                   <QuestionOption
                     key={key}
                     opt={opt}
                     questionType={qq.type}
-                    isReviewMode={isReviewMode}
+                    isReviewMode={shouldShowStatus}
                     selected={selected}
                     isCorrect={isCorrect}
                     isWrong={isWrong}
@@ -192,7 +207,7 @@ export default function ExamOverview({
                 )
               })}
             </div>
-            {isReviewMode && showParse && qq.parse && (
+            {shouldShowStatus && showParse && qq.parse && (
               <div className="parse-box show">
                 <div className="parse-title"><QuestionCircleOutlined /> 解析</div>
                 <div className="parse-text">{qq.parse}</div>

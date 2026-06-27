@@ -31,7 +31,8 @@ export default function QuestionSidebar({
   onGoQuestion, 
   showSubmit, 
   onSubmit,
-  filter = 'all' // 'all' | 'wrong'
+  filter = 'all', // 'all' | 'wrong'
+  practiceMode = false
 }) {
   const { addToWrongBook, wrongBook } = useExamStore()
   const { message } = App.useApp()
@@ -54,8 +55,9 @@ export default function QuestionSidebar({
     const qq = questions[originalIdx]
     const hasAns = !!answers[originalIdx]
     const isCurrent = originalIdx === current
-    const statusClass = isReviewMode && qq.status ? qq.status : ''
-    const isQuestionWrong = isReviewMode && qq.status === 'wrong'
+    const shouldShowStatus = isReviewMode || practiceMode
+    const statusClass = shouldShowStatus && qq.status ? qq.status : ''
+    const isQuestionWrong = shouldShowStatus && qq.status === 'wrong'
     const isInWrongBook = wrongBook.includes(qq.id)
 
     const handleAddToWrongBook = () => {
@@ -76,47 +78,34 @@ export default function QuestionSidebar({
 
     return (
       <div key={originalIdx} style={{ display: 'inline-block' }}>
-        {isCurrent ? (
-          isQuestionWrong ? (
-            <Dropdown
-              menu={{
-                items: [
-                  {
-                    key: 'add',
-                    label: isInWrongBook ? '已在错题本' : '移入错题本',
-                    onClick: handleAddToWrongBook,
-                    disabled: isInWrongBook
-                  }
-                ]
-              }}
-              trigger={['contextMenu']}
-            >
-              <BorderBeam duration={0.8} color={[{ color: '#8b5cf6', percent: 0 }, { color: '#06b6d4', percent: 40 }, { color: '#ec4899', percent: 70 }, { color: '#8b5cf6', percent: 100 }]}>
-                {button}
-              </BorderBeam>
-            </Dropdown>
-          ) : (
+        {isQuestionWrong ? (
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: 'add',
+                  label: isInWrongBook ? '已在错题本' : '移入错题本',
+                  onClick: handleAddToWrongBook,
+                  disabled: isInWrongBook
+                }
+              ]
+            }}
+            trigger={['contextMenu']}
+          >
+            <div style={{ display: 'inline-block' }}>
+              {isCurrent && (
+                <BorderBeam duration={0.8} color={[{ color: '#8b5cf6', percent: 0 }, { color: '#06b6d4', percent: 40 }, { color: '#ec4899', percent: 70 }, { color: '#8b5cf6', percent: 100 }]}>
+                  {button}
+                </BorderBeam>
+              )}
+              {!isCurrent && button}
+            </div>
+          </Dropdown>
+        ) : (
+          isCurrent ? (
             <BorderBeam duration={0.8} color={[{ color: '#8b5cf6', percent: 0 }, { color: '#06b6d4', percent: 40 }, { color: '#ec4899', percent: 70 }, { color: '#8b5cf6', percent: 100 }]}>
               {button}
             </BorderBeam>
-          )
-        ) : (
-          isQuestionWrong ? (
-            <Dropdown
-              menu={{
-                items: [
-                  {
-                    key: 'add',
-                    label: isInWrongBook ? '已在错题本' : '移入错题本',
-                    onClick: handleAddToWrongBook,
-                    disabled: isInWrongBook
-                  }
-                ]
-              }}
-              trigger={['contextMenu']}
-            >
-              {button}
-            </Dropdown>
           ) : (
             button
           )
@@ -125,11 +114,9 @@ export default function QuestionSidebar({
     )
   }
 
-  // 按题型分组渲染题目
   const renderGroupedQuestions = () => {
     const elements = []
     
-    // 按题型分组
     const grouped = {
       single: [],
       multiple: [],
@@ -141,7 +128,6 @@ export default function QuestionSidebar({
       grouped[qq.type].push({ originalIdx, displayNum: displayIdx + 1 })
     })
 
-    // 渲染单选题
     if (grouped.single.length > 0) {
       const singleStart = 1
       const singleEnd = grouped.single.length
@@ -155,7 +141,6 @@ export default function QuestionSidebar({
       })
     }
     
-    // 渲染多选题
     if (grouped.multiple.length > 0) {
       const multipleStart = grouped.single.length + 1
       const multipleEnd = grouped.single.length + grouped.multiple.length
@@ -169,7 +154,6 @@ export default function QuestionSidebar({
       })
     }
     
-    // 渲染判断题
     if (grouped.judge.length > 0) {
       const judgeStart = grouped.single.length + grouped.multiple.length + 1
       const judgeEnd = judgeStart + grouped.judge.length - 1

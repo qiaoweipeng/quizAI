@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ConfigProvider, Button, Layout, Modal, Drawer, Table, Space, Badge, Popconfirm, App, Tooltip } from 'antd'
+import { ConfigProvider, Button, Layout, Modal, Drawer, Table, Space, Badge, Popconfirm, App, Tooltip, Tag } from 'antd'
 import { theme } from 'antd'
 import { FullscreenOutlined, FullscreenExitOutlined, RobotOutlined, FileExcelOutlined, DeleteOutlined, QuestionCircleOutlined, MoonOutlined, SunOutlined, DownloadOutlined } from '@ant-design/icons'
 import './App.css'
@@ -51,18 +51,33 @@ function WrongBookDrawer({
       placement="right"
     >
       <Table
-        dataSource={wrongBook.map(id => {
+        dataSource={wrongBook.map((id, index) => {
           const question = examData.questions.find(q => q.id === id)
           return {
             key: id,
             id,
+            index: index + 1,
             content: question?.question || '未知题目',
-            type: question?.type === 'single' ? '单选题' : question?.type === 'multiple' ? '多选题' : '判断题'
+            type: question?.type
           }
         })}
         columns={[
-          { title: '题目ID', dataIndex: 'id', key: 'id', width: 120 },
-          { title: '题目类型', dataIndex: 'type', key: 'type', width: 100 },
+          { title: '编号', dataIndex: 'index', key: 'index', width: 60 },
+          { 
+            title: '题目类型', 
+            dataIndex: 'type', 
+            key: 'type', 
+            width: 100,
+            render: (type) => {
+              const typeMap = {
+                single: { label: '单选题', className: 'type-single' },
+                multiple: { label: '多选题', className: 'type-multiple' },
+                judge: { label: '判断题', className: 'type-judge' }
+              }
+              const { label, className } = typeMap[type] || { label: '未知', className: '' }
+              return <Tag className={className}>{label}</Tag>
+            }
+          },
           { title: '题目内容', dataIndex: 'content', key: 'content', ellipsis: true },
           { 
             title: '操作', 
@@ -339,7 +354,7 @@ export default function RootApp() {
         />
 
         <Drawer
-          title={`题目 ${selectedQuestion?.id}`}
+          title="题目详情"
           open={showQuestionDetail}
           onClose={() => setShowQuestionDetail(false)}
           width={800}
@@ -348,12 +363,6 @@ export default function RootApp() {
         >
           <div className="exam-card">
             <div className="card-content">
-              <div className="exam-header">
-                <span className="q-index">题目详情</span>
-                <span className={`q-type-badge type-${selectedQuestion?.type}`}>
-                  {selectedQuestion?.type === 'single' ? '单选' : selectedQuestion?.type === 'multiple' ? '多选' : '判断'}
-                </span>
-              </div>
               <div className="question-content">
                 <div className="question-text">{selectedQuestion?.question}</div>
                 <div className="options-list">
@@ -390,7 +399,7 @@ export default function RootApp() {
           </div>
         </Drawer>
 
-        {currentPage !== 'exam' && (
+        {currentPage === 'home' && (
           <Footer className="app-footer">
             <div className="footer-content">
               <p>你只管学，其余的交给我！</p>

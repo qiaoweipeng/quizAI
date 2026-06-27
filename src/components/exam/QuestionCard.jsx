@@ -66,7 +66,8 @@ export default function QuestionCard({
   showConfirmNext,
   isWrongOnlyMode = false,
   wrongQuestionIndices = [],
-  onReExamWrong
+  onReExamWrong,
+  practiceMode = false
 }) {
   const { sidebarHidden, showParse, addToWrongBook, wrongBook } = useExamStore()
   const { message } = App.useApp()
@@ -109,13 +110,15 @@ export default function QuestionCard({
     }
   }
 
-  const isQuestionWrong = isReviewMode && question.status === 'wrong'
   const isInWrongBook = wrongBook.includes(question.id)
 
   const handleAddToWrongBook = () => {
     addToWrongBook(question.id)
     message.success('已移入错题本')
   }
+
+  const shouldShowStatus = isReviewMode || (practiceMode && question.status)
+  const isQuestionWrong = shouldShowStatus && question.status === 'wrong'
 
   return (
     <div className="exam-card">
@@ -124,11 +127,12 @@ export default function QuestionCard({
         viewMode={viewMode}
         sidebarHidden={sidebarHidden}
         autoNext={autoNext}
-        onToggleAutoNext={onToggleAutoNext}
+        onToggleAutoNext={practiceMode ? () => {} : onToggleAutoNext}
         onToggleViewMode={onToggleViewMode}
         onToggleSidebar={onToggleSidebar}
         onReExamWrong={onReExamWrong}
         wrongQuestionIndices={wrongQuestionIndices}
+        practiceMode={practiceMode}
       />
       <div className="card-content">
         {isQuestionWrong ? (
@@ -161,12 +165,12 @@ export default function QuestionCard({
                 <div className="options-list">
                   {question.options.map(renderOption)}
                 </div>
-                {isReviewMode && showParse && question.parse && (
+                {shouldShowStatus && showParse && question.parse && (
                   <div className="parse-box show">
                     <div className="parse-title"><QuestionCircleOutlined /> 解析</div>
                     <div className="parse-text">{question.parse}</div>
                     <div className="parse-answer">
-                      正确答案：{question.answer.join(', ')} · 你的答案：{question.userAns?.length ? question.userAns.join(', ') : '未选'}
+                      正确答案：{question.answer.join(', ')} · 你的答案：{currentAns.length ? currentAns.join(', ') : '未选'}
                     </div>
                   </div>
                 )}
@@ -190,12 +194,12 @@ export default function QuestionCard({
               <div className="options-list">
                 {question.options.map(renderOption)}
               </div>
-              {isReviewMode && showParse && question.parse && (
+              {shouldShowStatus && showParse && question.parse && (
                 <div className="parse-box show">
                   <div className="parse-title"><QuestionCircleOutlined /> 解析</div>
                   <div className="parse-text">{question.parse}</div>
                   <div className="parse-answer">
-                    正确答案：{question.answer.join(', ')} · 你的答案：{question.userAns?.length ? question.userAns.join(', ') : '未选'}
+                    正确答案：{question.answer.join(', ')} · 你的答案：{currentAns.length ? currentAns.join(', ') : '未选'}
                   </div>
                 </div>
               )}
@@ -210,7 +214,7 @@ export default function QuestionCard({
           <Tooltip title={isNextDisabled ? (sidebarHidden ? '没有下一道题了！请打开侧边栏，查看答题情况。' : '没有下一道题了') : ''}>
             <Button disabled={isNextDisabled} onClick={onNext} icon={<RightOutlined />} />
           </Tooltip>
-          {!isReviewMode && showSubmit && (
+          {!isReviewMode && !practiceMode && showSubmit && (
             <Popconfirm
               title="确定交卷？"
               okText="确定"
@@ -223,7 +227,6 @@ export default function QuestionCard({
         </div>
       )}
       
-      {/* 自动切题模式下多选题的确认按钮 */}
       {showConfirmNext && (
         <div className="exam-nav">
           <Button className="btn-primary confirm-next-btn" onClick={onNext}>确认并下一题</Button>

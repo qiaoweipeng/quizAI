@@ -13,6 +13,7 @@ import { Button, Radio, Select, InputNumber, ConfigProvider, Modal, App } from '
 import { FileSearchOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { shuffleArray } from '../../utils/examUtils'
+import useExamStore from '../../store/examStore'
 
 const useStyle = createStyles(({ prefixCls, css }) => ({
   linearGradientButton: css`
@@ -41,12 +42,14 @@ const useStyle = createStyles(({ prefixCls, css }) => ({
 export default function PracticeModeSelector({ questions, setPracticeState, setPage }) {
   const { styles } = useStyle()
   const { modal } = App.useApp()
+  const { wrongBook } = useExamStore()
   const [practiceModalOpen, setPracticeModalOpen] = useState(false)
   const [practiceType, setPracticeType] = useState('single')
   const [practiceCount, setPracticeCount] = useState(10)
   const [practiceMode, setPracticeMode] = useState('free')
 
   const availableCount = questions.filter(q => q.type === practiceType).length
+  const hasWrongQuestions = wrongBook.length > 0
 
   const handleStartPractice = () => {
     if (practiceMode === 'free') {
@@ -73,6 +76,18 @@ export default function PracticeModeSelector({ questions, setPracticeState, setP
         return
       }
       setPracticeState({ questions: practiceQuestions, current: 0, answers: {}, showParse: {} })
+      setPage('practice-exam')
+      setPracticeModalOpen(false)
+    } else if (practiceMode === 'wrong') {
+      const wrongQuestions = questions.filter(q => wrongBook.includes(q.id))
+      if (wrongQuestions.length === 0) {
+        modal.warning({
+          title: '暂无错题',
+          content: '错题本暂无错题',
+        })
+        return
+      }
+      setPracticeState({ questions: wrongQuestions, current: 0, answers: {}, showParse: {} })
       setPage('practice-exam')
       setPracticeModalOpen(false)
     }
@@ -115,7 +130,7 @@ export default function PracticeModeSelector({ questions, setPracticeState, setP
           <div style={{ marginBottom: 16 }}>
             <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
               <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
-              练习模式
+              选择题目
             </label>
             <Radio.Group
               block
@@ -126,7 +141,7 @@ export default function PracticeModeSelector({ questions, setPracticeState, setP
               options={[
                 { label: '自由选题', value: 'free' },
                 { label: '全部题目', value: 'all' },
-                { label: '全部错题', value: 'wrong', disabled: true },
+                { label: `全部错题 (${wrongBook.length})`, value: 'wrong', disabled: !hasWrongQuestions },
               ]}
             />
           </div>

@@ -11,7 +11,8 @@ export default function ExamToolbar({
   onToggleViewMode,
   onToggleSidebar,
   onReExamWrong,
-  wrongQuestionIndices = []
+  wrongQuestionIndices = [],
+  practiceMode = false
 }) {
   const {
     showParse,
@@ -23,7 +24,7 @@ export default function ExamToolbar({
 
   return (
     <div className="exam-toolbar">
-      {isReviewMode && (
+      {isReviewMode && !practiceMode && (
         <Space.Compact>
           <Button onClick={() => setShowResultModal(true)}>考试结果</Button>
           <Dropdown 
@@ -62,7 +63,7 @@ export default function ExamToolbar({
           </Dropdown>
         </Space.Compact>
       )}
-      {!isReviewMode && (
+      {!isReviewMode && !practiceMode && (
         <Tooltip title={viewMode === 'overview' ? '' : (autoNext ? '切换为手动切题' : '切换为自动切题')}>
           <div 
             className={`toolbar-btn auto-next-btn ${!isReviewMode && viewMode === 'single' && autoNext ? 'active' : ''} ${viewMode === 'overview' ? 'toolbar-btn-hidden' : ''}`} 
