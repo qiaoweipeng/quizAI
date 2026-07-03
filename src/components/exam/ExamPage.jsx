@@ -82,6 +82,7 @@ export default function ExamPage() {
     if (preselectShownRef.current) return
     if (examState.mode !== 'exam') return
     if (examState.preselectModalShown) return
+    return
 
     preselectShownRef.current = true
     const timer = setTimeout(() => {
@@ -119,6 +120,9 @@ export default function ExamPage() {
       updateExamState(prev => {
         if (prev.timeLeft <= 1) {
           clearInterval(timerRef.current)
+          setTimeout(() => {
+            submitExam()
+          }, 100)
           return { ...prev, timeLeft: 0, finished: true }
         }
         return { ...prev, timeLeft: prev.timeLeft - 1 }
@@ -126,7 +130,7 @@ export default function ExamPage() {
     }, 1000)
     
     return () => clearInterval(timerRef.current)
-  }, [])
+  }, [submitExam])
 
   useEffect(() => {
     if (viewMode !== 'overview') return

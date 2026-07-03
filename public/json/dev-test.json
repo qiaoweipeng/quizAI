@@ -1,0 +1,724 @@
+{
+  "questions": [
+    {
+      "id": "dev-dx-1",
+      "type": "single",
+      "question": "在 JavaScript 中，用于声明常量的关键字是什么？",
+      "options": ["A. var", "B. let", "C. const", "D. static"],
+      "answer": ["C"],
+      "parse": "const 关键字用于声明常量，声明后不可重新赋值。"
+    },
+    {
+      "id": "dev-dx-2",
+      "type": "single",
+      "question": "HTML 中用于创建超链接的标签是什么？",
+      "options": ["A. <link>", "B. <a>", "C. <href>", "D. <url>"],
+      "answer": ["B"],
+      "parse": "<a> 标签用于创建超链接，href 属性指定链接地址。"
+    },
+    {
+      "id": "dev-dx-3",
+      "type": "single",
+      "question": "CSS 中用于设置背景颜色的属性是什么？",
+      "options": ["A. color", "B. bgcolor", "C. background-color", "D. background"],
+      "answer": ["C"],
+      "parse": "background-color 属性用于设置元素的背景颜色。"
+    },
+    {
+      "id": "dev-dx-4",
+      "type": "single",
+      "question": "Python 中用于定义函数的关键字是什么？",
+      "options": ["A. func", "B. def", "C. function", "D. define"],
+      "answer": ["B"],
+      "parse": "def 关键字用于定义函数。"
+    },
+    {
+      "id": "dev-dx-5",
+      "type": "single",
+      "question": "HTTP 状态码 404 表示什么？",
+      "options": ["A. 请求成功", "B. 服务器错误", "C. 资源未找到", "D. 重定向"],
+      "answer": ["C"],
+      "parse": "404 表示请求的资源未找到。"
+    },
+    {
+      "id": "dev-dx-6",
+      "type": "single",
+      "question": "React 中用于管理状态的 Hook 是什么？",
+      "options": ["A. useEffect", "B. useState", "C. useContext", "D. useReducer"],
+      "answer": ["B"],
+      "parse": "useState 是 React 中最常用的状态管理 Hook。"
+    },
+    {
+      "id": "dev-dx-7",
+      "type": "single",
+      "question": "Git 中用于提交代码的命令是什么？",
+      "options": ["A. git push", "B. git commit", "C. git add", "D. git merge"],
+      "answer": ["B"],
+      "parse": "git commit 命令将暂存区的更改提交到本地仓库。"
+    },
+    {
+      "id": "dev-dx-8",
+      "type": "single",
+      "question": "SQL 中用于查询数据的关键字是什么？",
+      "options": ["A. INSERT", "B. UPDATE", "C. SELECT", "D. DELETE"],
+      "answer": ["C"],
+      "parse": "SELECT 用于查询数据库中的数据。"
+    },
+    {
+      "id": "dev-dx-9",
+      "type": "single",
+      "question": "CSS 中 display: flex 的作用是什么？",
+      "options": ["A. 块级元素", "B. 弹性布局", "C. 网格布局", "D. 绝对定位"],
+      "answer": ["B"],
+      "parse": "display: flex 将元素设置为弹性盒子布局。"
+    },
+    {
+      "id": "dev-dx-10",
+      "type": "single",
+      "question": "JavaScript 中 typeof null 的结果是什么？",
+      "options": ["A. 'null'", "B. 'undefined'", "C. 'object'", "D. 'number'"],
+      "answer": ["C"],
+      "parse": "typeof null 返回 'object'，这是 JavaScript 的一个历史遗留 bug。"
+    },
+    {
+      "id": "dev-dx-11",
+      "type": "single",
+      "question": "Vue.js 中用于双向数据绑定的指令是什么？",
+      "options": ["A. v-bind", "B. v-model", "C. v-on", "D. v-if"],
+      "answer": ["B"],
+      "parse": "v-model 指令用于实现表单元素的双向数据绑定。"
+    },
+    {
+      "id": "dev-dx-12",
+      "type": "single",
+      "question": "Linux 中查看当前目录内容的命令是什么？",
+      "options": ["A. cd", "B. ls", "C. pwd", "D. dir"],
+      "answer": ["B"],
+      "parse": "ls 命令用于列出当前目录的内容。"
+    },
+    {
+      "id": "dev-dx-13",
+      "type": "single",
+      "question": "Node.js 中用于创建 HTTP 服务器的模块是什么？",
+      "options": ["A. fs", "B. path", "C. http", "D. url"],
+      "answer": ["C"],
+      "parse": "http 模块用于创建 HTTP 服务器。"
+    },
+    {
+      "id": "dev-dx-14",
+      "type": "single",
+      "question": "JavaScript 中数组的 length 属性是什么？",
+      "options": ["A. 只读", "B. 可写", "C. 只在创建时设置", "D. 必须为正数"],
+      "answer": ["B"],
+      "parse": "数组的 length 属性是可写的，可以通过设置 length 来改变数组大小。"
+    },
+    {
+      "id": "dev-dx-15",
+      "type": "single",
+      "question": "CSS 中用于设置字体大小的属性是什么？",
+      "options": ["A. font-style", "B. font-weight", "C. font-size", "D. font-family"],
+      "answer": ["C"],
+      "parse": "font-size 属性用于设置字体大小。"
+    },
+    {
+      "id": "dev-dx-16",
+      "type": "single",
+      "question": "Python 中用于获取列表长度的函数是什么？",
+      "options": ["A. size()", "B. length()", "C. len()", "D. count()"],
+      "answer": ["C"],
+      "parse": "len() 函数用于获取对象的长度。"
+    },
+    {
+      "id": "dev-dx-17",
+      "type": "single",
+      "question": "HTTP 协议中 GET 请求的特点是什么？",
+      "options": ["A. 数据在请求体中", "B. 数据在 URL 中", "C. 可传输大量数据", "D. 安全性高"],
+      "answer": ["B"],
+      "parse": "GET 请求的数据通过 URL 参数传递。"
+    },
+    {
+      "id": "dev-dx-18",
+      "type": "single",
+      "question": "React 中 useEffect Hook 的作用是什么？",
+      "options": ["A. 管理状态", "B. 执行副作用", "C. 创建上下文", "D. 优化性能"],
+      "answer": ["B"],
+      "parse": "useEffect 用于在组件渲染后执行副作用操作。"
+    },
+    {
+      "id": "dev-dx-19",
+      "type": "single",
+      "question": "Git 中用于创建分支的命令是什么？",
+      "options": ["A. git branch", "B. git checkout -b", "C. git new", "D. git create"],
+      "answer": ["B"],
+      "parse": "git checkout -b 分支名 用于创建并切换到新分支。"
+    },
+    {
+      "id": "dev-dx-20",
+      "type": "single",
+      "question": "SQL 中用于排序的关键字是什么？",
+      "options": ["A. GROUP BY", "B. ORDER BY", "C. SORT BY", "D. ARRANGE BY"],
+      "answer": ["B"],
+      "parse": "ORDER BY 用于对查询结果进行排序。"
+    },
+    {
+      "id": "dev-dx-21",
+      "type": "single",
+      "question": "CSS 中用于设置边框的属性是什么？",
+      "options": ["A. border", "B. outline", "C. margin", "D. padding"],
+      "answer": ["A"],
+      "parse": "border 属性用于设置元素的边框。"
+    },
+    {
+      "id": "dev-dx-22",
+      "type": "single",
+      "question": "JavaScript 中 === 和 == 的区别是什么？",
+      "options": ["A. 没有区别", "B. === 不做类型转换", "C. == 不做类型转换", "D. === 比较值，== 比较类型"],
+      "answer": ["B"],
+      "parse": "=== 是严格相等，不做类型转换；== 是宽松相等，会进行类型转换。"
+    },
+    {
+      "id": "dev-dx-23",
+      "type": "single",
+      "question": "Vue.js 中 v-for 指令的作用是什么？",
+      "options": ["A. 条件渲染", "B. 列表渲染", "C. 事件绑定", "D. 属性绑定"],
+      "answer": ["B"],
+      "parse": "v-for 用于遍历数组或对象进行列表渲染。"
+    },
+    {
+      "id": "dev-dx-24",
+      "type": "single",
+      "question": "Linux 中切换目录的命令是什么？",
+      "options": ["A. ls", "B. cd", "C. pwd", "D. mkdir"],
+      "answer": ["B"],
+      "parse": "cd 命令用于切换当前工作目录。"
+    },
+    {
+      "id": "dev-dx-25",
+      "type": "single",
+      "question": "JavaScript 中 Promise 的三种状态是什么？",
+      "options": ["A. success, fail, pending", "B. resolved, rejected, pending", "C. true, false, null", "D. active, inactive, done"],
+      "answer": ["B"],
+      "parse": "Promise 有三种状态：pending（等待中）、resolved（已成功）、rejected（已失败）。"
+    },
+    {
+      "id": "dev-dx-26",
+      "type": "single",
+      "question": "HTML5 中新增的语义化标签是什么？",
+      "options": ["A. <div>", "B. <span>", "C. <article>", "D. <table>"],
+      "answer": ["C"],
+      "parse": "<article> 是 HTML5 新增的语义化标签，用于表示文章内容。"
+    },
+    {
+      "id": "dev-dx-27",
+      "type": "single",
+      "question": "Python 中用于导入模块的关键字是什么？",
+      "options": ["A. include", "B. import", "C. require", "D. load"],
+      "answer": ["B"],
+      "parse": "import 关键字用于导入模块。"
+    },
+    {
+      "id": "dev-dx-28",
+      "type": "single",
+      "question": "HTTP 状态码 500 表示什么？",
+      "options": ["A. 请求成功", "B. 客户端错误", "C. 服务器错误", "D. 重定向"],
+      "answer": ["C"],
+      "parse": "500 表示服务器内部错误。"
+    },
+    {
+      "id": "dev-dx-29",
+      "type": "single",
+      "question": "React 中 props 和 state 的区别是什么？",
+      "options": ["A. 没有区别", "B. props 是父组件传递的，state 是组件内部的", "C. props 是可变的，state 是不可变的", "D. props 是组件内部的，state 是父组件传递的"],
+      "answer": ["B"],
+      "parse": "props 是从父组件传递的数据，state 是组件内部管理的状态。"
+    },
+    {
+      "id": "dev-dx-30",
+      "type": "single",
+      "question": "Git 中用于合并分支的命令是什么？",
+      "options": ["A. git merge", "B. git rebase", "C. git pull", "D. git push"],
+      "answer": ["A"],
+      "parse": "git merge 命令用于合并指定分支到当前分支。"
+    },
+    {
+      "id": "dev-dx-31",
+      "type": "single",
+      "question": "SQL 中用于连接表的关键字是什么？",
+      "options": ["A. JOIN", "B. LINK", "C. CONNECT", "D. UNION"],
+      "answer": ["A"],
+      "parse": "JOIN 用于连接两个或多个表。"
+    },
+    {
+      "id": "dev-dx-32",
+      "type": "single",
+      "question": "CSS 中用于设置外边距的属性是什么？",
+      "options": ["A. padding", "B. margin", "C. border", "D. spacing"],
+      "answer": ["B"],
+      "parse": "margin 属性用于设置元素的外边距。"
+    },
+    {
+      "id": "dev-dx-33",
+      "type": "single",
+      "question": "JavaScript 中用于遍历对象属性的方法是什么？",
+      "options": ["A. for...in", "B. for...of", "C. forEach", "D. map"],
+      "answer": ["A"],
+      "parse": "for...in 循环用于遍历对象的可枚举属性。"
+    },
+    {
+      "id": "dev-dx-34",
+      "type": "single",
+      "question": "Vue.js 中 computed 属性的特点是什么？",
+      "options": ["A. 每次调用都会重新计算", "B. 有缓存，依赖变化时才重新计算", "C. 只能读取，不能修改", "D. 只能修改，不能读取"],
+      "answer": ["B"],
+      "parse": "computed 属性有缓存机制，只有依赖变化时才会重新计算。"
+    },
+    {
+      "id": "dev-dx-35",
+      "type": "single",
+      "question": "Linux 中查看进程的命令是什么？",
+      "options": ["A. ps", "B. ls", "C. cd", "D. pwd"],
+      "answer": ["A"],
+      "parse": "ps 命令用于查看当前运行的进程。"
+    },
+    {
+      "id": "dev-dx-36",
+      "type": "single",
+      "question": "JavaScript 中 async/await 的作用是什么？",
+      "options": ["A. 同步编程", "B. 异步编程语法糖", "C. 错误处理", "D. 性能优化"],
+      "answer": ["B"],
+      "parse": "async/await 是异步编程的语法糖，使异步代码看起来像同步代码。"
+    },
+    {
+      "id": "dev-dx-37",
+      "type": "single",
+      "question": "HTML 中用于创建表单的标签是什么？",
+      "options": ["A. <form>", "B. <input>", "C. <button>", "D. <select>"],
+      "answer": ["A"],
+      "parse": "<form> 标签用于创建表单。"
+    },
+    {
+      "id": "dev-dx-38",
+      "type": "single",
+      "question": "Python 中用于定义类的关键字是什么？",
+      "options": ["A. class", "B. def", "C. object", "D. type"],
+      "answer": ["A"],
+      "parse": "class 关键字用于定义类。"
+    },
+    {
+      "id": "dev-dx-39",
+      "type": "single",
+      "question": "HTTP 协议中 POST 请求的特点是什么？",
+      "options": ["A. 数据在 URL 中", "B. 数据在请求体中", "C. 数据长度有限", "D. 可被缓存"],
+      "answer": ["B"],
+      "parse": "POST 请求的数据通过请求体传递。"
+    },
+    {
+      "id": "dev-dx-40",
+      "type": "single",
+      "question": "React 中 useContext Hook 的作用是什么？",
+      "options": ["A. 管理状态", "B. 执行副作用", "C. 获取上下文", "D. 优化性能"],
+      "answer": ["C"],
+      "parse": "useContext 用于获取 Context 中的值。"
+    },
+    {
+      "id": "dev-dx-41",
+      "type": "single",
+      "question": "Git 中用于查看提交历史的命令是什么？",
+      "options": ["A. git log", "B. git status", "C. git diff", "D. git branch"],
+      "answer": ["A"],
+      "parse": "git log 命令用于查看提交历史。"
+    },
+    {
+      "id": "dev-dx-42",
+      "type": "single",
+      "question": "SQL 中用于删除数据的关键字是什么？",
+      "options": ["A. REMOVE", "B. DELETE", "C. DROP", "D. ERASE"],
+      "answer": ["B"],
+      "parse": "DELETE 用于删除表中的数据。"
+    },
+    {
+      "id": "dev-dx-43",
+      "type": "single",
+      "question": "CSS 中用于设置内边距的属性是什么？",
+      "options": ["A. margin", "B. padding", "C. border", "D. spacing"],
+      "answer": ["B"],
+      "parse": "padding 属性用于设置元素的内边距。"
+    },
+    {
+      "id": "dev-dx-44",
+      "type": "single",
+      "question": "JavaScript 中闭包的作用是什么？",
+      "options": ["A. 提高性能", "B. 访问外部函数的变量", "C. 减少代码量", "D. 简化调试"],
+      "answer": ["B"],
+      "parse": "闭包允许内部函数访问外部函数的变量，即使外部函数已经执行完毕。"
+    },
+    {
+      "id": "dev-dx-45",
+      "type": "single",
+      "question": "Vue.js 中 watch 的作用是什么？",
+      "options": ["A. 监听数据变化", "B. 计算属性", "C. 条件渲染", "D. 列表渲染"],
+      "answer": ["A"],
+      "parse": "watch 用于监听数据变化并执行相应的回调函数。"
+    },
+    {
+      "id": "dev-dx-46",
+      "type": "single",
+      "question": "Linux 中终止进程的命令是什么？",
+      "options": ["A. kill", "B. stop", "C. end", "D. exit"],
+      "answer": ["A"],
+      "parse": "kill 命令用于终止指定进程。"
+    },
+    {
+      "id": "dev-dx-47",
+      "type": "single",
+      "question": "JavaScript 中箭头函数和普通函数的区别是什么？",
+      "options": ["A. 没有区别", "B. 箭头函数没有自己的 this", "C. 箭头函数不能有参数", "D. 箭头函数必须返回值"],
+      "answer": ["B"],
+      "parse": "箭头函数没有自己的 this，它会捕获外层作用域的 this 值。"
+    },
+    {
+      "id": "dev-dx-48",
+      "type": "single",
+      "question": "HTML5 中用于存储本地数据的 API 是什么？",
+      "options": ["A. sessionStorage", "B. localStorage", "C. cookies", "D. indexedDB"],
+      "answer": ["B"],
+      "parse": "localStorage 用于在浏览器中持久存储数据。"
+    },
+    {
+      "id": "dev-dx-49",
+      "type": "single",
+      "question": "Python 中用于异常处理的关键字是什么？",
+      "options": ["A. try/except", "B. catch/throw", "C. error/handle", "D. exception/handle"],
+      "answer": ["A"],
+      "parse": "try/except 用于捕获和处理异常。"
+    },
+    {
+      "id": "dev-dx-50",
+      "type": "single",
+      "question": "HTTP 协议中用于重定向的状态码是什么？",
+      "options": ["A. 200", "B. 301", "C. 404", "D. 500"],
+      "answer": ["B"],
+      "parse": "301 表示永久重定向。"
+    },
+    {
+      "id": "dev-dx-51",
+      "type": "multiple",
+      "question": "以下哪些是 JavaScript 的基本数据类型？",
+      "options": ["A. String", "B. Number", "C. Array", "D. Boolean"],
+      "answer": ["A", "B", "D"],
+      "parse": "基本数据类型包括 String、Number、Boolean、Undefined、Null、Symbol 和 BigInt。Array 是引用类型。"
+    },
+    {
+      "id": "dev-dx-52",
+      "type": "multiple",
+      "question": "以下哪些是 HTTP 请求方法？",
+      "options": ["A. GET", "B. POST", "C. UPDATE", "D. DELETE"],
+      "answer": ["A", "B", "D"],
+      "parse": "常用 HTTP 方法包括 GET、POST、PUT、DELETE。UPDATE 不是标准方法。"
+    },
+    {
+      "id": "dev-dx-53",
+      "type": "multiple",
+      "question": "以下哪些是 CSS 布局方式？",
+      "options": ["A. Flexbox", "B. Grid", "C. Table", "D. Position"],
+      "answer": ["A", "B", "D"],
+      "parse": "Flexbox、Grid 和 Position 都是 CSS 布局方式。"
+    },
+    {
+      "id": "dev-dx-54",
+      "type": "multiple",
+      "question": "以下哪些是 Git 的常用命令？",
+      "options": ["A. git commit", "B. git push", "C. git clone", "D. git upload"],
+      "answer": ["A", "B", "C"],
+      "parse": "git commit、git push、git clone 都是常用命令。没有 git upload。"
+    },
+    {
+      "id": "dev-dx-55",
+      "type": "multiple",
+      "question": "以下哪些是 React 的 Hook？",
+      "options": ["A. useState", "B. useEffect", "C. useContext", "D. useFetch"],
+      "answer": ["A", "B", "C"],
+      "parse": "useState、useEffect、useContext 都是 React 内置 Hook。useFetch 不是。"
+    },
+    {
+      "id": "dev-dx-56",
+      "type": "multiple",
+      "question": "以下哪些是 SQL 关键字？",
+      "options": ["A. SELECT", "B. FROM", "C. WHERE", "D. DATA"],
+      "answer": ["A", "B", "C"],
+      "parse": "SELECT、FROM、WHERE 都是 SQL 关键字。DATA 不是。"
+    },
+    {
+      "id": "dev-dx-57",
+      "type": "multiple",
+      "question": "以下哪些是 JavaScript 的循环语句？",
+      "options": ["A. for", "B. while", "C. do...while", "D. loop"],
+      "answer": ["A", "B", "C"],
+      "parse": "for、while、do...while 都是 JavaScript 的循环语句。没有 loop。"
+    },
+    {
+      "id": "dev-dx-58",
+      "type": "multiple",
+      "question": "以下哪些是 HTML5 新增的标签？",
+      "options": ["A. <header>", "B. <nav>", "C. <article>", "D. <div>"],
+      "answer": ["A", "B", "C"],
+      "parse": "<header>、<nav>、<article> 都是 HTML5 新增的语义化标签。<div> 是 HTML4 就有的。"
+    },
+    {
+      "id": "dev-dx-59",
+      "type": "multiple",
+      "question": "以下哪些是 Vue.js 的指令？",
+      "options": ["A. v-if", "B. v-for", "C. v-model", "D. v-loop"],
+      "answer": ["A", "B", "C"],
+      "parse": "v-if、v-for、v-model 都是 Vue.js 的指令。没有 v-loop。"
+    },
+    {
+      "id": "dev-dx-60",
+      "type": "multiple",
+      "question": "以下哪些是 Python 的数据类型？",
+      "options": ["A. int", "B. str", "C. list", "D. array"],
+      "answer": ["A", "B", "C"],
+      "parse": "int、str、list 都是 Python 的内置数据类型。array 需要导入 array 模块。"
+    },
+    {
+      "id": "dev-dx-61",
+      "type": "multiple",
+      "question": "以下哪些是 HTTP 状态码分类？",
+      "options": ["A. 1xx 信息响应", "B. 2xx 成功响应", "C. 3xx 重定向", "D. 4xx 服务器错误"],
+      "answer": ["A", "B", "C"],
+      "parse": "1xx（信息）、2xx（成功）、3xx（重定向）、4xx（客户端错误）、5xx（服务器错误）。"
+    },
+    {
+      "id": "dev-dx-62",
+      "type": "multiple",
+      "question": "以下哪些是 CSS 的伪类？",
+      "options": ["A. :hover", "B. :active", "C. :focus", "D. :color"],
+      "answer": ["A", "B", "C"],
+      "parse": ":hover、:active、:focus 都是 CSS 伪类。没有 :color。"
+    },
+    {
+      "id": "dev-dx-63",
+      "type": "multiple",
+      "question": "以下哪些是 JavaScript 的数组方法？",
+      "options": ["A. map", "B. filter", "C. reduce", "D. loop"],
+      "answer": ["A", "B", "C"],
+      "parse": "map、filter、reduce 都是数组的高阶方法。没有 loop。"
+    },
+    {
+      "id": "dev-dx-64",
+      "type": "multiple",
+      "question": "以下哪些是 Git 的分支操作命令？",
+      "options": ["A. git branch", "B. git checkout", "C. git merge", "D. git commit"],
+      "answer": ["A", "B", "C"],
+      "parse": "git branch（查看/创建分支）、git checkout（切换分支）、git merge（合并分支）都是分支操作命令。git commit 是提交命令。"
+    },
+    {
+      "id": "dev-dx-65",
+      "type": "multiple",
+      "question": "以下哪些是 SQL 的聚合函数？",
+      "options": ["A. COUNT", "B. SUM", "C. AVG", "D. GROUP"],
+      "answer": ["A", "B", "C"],
+      "parse": "COUNT、SUM、AVG 都是聚合函数。GROUP 是 GROUP BY 中的关键字，不是函数。"
+    },
+    {
+      "id": "dev-dx-66",
+      "type": "multiple",
+      "question": "以下哪些是 JavaScript 的事件？",
+      "options": ["A. click", "B. keydown", "C. load", "D. action"],
+      "answer": ["A", "B", "C"],
+      "parse": "click、keydown、load 都是常见的 DOM 事件。没有 action 事件。"
+    },
+    {
+      "id": "dev-dx-67",
+      "type": "multiple",
+      "question": "以下哪些是 Vue.js 的生命周期钩子？",
+      "options": ["A. created", "B. mounted", "C. updated", "D. started"],
+      "answer": ["A", "B", "C"],
+      "parse": "created、mounted、updated 都是 Vue.js 的生命周期钩子。没有 started。"
+    },
+    {
+      "id": "dev-dx-68",
+      "type": "multiple",
+      "question": "以下哪些是 Linux 的文件权限？",
+      "options": ["A. read", "B. write", "C. execute", "D. modify"],
+      "answer": ["A", "B", "C"],
+      "parse": "Linux 文件权限包括 read（读）、write（写）、execute（执行）。没有 modify。"
+    },
+    {
+      "id": "dev-dx-69",
+      "type": "multiple",
+      "question": "以下哪些是 React 的组件类型？",
+      "options": ["A. 函数组件", "B. 类组件", "C. 纯组件", "D. 虚拟组件"],
+      "answer": ["A", "B", "C"],
+      "parse": "React 组件类型包括函数组件、类组件、纯组件（PureComponent）。没有虚拟组件。"
+    },
+    {
+      "id": "dev-dx-70",
+      "type": "multiple",
+      "question": "以下哪些是 JSON 的数据类型？",
+      "options": ["A. string", "B. number", "C. boolean", "D. function"],
+      "answer": ["A", "B", "C"],
+      "parse": "JSON 支持 string、number、boolean、array、object、null。不支持 function。"
+    },
+    {
+      "id": "dev-pd-1",
+      "type": "judge",
+      "question": "JavaScript 是一种强类型语言。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "JavaScript 是弱类型/动态类型语言，变量类型可以在运行时改变。"
+    },
+    {
+      "id": "dev-pd-2",
+      "type": "judge",
+      "question": "CSS 的 display: flex 可以创建弹性布局。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "display: flex 是 CSS Flexbox 布局的基础属性。"
+    },
+    {
+      "id": "dev-pd-3",
+      "type": "judge",
+      "question": "HTML5 支持本地存储（localStorage）。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "HTML5 引入了 localStorage API。"
+    },
+    {
+      "id": "dev-pd-4",
+      "type": "judge",
+      "question": "HTTP 状态码 404 表示服务器内部错误。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "404 表示资源未找到，500 表示服务器内部错误。"
+    },
+    {
+      "id": "dev-pd-5",
+      "type": "judge",
+      "question": "Vue.js 是一个渐进式 JavaScript 框架。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "Vue.js 被称为渐进式框架。"
+    },
+    {
+      "id": "dev-pd-6",
+      "type": "judge",
+      "question": "Git 是一个分布式版本控制系统。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "Git 是分布式版本控制系统，每个开发者都有完整的仓库副本。"
+    },
+    {
+      "id": "dev-pd-7",
+      "type": "judge",
+      "question": "SQL 中 SELECT 语句可以不使用 FROM 子句。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "某些数据库允许 SELECT 语句不使用 FROM 子句，如 SELECT 1+1。"
+    },
+    {
+      "id": "dev-pd-8",
+      "type": "judge",
+      "question": "JavaScript 中 let 和 const 声明的变量会提升。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "let 和 const 声明的变量会提升，但存在暂时性死区，在声明前无法访问。"
+    },
+    {
+      "id": "dev-pd-9",
+      "type": "judge",
+      "question": "CSS 中 margin 可以设置为负数。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "margin 可以设置为负数，常用于实现元素重叠。"
+    },
+    {
+      "id": "dev-pd-10",
+      "type": "judge",
+      "question": "React 中组件的 props 是只读的。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "React 中 props 是从父组件传递的数据，应该视为只读。"
+    },
+    {
+      "id": "dev-pd-11",
+      "type": "judge",
+      "question": "Python 中缩进是语法的一部分。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "Python 使用缩进来表示代码块，缩进是语法的一部分。"
+    },
+    {
+      "id": "dev-pd-12",
+      "type": "judge",
+      "question": "HTTP 协议是无状态的。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "HTTP 协议本身是无状态的，每次请求都是独立的。"
+    },
+    {
+      "id": "dev-pd-13",
+      "type": "judge",
+      "question": "CSS 中 position: absolute 的元素相对于父元素定位。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "position: absolute 的元素相对于最近的非 static 定位的祖先元素定位。"
+    },
+    {
+      "id": "dev-pd-14",
+      "type": "judge",
+      "question": "JavaScript 中数组的索引从 0 开始。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "JavaScript 数组索引从 0 开始。"
+    },
+    {
+      "id": "dev-pd-15",
+      "type": "judge",
+      "question": "Vue.js 中 v-model 是双向数据绑定。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "v-model 实现了表单元素的双向数据绑定。"
+    },
+    {
+      "id": "dev-pd-16",
+      "type": "judge",
+      "question": "Git 中 git pull 等同于 git fetch + git merge。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "git pull 命令默认执行 git fetch 后再执行 git merge。"
+    },
+    {
+      "id": "dev-pd-17",
+      "type": "judge",
+      "question": "SQL 中 NULL 等于空字符串。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "NULL 表示未知值，不等于任何值，包括空字符串。"
+    },
+    {
+      "id": "dev-pd-18",
+      "type": "judge",
+      "question": "JavaScript 中 Promise 可以被多次 resolve。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "Promise 只能被 resolve 或 reject 一次，后续调用会被忽略。"
+    },
+    {
+      "id": "dev-pd-19",
+      "type": "judge",
+      "question": "CSS 中 z-index 只对定位元素有效。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "z-index 只对 position 不是 static 的元素有效。"
+    },
+    {
+      "id": "dev-pd-20",
+      "type": "judge",
+      "question": "React 中函数组件必须有 return 语句。",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "函数组件必须返回 JSX 或 null。"
+    }
+  ]
+}

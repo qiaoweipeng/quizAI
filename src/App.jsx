@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ConfigProvider, Button, Layout, Modal, Drawer, Table, Space, Badge, Popconfirm, App, Tooltip, Tag } from 'antd'
 import { theme } from 'antd'
-import { FullscreenOutlined, FullscreenExitOutlined, RobotOutlined, FileExcelOutlined, DeleteOutlined, QuestionCircleOutlined, MoonOutlined, SunOutlined, DownloadOutlined } from '@ant-design/icons'
+import { FullscreenOutlined, FullscreenExitOutlined, FileExcelOutlined, DeleteOutlined, QuestionCircleOutlined, MoonOutlined, SunOutlined, DownloadOutlined } from '@ant-design/icons'
 import './App.css'
 
 const { Header, Content, Footer } = Layout
@@ -288,7 +288,9 @@ export default function RootApp() {
       <Layout className="app">
         <Header className="app-header">
           <div className="header-logo" onClick={() => setPage('home')}>
-            <RobotOutlined className="logo-icon" />
+            <svg className="logo-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
+              <path d="M274.334476 272.286476c51.736381-88.697905 179.882667-88.746667 231.619048 0l257.072762 440.710095a36.571429 36.571429 0 0 1-63.097905 36.864L442.758095 309.150476a60.952381 60.952381 0 0 0-105.325714 0l-171.544381 294.034286a60.952381 60.952381 0 0 0 52.662857 91.672381h284.574476a36.571429 36.571429 0 0 1 0 73.142857H218.599619c-103.472762 0-167.984762-112.249905-115.858286-201.679238l171.593143-294.034286zM877.763048 353.52381a36.571429 36.571429 0 0 1 36.571428 36.571428v341.333333a36.571429 36.571429 0 0 1-73.142857 0V390.095238a36.571429 36.571429 0 0 1 36.571429-36.571428z m0-158.476191a48.761905 48.761905 0 1 1 0 97.52381 48.761905 48.761905 0 0 1 0-97.52381z" fill="currentColor"></path>
+            </svg>
             {currentPage === 'home' && <span className="logo-text">智能刷题系统</span>}
           </div>
           <div className="header-right">
@@ -402,8 +404,8 @@ export default function RootApp() {
         {currentPage === 'home' && (
           <Footer className="app-footer">
             <div className="footer-content">
-              <p>你只管学，其余的交给我！</p>
-              <p className="footer-version">Design by 乔伟鹏—V1.4</p>
+              <p>一款轻量化智能刷题系统</p>
+              {/* <p className="footer-version">Design by 乔伟鹏—V1.4</p> */}
             </div>
           </Footer>
         )}

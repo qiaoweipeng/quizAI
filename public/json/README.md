@@ -1,6 +1,6 @@
 # 题目数据文件说明
 
-本文件夹用于存放消防理论考试系统的题目数据。
+本文件夹用于存放智能刷题系统的题目数据。
 
 ## 文件命名规范
 
@@ -12,11 +12,11 @@
 
 为确保题目 ID 在全系统中唯一且有序，采用以下统一规则：
 
-| 题型 | 题号范围 | ID 格式 | 示例 |
-|------|---------|---------|------|
-| 单选题 | 第 1–100 题 | `paper1-dx-{n}` | `paper1-dx-1`、`paper1-dx-100` |
+| 题型  | 题号范围        | ID 格式            | 示例                                |
+| --- | ----------- | ---------------- | --------------------------------- |
+| 单选题 | 第 1–100 题   | `paper1-dx-{n}`  | `paper1-dx-1`、`paper1-dx-100`     |
 | 多选题 | 第 101–140 题 | `paper1-duo-{n}` | `paper1-duo-101`、`paper1-duo-140` |
-| 判断题 | 第 141–200 题 | `paper1-pd-{n}` | `paper1-pd-141`、`paper1-pd-200` |
+| 判断题 | 第 141–200 题 | `paper1-pd-{n}`  | `paper1-pd-141`、`paper1-pd-200`   |
 
 > **说明**：`paper1` 表示第一份试卷；`dx` 代表单选、`duo` 代表多选、`pd` 代表判断；后缀数字与试卷题号保持一致。
 
@@ -37,12 +37,12 @@
   "papers": [
     {
       "id": "paper-1",
-      "name": "2026年中级消防设施操作员[监控]历年真题练习（卷A）",
+      "name": "2026历年真题练习（卷A）",
       "file": "paper-1.json"
     },
     {
       "id": "paper-2",
-      "name": "2026年中级消防设施操作员[监控]历年真题练习（卷B）",
+      "name": "2026模拟试卷（卷B）",
       "file": "paper-2.json"
     }
   ]
@@ -74,19 +74,7 @@
 2. 创建对应的试卷文件（如 `paper-2.json`）
 3. 刷新页面即可自动加载新试卷
 
-## 添加新题目文件
-
-**推荐方式**（使用多试卷管理）：
-1. 在 `paper-index.json` 中添加试卷条目
-2. 创建对应的试卷文件
-3. 无需修改代码
-
-**旧方式**（向后兼容）：
-1. 在此文件夹中创建新的 JSON 文件
-2. 按照标准格式添加题目数据
-3. 修改 `src/App.jsx` 中的 `loadJsonFiles` 函数以加载新文件
-
-## JSON 数据格式
+# JSON 数据格式
 
 ### 基本结构
 
@@ -121,48 +109,51 @@
 ### 示例题目
 
 #### 单选题示例
+
 ```json
 {
   "id": "paper1-dx-1",
   "type": "single",
-  "question": "火灾报警控制器处于手动状态时，收到火警信号后会自动联动启动消防泵吗？",
+  "question": "What is the capital city of France?",
   "options": [
-    "A. 会",
-    "B. 不会",
-    "C. 有时可以",
-    "D. 取决于设置"
+    "A. London",
+    "B. Berlin",
+    "C. Paris",
+    "D. Madrid"
   ],
-  "answer": ["B"],
-  "parse": "手动状态下，控制器不会自动联动启动消防泵，需要人工确认后手动启动。"
+  "answer": ["C"],
+  "parse": "Paris is the capital and most populous city of France."
 }
 ```
 
 #### 多选题示例
+
 ```json
 {
   "id": "paper1-duo-101",
   "type": "multiple",
-  "question": "湿式报警阀组的组成部件包括哪些？",
+  "question": "Which of the following are programming languages?",
   "options": [
-    "A. 湿式报警阀",
-    "B. 水力警铃",
-    "C. 压力开关",
-    "D. 延迟器"
+    "A. Python",
+    "B. Java",
+    "C. HTML",
+    "D. English"
   ],
-  "answer": ["A", "B", "C", "D"],
-  "parse": "湿式报警阀组由湿式报警阀、水力警铃、压力开关、延迟器、压力表、泄水阀等组成。"
+  "answer": ["A", "B"],
+  "parse": "Python and Java are programming languages. HTML is a markup language, and English is a natural language."
 }
 ```
 
 #### 判断题示例
+
 ```json
 {
   "id": "paper1-pd-141",
   "type": "judge",
-  "question": "末端试水装置的压力表读数正常范围一般在0.4~0.6MPa之间。",
+  "question": "In JavaScript, 'const' declares a variable that cannot be reassigned.",
   "options": ["正确", "错误"],
   "answer": ["正确"],
-  "parse": "末端试水装置的压力表正常读数通常在0.4~0.6MPa范围内，反映系统侧管网压力。"
+  "parse": "'const' creates a read-only reference to a value, meaning the variable cannot be reassigned to a different value."
 }
 ```
 

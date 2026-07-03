@@ -8,11 +8,11 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       strategies: 'generateSW',
-      includeAssets: ['favicon.svg', 'icons/icon-192x192.png', 'icons/icon-512x512.png'],
+      includeAssets: ['favicon.svg', 'icons/icon.svg'],
       manifest: {
-        name: '消防考试系统',
-        short_name: '消防考试',
-        description: '消防工程师考试练习系统',
+        name: '智能刷题系统',
+        short_name: '智能刷题',
+        description: '智能刷题系统',
         theme_color: '#1890ff',
         background_color: '#ffffff',
         display: 'standalone',
@@ -20,15 +20,9 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: 'icons/icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any maskable',
-          },
-          {
-            src: 'icons/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
+            src: 'icons/icon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
             purpose: 'any maskable',
           },
         ],

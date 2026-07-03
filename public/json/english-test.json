@@ -1,0 +1,724 @@
+{
+  "questions": [
+    {
+      "id": "en-dx-1",
+      "type": "single",
+      "question": "What is the plural form of 'book'?",
+      "options": ["A. bookes", "B. books", "C. book", "D. book's"],
+      "answer": ["B"],
+      "parse": "The plural of 'book' is 'books' - just add 's' for most nouns."
+    },
+    {
+      "id": "en-dx-2",
+      "type": "single",
+      "question": "Choose the correct sentence:",
+      "options": ["A. He don't like coffee.", "B. He doesn't likes coffee.", "C. He doesn't like coffee.", "D. He not like coffee."],
+      "answer": ["C"],
+      "parse": "Third person singular negative uses 'doesn't' + base verb."
+    },
+    {
+      "id": "en-dx-3",
+      "type": "single",
+      "question": "What is the past tense of 'go'?",
+      "options": ["A. goed", "B. went", "C. gone", "D. going"],
+      "answer": ["B"],
+      "parse": "'Go' has an irregular past tense: 'went'."
+    },
+    {
+      "id": "en-dx-4",
+      "type": "single",
+      "question": "Which word is a noun?",
+      "options": ["A. quickly", "B. beautiful", "C. run", "D. happiness"],
+      "answer": ["D"],
+      "parse": "'Happiness' is a noun (feeling). 'Quickly' is adverb, 'beautiful' is adjective, 'run' is verb."
+    },
+    {
+      "id": "en-dx-5",
+      "type": "single",
+      "question": "I ___ to school every day.",
+      "options": ["A. go", "B. goes", "C. going", "D. went"],
+      "answer": ["A"],
+      "parse": "First person singular uses base verb 'go'."
+    },
+    {
+      "id": "en-dx-6",
+      "type": "single",
+      "question": "She is ___ doctor.",
+      "options": ["A. a", "B. an", "C. the", "D. /"],
+      "answer": ["A"],
+      "parse": "'Doctor' starts with a consonant sound, so use 'a'."
+    },
+    {
+      "id": "en-dx-7",
+      "type": "single",
+      "question": "What is the comparative form of 'big'?",
+      "options": ["A. biger", "B. bigger", "C. more big", "D. biggest"],
+      "answer": ["B"],
+      "parse": "Double the final consonant for short adjectives: 'big' -> 'bigger'."
+    },
+    {
+      "id": "en-dx-8",
+      "type": "single",
+      "question": "They ___ playing football now.",
+      "options": ["A. is", "B. are", "C. am", "D. be"],
+      "answer": ["B"],
+      "parse": "Plural subject 'they' uses 'are' in present continuous."
+    },
+    {
+      "id": "en-dx-9",
+      "type": "single",
+      "question": "Which word is an adverb?",
+      "options": ["A. slow", "B. slowly", "C. slowness", "D. slowest"],
+      "answer": ["B"],
+      "parse": "Adverbs often end in '-ly': 'slowly' describes how something is done."
+    },
+    {
+      "id": "en-dx-10",
+      "type": "single",
+      "question": "I have been learning English ___ three years.",
+      "options": ["A. since", "B. for", "C. in", "D. during"],
+      "answer": ["B"],
+      "parse": "'For' is used with duration (three years), 'since' with a point in time."
+    },
+    {
+      "id": "en-dx-11",
+      "type": "single",
+      "question": "What is the superlative form of 'good'?",
+      "options": ["A. gooder", "B. best", "C. most good", "D. goodest"],
+      "answer": ["B"],
+      "parse": "'Good' is irregular: good -> better -> best."
+    },
+    {
+      "id": "en-dx-12",
+      "type": "single",
+      "question": "If I ___ you, I would study harder.",
+      "options": ["A. am", "B. was", "C. were", "D. be"],
+      "answer": ["C"],
+      "parse": "In conditional sentences, use 'were' for all subjects (subjunctive mood)."
+    },
+    {
+      "id": "en-dx-13",
+      "type": "single",
+      "question": "The book ___ by many students.",
+      "options": ["A. read", "B. reads", "C. is read", "D. reading"],
+      "answer": ["C"],
+      "parse": "Passive voice: 'is read' means the book is being read by others."
+    },
+    {
+      "id": "en-dx-14",
+      "type": "single",
+      "question": "He asked ___ I could help him.",
+      "options": ["A. if", "B. weather", "C. that", "D. what"],
+      "answer": ["A"],
+      "parse": "'If' introduces an indirect question: 'He asked if I could help.'"
+    },
+    {
+      "id": "en-dx-15",
+      "type": "single",
+      "question": "Neither he nor I ___ wrong.",
+      "options": ["A. am", "B. is", "C. are", "D. be"],
+      "answer": ["A"],
+      "parse": "With 'neither...nor', the verb agrees with the nearest subject (I)."
+    },
+    {
+      "id": "en-dx-16",
+      "type": "single",
+      "question": "The children are looking forward ___ the party.",
+      "options": ["A. to", "B. for", "C. at", "D. in"],
+      "answer": ["A"],
+      "parse": "固定搭配: 'look forward to' + noun/gerund."
+    },
+    {
+      "id": "en-dx-17",
+      "type": "single",
+      "question": "What is the opposite of 'happy'?",
+      "options": ["A. unhappy", "B. unhappily", "C. happiness", "D. happier"],
+      "answer": ["A"],
+      "parse": "The opposite of 'happy' is 'unhappy' (add 'un-' prefix)."
+    },
+    {
+      "id": "en-dx-18",
+      "type": "single",
+      "question": "By next year, I ___ my degree.",
+      "options": ["A. finish", "B. finished", "C. will finish", "D. will have finished"],
+      "answer": ["D"],
+      "parse": "Future perfect tense: 'will have finished' for actions completed before a future time."
+    },
+    {
+      "id": "en-dx-19",
+      "type": "single",
+      "question": "This is the house ___ I grew up.",
+      "options": ["A. which", "B. where", "C. that", "D. what"],
+      "answer": ["B"],
+      "parse": "Use 'where' for places in relative clauses."
+    },
+    {
+      "id": "en-dx-20",
+      "type": "single",
+      "question": "She suggested ___ a movie.",
+      "options": ["A. watch", "B. to watch", "C. watching", "D. watched"],
+      "answer": ["C"],
+      "parse": "'Suggest' is followed by gerund (-ing form)."
+    },
+    {
+      "id": "en-dx-21",
+      "type": "single",
+      "question": "I'd rather ___ at home.",
+      "options": ["A. stay", "B. to stay", "C. staying", "D. stayed"],
+      "answer": ["A"],
+      "parse": "'Would rather' is followed by base verb."
+    },
+    {
+      "id": "en-dx-22",
+      "type": "single",
+      "question": "The news ___ very surprising.",
+      "options": ["A. is", "B. are", "C. was", "D. were"],
+      "answer": ["A"],
+      "parse": "'News' is uncountable and takes singular verb."
+    },
+    {
+      "id": "en-dx-23",
+      "type": "single",
+      "question": "He denied ___ the money.",
+      "options": ["A. take", "B. to take", "C. taking", "D. taken"],
+      "answer": ["C"],
+      "parse": "'Deny' is followed by gerund (-ing form)."
+    },
+    {
+      "id": "en-dx-24",
+      "type": "single",
+      "question": "We should ___ early tomorrow.",
+      "options": ["A. leave", "B. left", "C. leaving", "D. to leave"],
+      "answer": ["A"],
+      "parse": "'Should' is a modal verb followed by base verb."
+    },
+    {
+      "id": "en-dx-25",
+      "type": "single",
+      "question": "What is the past participle of 'write'?",
+      "options": ["A. wrote", "B. written", "C. writing", "D. writed"],
+      "answer": ["B"],
+      "parse": "'Write' is irregular: write -> wrote -> written."
+    },
+    {
+      "id": "en-dx-26",
+      "type": "single",
+      "question": "The teacher insisted on ___ homework.",
+      "options": ["A. do", "B. doing", "C. done", "D. to do"],
+      "answer": ["B"],
+      "parse": "'Insist on' is followed by gerund (-ing form)."
+    },
+    {
+      "id": "en-dx-27",
+      "type": "single",
+      "question": "It's time we ___ home.",
+      "options": ["A. go", "B. went", "C. going", "D. gone"],
+      "answer": ["B"],
+      "parse": "'It's time' uses past tense for present suggestion."
+    },
+    {
+      "id": "en-dx-28",
+      "type": "single",
+      "question": "She has ___ experience.",
+      "options": ["A. many", "B. much", "C. a few", "D. a lot"],
+      "answer": ["B"],
+      "parse": "'Experience' is uncountable, use 'much'."
+    },
+    {
+      "id": "en-dx-29",
+      "type": "single",
+      "question": "___ the weather like today?",
+      "options": ["A. What's", "B. How's", "C. Which is", "D. Where is"],
+      "answer": ["A"],
+      "parse": "Ask about weather with 'What's the weather like?'."
+    },
+    {
+      "id": "en-dx-30",
+      "type": "single",
+      "question": "I haven't seen him ___ last week.",
+      "options": ["A. for", "B. since", "C. in", "D. during"],
+      "answer": ["B"],
+      "parse": "'Since' is used with a specific point in time (last week)."
+    },
+    {
+      "id": "en-dx-31",
+      "type": "single",
+      "question": "What is the contraction of 'I am'?",
+      "options": ["A. Im", "B. I'm", "C. Iam", "D. I'am"],
+      "answer": ["B"],
+      "parse": "The correct contraction is 'I'm'."
+    },
+    {
+      "id": "en-dx-32",
+      "type": "single",
+      "question": "The cat is sitting ___ the table.",
+      "options": ["A. in", "B. on", "C. at", "D. under"],
+      "answer": ["B"],
+      "parse": "'On' means resting on the surface of something."
+    },
+    {
+      "id": "en-dx-33",
+      "type": "single",
+      "question": "I wish I ___ taller.",
+      "options": ["A. am", "B. was", "C. were", "D. be"],
+      "answer": ["C"],
+      "parse": "'Wish' uses subjunctive mood: 'were' for all subjects."
+    },
+    {
+      "id": "en-dx-34",
+      "type": "single",
+      "question": "He is good ___ math.",
+      "options": ["A. at", "B. in", "C. on", "D. for"],
+      "answer": ["A"],
+      "parse": "固定搭配: 'good at' means skilled in something."
+    },
+    {
+      "id": "en-dx-35",
+      "type": "single",
+      "question": "Which is correct?",
+      "options": ["A. Its a nice day.", "B. It's a nice day.", "C. Its' a nice day.", "D. It is a nice day."],
+      "answer": ["B"],
+      "parse": "'It's' is the contraction of 'it is'. 'Its' is possessive."
+    },
+    {
+      "id": "en-dx-36",
+      "type": "single",
+      "question": "She is looking ___ her keys.",
+      "options": ["A. at", "B. for", "C. after", "D. up"],
+      "answer": ["B"],
+      "parse": "'Look for' means searching for something."
+    },
+    {
+      "id": "en-dx-37",
+      "type": "single",
+      "question": "The meeting has been ___ until next week.",
+      "options": ["A. put off", "B. put on", "C. put out", "D. put up"],
+      "answer": ["A"],
+      "parse": "'Put off' means postponed or delayed."
+    },
+    {
+      "id": "en-dx-38",
+      "type": "single",
+      "question": "What is the plural of 'child'?",
+      "options": ["A. childs", "B. children", "C. childes", "D. childen"],
+      "answer": ["B"],
+      "parse": "'Child' has an irregular plural: 'children'."
+    },
+    {
+      "id": "en-dx-39",
+      "type": "single",
+      "question": "I'm looking forward to ___ you.",
+      "options": ["A. see", "B. seeing", "C. saw", "D. seen"],
+      "answer": ["B"],
+      "parse": "'Look forward to' is followed by gerund (-ing form)."
+    },
+    {
+      "id": "en-dx-40",
+      "type": "single",
+      "question": "The film was ___ interesting.",
+      "options": ["A. real", "B. really", "C. reality", "D. realize"],
+      "answer": ["B"],
+      "parse": "Adverb 'really' modifies the adjective 'interesting'."
+    },
+    {
+      "id": "en-dx-41",
+      "type": "single",
+      "question": "He gave ___ a book.",
+      "options": ["A. me", "B. I", "C. my", "D. mine"],
+      "answer": ["A"],
+      "parse": "Object pronoun 'me' is used after the verb 'gave'."
+    },
+    {
+      "id": "en-dx-42",
+      "type": "single",
+      "question": "The report is ___ tomorrow.",
+      "options": ["A. due", "B. do", "C. done", "D. doing"],
+      "answer": ["A"],
+      "parse": "'Due' means expected to be completed by a certain time."
+    },
+    {
+      "id": "en-dx-43",
+      "type": "single",
+      "question": "What is the comparative of 'quickly'?",
+      "options": ["A. quicklier", "B. more quickly", "C. quicker", "D. most quickly"],
+      "answer": ["B"],
+      "parse": "Adverbs ending in '-ly' use 'more' for comparison."
+    },
+    {
+      "id": "en-dx-44",
+      "type": "single",
+      "question": "I ___ my homework before I went to bed.",
+      "options": ["A. finished", "B. had finished", "C. have finished", "D. was finishing"],
+      "answer": ["B"],
+      "parse": "Past perfect: action completed before another past action."
+    },
+    {
+      "id": "en-dx-45",
+      "type": "single",
+      "question": "The man ___ is wearing a blue shirt is my brother.",
+      "options": ["A. who", "B. which", "C. whom", "D. what"],
+      "answer": ["A"],
+      "parse": "Use 'who' for people in defining relative clauses."
+    },
+    {
+      "id": "en-dx-46",
+      "type": "single",
+      "question": "She ___ to the gym every morning.",
+      "options": ["A. go", "B. goes", "C. going", "D. went"],
+      "answer": ["B"],
+      "parse": "Third person singular: 'she goes' (add '-es')."
+    },
+    {
+      "id": "en-dx-47",
+      "type": "single",
+      "question": "What is an antonym of 'increase'?",
+      "options": ["A. decrease", "B. expand", "C. grow", "D. raise"],
+      "answer": ["A"],
+      "parse": "'Decrease' is the opposite of 'increase'."
+    },
+    {
+      "id": "en-dx-48",
+      "type": "single",
+      "question": "I'll call you ___ I arrive.",
+      "options": ["A. while", "B. until", "C. as soon as", "D. during"],
+      "answer": ["C"],
+      "parse": "'As soon as' means immediately after something happens."
+    },
+    {
+      "id": "en-dx-49",
+      "type": "single",
+      "question": "The students are ___ to pass the exam.",
+      "options": ["A. likely", "B. like", "C. liking", "D. liked"],
+      "answer": ["A"],
+      "parse": "'Likely' means probable or expected."
+    },
+    {
+      "id": "en-dx-50",
+      "type": "single",
+      "question": "What does 'etc.' stand for?",
+      "options": ["A. et cetera", "B. et ceptra", "C. et cetra", "D. et ceteras"],
+      "answer": ["A"],
+      "parse": "'Etc.' is the abbreviation for 'et cetera', meaning 'and so on'."
+    },
+    {
+      "id": "en-dx-51",
+      "type": "multiple",
+      "question": "Which of the following are irregular verbs?",
+      "options": ["A. go", "B. walk", "C. write", "D. run"],
+      "answer": ["A", "C"],
+      "parse": "'Go' (went, gone) and 'write' (wrote, written) are irregular. 'Walk' and 'run' are regular."
+    },
+    {
+      "id": "en-dx-52",
+      "type": "multiple",
+      "question": "Which prepositions can be used with 'look'?",
+      "options": ["A. at", "B. for", "C. after", "D. up"],
+      "answer": ["A", "B", "C", "D"],
+      "parse": "All are correct: look at (observe), look for (search), look after (care for), look up (find information)."
+    },
+    {
+      "id": "en-dx-53",
+      "type": "multiple",
+      "question": "Which words are countable nouns?",
+      "options": ["A. book", "B. water", "C. chair", "D. happiness"],
+      "answer": ["A", "C"],
+      "parse": "'Book' and 'chair' are countable (can have plural forms). 'Water' and 'happiness' are uncountable."
+    },
+    {
+      "id": "en-dx-54",
+      "type": "multiple",
+      "question": "Which sentences are grammatically correct?",
+      "options": ["A. He doesn't like tea.", "B. He don't like tea.", "C. She goes to school.", "D. She go to school."],
+      "answer": ["A", "C"],
+      "parse": "Correct: 'doesn't' for third person singular negative, 'goes' for third person singular present."
+    },
+    {
+      "id": "en-dx-55",
+      "type": "multiple",
+      "question": "Which words are adverbs?",
+      "options": ["A. quickly", "B. beautiful", "C. slowly", "D. happy"],
+      "answer": ["A", "C"],
+      "parse": "'Quickly' and 'slowly' are adverbs (end in '-ly'). 'Beautiful' and 'happy' are adjectives."
+    },
+    {
+      "id": "en-dx-56",
+      "type": "multiple",
+      "question": "Which of these are modal verbs?",
+      "options": ["A. can", "B. should", "C. must", "D. have"],
+      "answer": ["A", "B", "C"],
+      "parse": "'Can', 'should', and 'must' are modal verbs. 'Have' is a main verb."
+    },
+    {
+      "id": "en-dx-57",
+      "type": "multiple",
+      "question": "Which of the following are correct comparatives?",
+      "options": ["A. bigger", "B. more beautiful", "C. gooder", "D. faster"],
+      "answer": ["A", "B", "D"],
+      "parse": "Correct: 'bigger' (double consonant), 'more beautiful' (long adjective), 'faster' (regular). 'Gooder' is wrong - should be 'better'."
+    },
+    {
+      "id": "en-dx-58",
+      "type": "multiple",
+      "question": "Which sentences use passive voice?",
+      "options": ["A. The letter was sent.", "B. She sent the letter.", "C. The book is being read.", "D. He reads books."],
+      "answer": ["A", "C"],
+      "parse": "Passive voice uses 'be' + past participle: 'was sent', 'is being read'."
+    },
+    {
+      "id": "en-dx-59",
+      "type": "multiple",
+      "question": "Which words are pronouns?",
+      "options": ["A. I", "B. me", "C. my", "D. mine"],
+      "answer": ["A", "B", "C", "D"],
+      "parse": "All are pronouns: 'I' (subject), 'me' (object), 'my' (possessive adjective), 'mine' (possessive pronoun)."
+    },
+    {
+      "id": "en-dx-60",
+      "type": "multiple",
+      "question": "Which of these words are articles?",
+      "options": ["A. a", "B. an", "C. the", "D. this"],
+      "answer": ["A", "B", "C"],
+      "parse": "'A', 'an', and 'the' are articles. 'This' is a demonstrative pronoun."
+    },
+    {
+      "id": "en-dx-61",
+      "type": "multiple",
+      "question": "Which verbs are followed by gerund?",
+      "options": ["A. enjoy", "B. suggest", "C. want", "D. finish"],
+      "answer": ["A", "B", "D"],
+      "parse": "'Enjoy', 'suggest', and 'finish' are followed by gerund (-ing). 'Want' is followed by infinitive."
+    },
+    {
+      "id": "en-dx-62",
+      "type": "multiple",
+      "question": "Which of the following are conjunctions?",
+      "options": ["A. and", "B. but", "C. because", "D. however"],
+      "answer": ["A", "B", "C"],
+      "parse": "'And', 'but', and 'because' are conjunctions. 'However' is a conjunctive adverb."
+    },
+    {
+      "id": "en-dx-63",
+      "type": "multiple",
+      "question": "Which of these are past continuous sentences?",
+      "options": ["A. I was reading a book.", "B. She read a book.", "C. They were playing football.", "D. He plays football."],
+      "answer": ["A", "C"],
+      "parse": "Past continuous uses 'was/were' + verb-ing: 'was reading', 'were playing'."
+    },
+    {
+      "id": "en-dx-64",
+      "type": "multiple",
+      "question": "Which words are adjectives?",
+      "options": ["A. beautiful", "B. beauty", "C. happily", "D. happy"],
+      "answer": ["A", "D"],
+      "parse": "'Beautiful' and 'happy' are adjectives. 'Beauty' is a noun, 'happily' is an adverb."
+    },
+    {
+      "id": "en-dx-65",
+      "type": "multiple",
+      "question": "Which sentences use present perfect?",
+      "options": ["A. I have finished my work.", "B. I finished my work.", "C. She has lived here for 5 years.", "D. She lives here."],
+      "answer": ["A", "C"],
+      "parse": "Present perfect uses 'have/has' + past participle: 'have finished', 'has lived'."
+    },
+    {
+      "id": "en-dx-66",
+      "type": "multiple",
+      "question": "Which of the following are prepositions?",
+      "options": ["A. in", "B. on", "C. at", "D. and"],
+      "answer": ["A", "B", "C"],
+      "parse": "'In', 'on', and 'at' are prepositions. 'And' is a conjunction."
+    },
+    {
+      "id": "en-dx-67",
+      "type": "multiple",
+      "question": "Which words are possessive?",
+      "options": ["A. my", "B. mine", "C. your", "D. you"],
+      "answer": ["A", "B", "C"],
+      "parse": "'My', 'mine', and 'your' are possessive. 'You' is a personal pronoun."
+    },
+    {
+      "id": "en-dx-68",
+      "type": "multiple",
+      "question": "Which of these are conditional sentences?",
+      "options": ["A. If I had money, I would buy a car.", "B. I have money, so I buy a car.", "C. If it rains, we will stay home.", "D. It rains, we stay home."],
+      "answer": ["A", "C"],
+      "parse": "Conditional sentences use 'if' to express conditions: first conditional ('will') and second conditional ('would')."
+    },
+    {
+      "id": "en-dx-69",
+      "type": "multiple",
+      "question": "Which verbs are followed by infinitive?",
+      "options": ["A. want", "B. need", "C. enjoy", "D. like"],
+      "answer": ["A", "B", "D"],
+      "parse": "'Want', 'need', and 'like' are followed by infinitive. 'Enjoy' is followed by gerund."
+    },
+    {
+      "id": "en-dx-70",
+      "type": "multiple",
+      "question": "Which of the following are superlatives?",
+      "options": ["A. biggest", "B. most beautiful", "C. better", "D. best"],
+      "answer": ["A", "B", "D"],
+      "parse": "Superlatives: 'biggest' (regular), 'most beautiful' (long adjective), 'best' (irregular). 'Better' is comparative."
+    },
+    {
+      "id": "en-pd-1",
+      "type": "judge",
+      "question": "English is a phonetic language.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "English is NOT purely phonetic - many words are not pronounced as they are spelled."
+    },
+    {
+      "id": "en-pd-2",
+      "type": "judge",
+      "question": "The letter 'q' is always followed by 'u' in English.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "In English, 'q' is almost always followed by 'u' (e.g., queen, quick, question)."
+    },
+    {
+      "id": "en-pd-3",
+      "type": "judge",
+      "question": "All verbs ending in '-ed' are regular verbs.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "Some irregular verbs also end in '-ed' (e.g., 'liked' is regular, but 'hated' is also regular)."
+    },
+    {
+      "id": "en-pd-4",
+      "type": "judge",
+      "question": "'The' is a definite article.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "'The' is the definite article used before specific nouns."
+    },
+    {
+      "id": "en-pd-5",
+      "type": "judge",
+      "question": "Adverbs can modify nouns.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "Adverbs modify verbs, adjectives, and other adverbs. Adjectives modify nouns."
+    },
+    {
+      "id": "en-pd-6",
+      "type": "judge",
+      "question": "'I' should always be capitalized in English.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "The first person pronoun 'I' is always capitalized, even in the middle of a sentence."
+    },
+    {
+      "id": "en-pd-7",
+      "type": "judge",
+      "question": "Present perfect tense can be used with 'yesterday'.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "Present perfect cannot be used with specific past time expressions like 'yesterday'. Use simple past instead."
+    },
+    {
+      "id": "en-pd-8",
+      "type": "judge",
+      "question": "Modal verbs take '-s' in third person singular.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "Modal verbs (can, could, may, might, must, shall, should, will, would) do not take '-s' in third person."
+    },
+    {
+      "id": "en-pd-9",
+      "type": "judge",
+      "question": "A sentence must have a subject and a verb.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "A complete sentence requires at least a subject and a predicate (verb)."
+    },
+    {
+      "id": "en-pd-10",
+      "type": "judge",
+      "question": "'A' and 'an' are indefinite articles.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "'A' and 'an' are indefinite articles used before non-specific nouns."
+    },
+    {
+      "id": "en-pd-11",
+      "type": "judge",
+      "question": "The word 'data' is always singular.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "'Data' is technically plural (singular is 'datum'), but it's commonly used as singular in modern English."
+    },
+    {
+      "id": "en-pd-12",
+      "type": "judge",
+      "question": "Passive voice is always better than active voice.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "Active voice is generally preferred for clarity and directness. Passive voice is useful when the doer is unknown or unimportant."
+    },
+    {
+      "id": "en-pd-13",
+      "type": "judge",
+      "question": "Comparative adjectives end in '-er'.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "Short adjectives end in '-er', but long adjectives use 'more' (e.g., more beautiful)."
+    },
+    {
+      "id": "en-pd-14",
+      "type": "judge",
+      "question": "The past tense of 'be' is 'was/were'.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "'Be' is irregular: present 'am/is/are', past 'was/were'."
+    },
+    {
+      "id": "en-pd-15",
+      "type": "judge",
+      "question": "Relative clauses always need commas.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "Defining relative clauses (essential information) do not need commas. Non-defining clauses do."
+    },
+    {
+      "id": "en-pd-16",
+      "type": "judge",
+      "question": "'Affect' is a verb and 'effect' is a noun.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "通常: 'affect' = verb (to influence), 'effect' = noun (result). There are exceptions."
+    },
+    {
+      "id": "en-pd-17",
+      "type": "judge",
+      "question": "All questions start with 'wh-' words.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "Yes/no questions start with auxiliary verbs (Is it...? Do you...?) not 'wh-' words."
+    },
+    {
+      "id": "en-pd-18",
+      "type": "judge",
+      "question": "The word 'because' can start a sentence.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "It is grammatically correct to start a sentence with 'because'."
+    },
+    {
+      "id": "en-pd-19",
+      "type": "judge",
+      "question": "Present continuous can be used for future arrangements.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["A"],
+      "parse": "Present continuous is commonly used for future plans: 'I'm meeting her tomorrow.'"
+    },
+    {
+      "id": "en-pd-20",
+      "type": "judge",
+      "question": "The plural of 'mouse' is 'mouses'.",
+      "options": ["A. 正确", "B. 错误"],
+      "answer": ["B"],
+      "parse": "The plural of 'mouse' is 'mice' (irregular plural)."
+    }
+  ]
+}
