@@ -13,9 +13,11 @@ import { useState } from 'react'
 import { Button, Table, Radio, Modal, App } from 'antd'
 import { FileDoneOutlined, FileSyncOutlined } from '@ant-design/icons'
 import { EXAM_TIME, shuffleArray } from '../../utils/examUtils'
+import useExamStore from '../../store/examStore'
 
 export default function ExamModeSelector({ papers, questions, setExamState, setPage }) {
   const { modal } = App.useApp()
+  const { wrongBook } = useExamStore()
   const [randomModalOpen, setRandomModalOpen] = useState(false)
   const [fixedModalOpen, setFixedModalOpen] = useState(false)
   const [selectedPaper, setSelectedPaper] = useState(null)
@@ -30,9 +32,9 @@ export default function ExamModeSelector({ papers, questions, setExamState, setP
   }
 
   const handleRandomExam = () => {
-    const availableSingle = questions.filter(q => q.type === 'single')
-    const availableMultiple = questions.filter(q => q.type === 'multiple')
-    const availableJudge = questions.filter(q => q.type === 'judge')
+    const availableSingle = questions.filter(q => q.type === 'single' && !wrongBook.includes(q.id))
+    const availableMultiple = questions.filter(q => q.type === 'multiple' && !wrongBook.includes(q.id))
+    const availableJudge = questions.filter(q => q.type === 'judge' && !wrongBook.includes(q.id))
     
     const neededSingle = 100
     const neededMultiple = 40
@@ -43,7 +45,7 @@ export default function ExamModeSelector({ papers, questions, setExamState, setP
         availableJudge.length < neededJudge) {
       modal.warning({
         title: '题库不足',
-        content: `当前题库数量不足以生成随机卷：\n单选题：${availableSingle.length}/${neededSingle} \n多选题：${availableMultiple.length}/${neededMultiple} \n判断题：${availableJudge.length}/${neededJudge}`,
+        content: `当前题库数量不足以生成随机卷（已排除错题本中的${wrongBook.length}道题）：\n单选题：${availableSingle.length}/${neededSingle} \n多选题：${availableMultiple.length}/${neededMultiple} \n判断题：${availableJudge.length}/${neededJudge}`,
       })
       return
     }
@@ -78,11 +80,12 @@ export default function ExamModeSelector({ papers, questions, setExamState, setP
   }
 
   const handleStartFixed = (paper) => {
-    const examQuestions = paper.questions || []
+    const originalQuestions = paper.questions || []
+    const examQuestions = originalQuestions.filter(q => !wrongBook.includes(q.id))
     if (examQuestions.length === 0) {
       modal.warning({
         title: '试卷无题目',
-        content: '该试卷没有题目',
+        content: `该试卷的${originalQuestions.length}道题目全部在错题本中，无法生成试卷。请先从错题本中移除部分题目。`,
       })
       return
     }
@@ -90,7 +93,7 @@ export default function ExamModeSelector({ papers, questions, setExamState, setP
     localStorage.removeItem('exam_state')
     setExamState({
       mode: 'exam',
-      paperName: paper.name,
+      paperName: paper.name + (examQuestions.length !== originalQuestions.length ? ` (已排除${originalQuestions.length - examQuestions.length}道错题)` : ''),
       questions: examQuestions,
       answers: {},
       marked: {},

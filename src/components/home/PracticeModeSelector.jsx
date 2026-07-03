@@ -48,16 +48,16 @@ export default function PracticeModeSelector({ questions, setPracticeState, setP
   const [practiceCount, setPracticeCount] = useState(10)
   const [practiceMode, setPracticeMode] = useState('free')
 
-  const availableCount = questions.filter(q => q.type === practiceType).length
+  const availableCount = questions.filter(q => q.type === practiceType && !wrongBook.includes(q.id)).length
   const hasWrongQuestions = wrongBook.length > 0
 
   const handleStartPractice = () => {
     if (practiceMode === 'free') {
-      const pool = questions.filter(q => q.type === practiceType)
+      const pool = questions.filter(q => q.type === practiceType && !wrongBook.includes(q.id))
       if (pool.length === 0) {
         modal.warning({
           title: '暂无题目',
-          content: '该题型暂无题目',
+          content: '该题型暂无题目（已排除错题本中的题目）',
         })
         return
       }
@@ -67,11 +67,11 @@ export default function PracticeModeSelector({ questions, setPracticeState, setP
       setPage('practice-exam')
       setPracticeModalOpen(false)
     } else if (practiceMode === 'all') {
-      const practiceQuestions = questions
+      const practiceQuestions = questions.filter(q => !wrongBook.includes(q.id))
       if (practiceQuestions.length === 0) {
         modal.warning({
           title: '暂无题目',
-          content: '题库暂无题目',
+          content: '题库暂无题目（已排除错题本中的题目）',
         })
         return
       }
