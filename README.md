@@ -53,11 +53,7 @@
 ```
 fire-exam-react/
 ├── public/                 # 静态资源
-│   └── json/              # 题目数据文件
-│       ├── paper-index.json   # 试卷索引文件（记录所有试卷）
-│       ├── paper-1.json       # 试卷文件1
-│       ├── paper-2.json       # 试卷文件2
-│       └── README.md          # 数据格式说明
+│   └── json/              # 题库数据（多题库/多试卷，结构与添加方法详见该目录下的 README.md）
 ├── src/                   # 源代码
 │   ├── components/        # 组件目录
 │   │   ├── exam/              # 考试相关组件
@@ -107,7 +103,7 @@ fire-exam-react/
 - **状态管理**: Zustand
 - **类型系统**: TypeScript
 - **样式**: CSS3 + Ant Design
-- **数据存储**: JSON 文件（支持多文件管理）
+- **数据存储**: JSON 文件（支持多题库、多试卷管理）
 
 ## 快速开始
 
@@ -139,83 +135,15 @@ pnpm build
 pnpm preview
 ```
 
-## 多试卷管理
+## 题库数据
 
-系统支持多份独立的JSON试卷文件，采用**索引+试卷**的管理方式：
+题库数据存放在 `public/json/` 目录，采用「题库 → 试卷 → 题目」三级结构，支持在导航栏右上角切换不同题库（如测试题、消防中级）。
 
-### 1. 创建试卷索引 (`paper-index.json`)
-
-```json
-{
-  "papers": [
-    {
-      "id": "paper-1",
-      "name": "历年真题练习（卷A）",
-      "file": "paper-1.json"
-    },
-    {
-      "id": "paper-2",
-      "name": "模拟试卷（卷B）",
-      "file": "paper-2.json"
-    }
-  ]
-}
-```
-
-### 2. 创建试卷文件 (`paper-xxx.json`)
-
-每个试卷文件只包含题目数组：
-
-```json
-{
-  "questions": [
-    {
-      "id": "dx-1",
-      "type": "single",
-      "question": "题目内容",
-      "options": ["A. 选项1", "B. 选项2", "C. 选项3", "D. 选项4"],
-      "answer": ["A"],
-      "parse": "解析内容"
-    }
-  ]
-}
-```
-
-### 3. 添加新试卷步骤
-
-1. 在 `paper-index.json` 中添加新试卷的元数据（id、name、file）
-2. 创建对应的试卷文件（如 `paper-3.json`）
-3. 刷新页面即可自动加载新试卷，无需修改代码
-
-## 题目数据格式
-
-题目数据存储在 `public/json/` 文件夹中，采用**多文件模式**：
-- `paper-index.json` - 试卷索引文件
-- `paper-xxx.json` - 各试卷文件
-
-### 字段说明
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `type` | string | 题目类型：`single`(单选)、`multiple`(多选)、`judge`(判断) |
-| `question` | string | 题目内容 |
-| `options` | array | 选项数组 |
-| `answer` | array | 正确答案数组，如 `["A"]` 或 `["A","B"]` |
-| `parse` | string | 解析内容 |
-
-## 添加新题目
-
-1. 在 `paper-index.json` 中添加试卷条目（包含 id、name、file）
-2. 创建对应的试卷文件（如 `paper-3.json`）
-3. 无需修改代码，刷新页面即可加载
+题库目录结构、JSON 数据格式、以及添加题目 / 试卷 / 题库的具体方法，**详情查看 [`public/json/README.md`](public/json/README.md)**。
 
 ## 注意事项
 
-- 题目文件必须放在 `public/json/` 文件夹中
-- JSON 文件名建议使用英文，避免编码问题
-- 确保题目 ID 唯一，避免重复
 - 目前系统仅适配 PC 端，建议使用桌面浏览器访问
-- 试卷文件名需与 `paper-index.json` 中的 `file` 字段对应
 
 ### 依赖更新规范
 

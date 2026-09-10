@@ -32,15 +32,36 @@ export function getOptionKey(opt) {
 }
 
 /**
- * 从json文件夹读取所有题目文件
- * 通过paper-index.json索引加载各试卷文件
+ * 读取题库总索引（bank-index.json）
+ * 每个题库对应 json 文件夹下的一个子文件夹（如 demo-test、fireman-test）
  * 
+ * @returns {Array} 题库数组，如 [{ id: 'demo', name: '测试题', dir: 'demo-test' }]
+ */
+export async function loadBankList() {
+  try {
+    const response = await fetch('/json/bank-index.json')
+    if (!response.ok) {
+      throw new Error('Failed to load bank index')
+    }
+    const data = await response.json()
+    return Array.isArray(data.banks) ? data.banks : []
+  } catch (error) {
+    console.error('Error loading bank list:', error)
+    return []
+  }
+}
+
+/**
+ * 读取指定题库文件夹下的所有题目文件
+ * 通过 子文件夹/paper-index.json 索引加载该题库的各试卷文件
+ * 
+ * @param {string} bankDir - 题库文件夹名，如 'demo-test'、'fireman-test'
  * @returns {Object} { papers: 试卷数组, questions: 所有题目数组 }
  */
-export async function loadJsonFiles() {
+export async function loadJsonFiles(bankDir = 'demo-test') {
   try {
-    // 首先读取试卷索引文件
-    const indexResponse = await fetch('/json/paper-index.json')
+    // 首先读取该题库文件夹下的试卷索引文件
+    const indexResponse = await fetch(`/json/${bankDir}/paper-index.json`)
     if (!indexResponse.ok) {
       throw new Error('Failed to load paper index')
     }
@@ -55,7 +76,7 @@ export async function loadJsonFiles() {
       for (const paperMeta of indexData.papers) {
         if (paperMeta.file) {
           try {
-            const paperResponse = await fetch(`/json/${paperMeta.file}`)
+            const paperResponse = await fetch(`/json/${bankDir}/${paperMeta.file}`)
             if (paperResponse.ok) {
               const paperData = await paperResponse.json()
               // 合并元数据和题目数据

@@ -1,0 +1,14 @@
+{
+  "banks": [
+    {
+      "id": "demo",
+      "name": "测试题",
+      "dir": "demo-test"
+    },
+    {
+      "id": "fireman",
+      "name": "消防中级",
+      "dir": "fireman-test"
+    }
+  ]
+}

@@ -227,6 +227,8 @@ const useExamStore = create<ExamStore>()(
       toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
 
       // ===== 题库数据 =====
+      currentBank: 'demo',
+      setCurrentBank: (bankId) => set({ currentBank: bankId }),
       examData: { papers: [], questions: [] },
       setExamData: (data) => set({ examData: data }),
 

@@ -1,57 +1,74 @@
 # 题目数据文件说明
 
-本文件夹用于存放智能刷题系统的题目数据。
+本文件夹存放智能刷题系统的所有题库数据。系统采用 **题库 → 试卷 → 题目** 三级结构：
 
-## 文件命名规范
+- **题库（Bank）**：一整套考试资料，如「测试题」「消防中级」。导航栏右上角的选择器就是在切换题库。
+- **试卷（Paper）**：题库里的一份卷子，如「消防中级试卷（一）」。
+- **题目（Question）**：试卷里的每一道题。
 
-- 使用英文文件名，避免编码问题
-- 建议使用描述性的名称，如 `paper-1.json`、`paper-2.json`
-- 文件扩展名必须是 `.json`
+打个比方：`json/` 文件夹是一个**抽屉柜**，每个子文件夹是一个抽屉（题库）；抽屉里的 `paper-index.json` 是这个抽屉的**试卷清单**；清单上登记的每份试卷文件里装着具体题目。
 
-## 题目 ID 命名规范（重要）
+## 目录结构
 
-为确保题目 ID 在全系统中唯一且有序，采用以下统一规则：
+```
+json/
+├── bank-index.json          # 题库总目录（列出所有题库）
+├── README.md                # 本说明文件
+├── demo-test/               # 「测试题」题库文件夹
+│   ├── paper-index.json     # 该题库的试卷清单
+│   ├── english-test.json    # 试卷文件
+│   ├── dev-test.json
+│   └── accounting-test.json
+└── fireman-test/            # 「消防中级」题库文件夹
+    ├── paper-index.json     # 该题库的试卷清单
+    ├── paper-1.json         # 试卷文件
+    ├── paper-2.json
+    └── ...
+```
 
-| 题型  | 题号范围        | ID 格式            | 示例                                |
-| --- | ----------- | ---------------- | --------------------------------- |
-| 单选题 | 第 1–100 题   | `paper1-dx-{n}`  | `paper1-dx-1`、`paper1-dx-100`     |
-| 多选题 | 第 101–140 题 | `paper1-duo-{n}` | `paper1-duo-101`、`paper1-duo-140` |
-| 判断题 | 第 141–200 题 | `paper1-pd-{n}`  | `paper1-pd-141`、`paper1-pd-200`   |
+## 三级文件格式
 
-> **说明**：`paper1` 表示第一份试卷；`dx` 代表单选、`duo` 代表多选、`pd` 代表判断；后缀数字与试卷题号保持一致。
+### 1. 题库总目录 `bank-index.json`
 
-## 当前文件
-
-- `paper-index.json`: 试卷索引文件，记录所有试卷的基本信息
-- `paper-1.json`: 第一份试卷的题目数据
-- `exam-papers.json`: 旧格式的题目数据文件（向后兼容）
-
-## 多试卷管理
-
-系统支持多份独立的JSON试卷文件，采用**索引+试卷**的管理方式：
-
-### 1. 创建试卷索引 (`paper-index.json`)
+系统启动时先读这个文件，知道一共有几个题库、各自叫什么名字、放在哪个文件夹。
 
 ```json
 {
-  "papers": [
-    {
-      "id": "paper-1",
-      "name": "2026历年真题练习（卷A）",
-      "file": "paper-1.json"
-    },
-    {
-      "id": "paper-2",
-      "name": "2026模拟试卷（卷B）",
-      "file": "paper-2.json"
-    }
+  "banks": [
+    { "id": "demo", "name": "测试题", "dir": "demo-test" },
+    { "id": "fireman", "name": "消防中级", "dir": "fireman-test" }
   ]
 }
 ```
 
-### 2. 创建试卷文件 (`paper-xxx.json`)
+| 字段 | 说明 |
+| ---- | ---- |
+| `id` | 题库唯一标识（用英文，不能重复） |
+| `name` | 题库显示名称（导航栏选择器里显示的名字） |
+| `dir` | 题库对应的文件夹名（必须和真实文件夹名一致） |
 
-每个试卷文件只包含题目数组：
+### 2. 试卷清单 `paper-index.json`（每个题库文件夹里各有一个）
+
+切换到某个题库后，系统读该文件夹下的 `paper-index.json`，知道这个题库有几份试卷。
+
+```json
+{
+  "papers": [
+    { "id": "paper-1", "name": "消防中级试卷（一）", "file": "paper-1.json" },
+    { "id": "paper-2", "name": "消防中级试卷（二）", "file": "paper-2.json" }
+  ]
+}
+```
+
+| 字段 | 说明 |
+| ---- | ---- |
+| `id` | 试卷唯一标识（用英文，同一题库内不能重复） |
+| `name` | 试卷显示名称（「固定考卷」列表里显示的名字） |
+| `file` | 试卷文件名（必须与同文件夹下的真实文件名完全一致） |
+
+### 3. 试卷文件 `paper-xxx.json`
+
+每个试卷文件只包含一个题目数组：
 
 ```json
 {
@@ -68,118 +85,63 @@
 }
 ```
 
-### 3. 添加新试卷步骤
+题目字段说明：
 
-1. 在 `paper-index.json` 中添加新试卷的元数据（id、name、file）
-2. 创建对应的试卷文件（如 `paper-2.json`）
-3. 刷新页面即可自动加载新试卷
+| 字段 | 类型 | 说明 |
+| ---- | ---- | ---- |
+| `id` | string | 题目唯一标识，**全系统不能重复** |
+| `type` | string | 题型：`single` 单选 / `multiple` 多选 / `judge` 判断 |
+| `question` | string | 题干内容 |
+| `options` | array | 选项数组；判断题固定为 `["正确", "错误"]` |
+| `answer` | array | 正确答案，**必须是数组**，如 `["A"]`、`["A","B"]`、`["正确"]` |
+| `parse` | string | 解析内容（可选，建议填写） |
 
-# JSON 数据格式
+## 常见操作（都不需要改代码，刷新页面即生效）
 
-### 基本结构
+### ① 给已有试卷添加/修改题目
 
-```json
-{
-  "papers": [
-    {
-      "id": "唯一标识",
-      "name": "试卷名称",
-      "questions": [
-        {
-          "id": "题目唯一标识",
-          "type": "题目类型",
-          "question": "题目内容",
-          "options": ["选项1", "选项2", "选项3", "选项4"],
-          "answer": ["正确答案"],
-          "parse": "解析内容"
-        }
-      ]
-    }
-  ],
-  "questions": []
-}
-```
+直接打开对应的试卷文件（如 `fireman-test/paper-1.json`），在 `questions` 数组里增删改题目即可。注意新题目的 `id` 不能和已有题目重复。
 
-### 题目类型说明
+### ② 给已有题库添加一份新试卷
 
-- `single`: 单选题，只有一个正确答案
-- `multiple`: 多选题，有一个或多个正确答案
-- `judge`: 判断题，答案为"正确"或"错误"
+1. 在题库文件夹中新建试卷文件，如 `fireman-test/paper-11.json`，内容按上面的「试卷文件格式」编写；
+2. 打开该文件夹里的 `paper-index.json`，在 `papers` 数组中加一条：
 
-### 示例题目
+   ```json
+   { "id": "paper-11", "name": "消防中级试卷（十一）", "file": "paper-11.json" }
+   ```
 
-#### 单选题示例
+3. 刷新页面，「固定考卷」列表里就会出现新试卷。
 
-```json
-{
-  "id": "paper1-dx-1",
-  "type": "single",
-  "question": "What is the capital city of France?",
-  "options": [
-    "A. London",
-    "B. Berlin",
-    "C. Paris",
-    "D. Madrid"
-  ],
-  "answer": ["C"],
-  "parse": "Paris is the capital and most populous city of France."
-}
-```
+### ③ 添加一个全新题库（比如「消防高级」）
 
-#### 多选题示例
+1. 在 `json/` 下新建文件夹，如 `senior-test/`，把试卷 json 文件放进去；
+2. 在该文件夹里新建 `paper-index.json`（照抄 `fireman-test/` 里的格式，登记每份试卷）；
+3. 打开 `json/bank-index.json`，在 `banks` 数组中加一条：
 
-```json
-{
-  "id": "paper1-duo-101",
-  "type": "multiple",
-  "question": "Which of the following are programming languages?",
-  "options": [
-    "A. Python",
-    "B. Java",
-    "C. HTML",
-    "D. English"
-  ],
-  "answer": ["A", "B"],
-  "parse": "Python and Java are programming languages. HTML is a markup language, and English is a natural language."
-}
-```
+   ```json
+   { "id": "senior", "name": "消防高级", "dir": "senior-test" }
+   ```
 
-#### 判断题示例
+4. 刷新页面，导航栏的题库选择器里就会出现「消防高级」。
 
-```json
-{
-  "id": "paper1-pd-141",
-  "type": "judge",
-  "question": "In JavaScript, 'const' declares a variable that cannot be reassigned.",
-  "options": ["正确", "错误"],
-  "answer": ["正确"],
-  "parse": "'const' creates a read-only reference to a value, meaning the variable cannot be reassigned to a different value."
-}
-```
+## 题目 ID 命名规范（建议）
+
+为避免 id 重复，建议按「试卷标识-题型-题号」命名：
+
+| 题型   | 题号范围（参考） | ID 格式          | 示例                               |
+| ------ | ---------------- | ---------------- | ---------------------------------- |
+| 单选题 | 第 1–100 题      | `paper1-dx-{n}`  | `paper1-dx-1`、`paper1-dx-100`     |
+| 多选题 | 第 101–140 题    | `paper1-duo-{n}` | `paper1-duo-101`、`paper1-duo-140` |
+| 判断题 | 第 141–200 题    | `paper1-pd-{n}`  | `paper1-pd-141`、`paper1-pd-200`   |
+
+> `paper1` 表示第一份试卷（第二份用 `paper2`，以此类推）；`dx` = 单选、`duo` = 多选、`pd` = 判断。
 
 ## 注意事项
 
-1. **ID 唯一性**: 确保每个题目和试卷的 ID 在整个系统中是唯一的
-2. **答案格式**: 答案必须是数组格式，即使是单选题也要用 `["A"]` 而不是 `"A"`
-3. **选项格式**: 选项数组中的每个选项都要包含选项标识（A、B、C、D）
-4. **JSON 格式**: 确保 JSON 格式正确，可以使用在线 JSON 验证工具检查
-5. **编码问题**: 文件保存时使用 UTF-8 编码，避免中文乱码
-
-## 数据验证
-
-在添加新题目后，建议：
-
-1. 检查 JSON 格式是否正确
-2. 确认所有必填字段都已填写
-3. 验证答案格式是否正确
-4. 测试题目在系统中的显示和功能
-
-## 多文件管理
-
-如果题目数量较多，可以按以下方式拆分文件：
-
-- 按试卷分类：`paper-a.json`, `paper-b.json`
-- 按题型分类：`single-choice.json`, `multiple-choice.json`, `judge.json`
-- 按难度分类：`basic.json`, `advanced.json`
-
-拆分后需要在代码中相应修改加载逻辑。
+1. **ID 唯一性**：题目 `id` 在整个系统中不能重复，否则随机抽题、错题本会串题。
+2. **答案格式**：答案必须是数组，单选题也要写 `["A"]` 而不是 `"A"`。
+3. **选项格式**：选择题选项要带 `A.` `B.` `C.` `D.` 标识；判断题选项固定为 `["正确", "错误"]`。
+4. **文件编码**：所有 JSON 文件使用 UTF-8 编码，文件名用英文，避免中文乱码。
+5. **JSON 格式**：修改后建议用在线 JSON 校验工具检查，多一个逗号都会导致整个文件加载失败。
+6. **名称对应**：`paper-index.json` 里的 `file` 必须和真实试卷文件名一致；`bank-index.json` 里的 `dir` 必须和真实文件夹名一致。

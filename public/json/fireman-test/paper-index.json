@@ -1,0 +1,54 @@
+{
+  "papers": [
+    {
+      "id": "paper-1",
+      "name": "消防中级试卷（一）",
+      "file": "paper-1.json"
+    },
+    {
+      "id": "paper-2",
+      "name": "消防中级试卷（二）",
+      "file": "paper-2.json"
+    },
+    {
+      "id": "paper-3",
+      "name": "消防中级试卷（三）",
+      "file": "paper-3.json"
+    },
+    {
+      "id": "paper-4",
+      "name": "消防中级试卷（四）",
+      "file": "paper-4.json"
+    },
+    {
+      "id": "paper-5",
+      "name": "消防中级试卷（五）",
+      "file": "paper-5.json"
+    },
+    {
+      "id": "paper-6",
+      "name": "消防中级试卷（六）",
+      "file": "paper-6.json"
+    },
+    {
+      "id": "paper-7",
+      "name": "消防中级试卷（七）",
+      "file": "paper-7.json"
+    },
+    {
+      "id": "paper-8",
+      "name": "消防中级试卷（八）",
+      "file": "paper-8.json"
+    },
+    {
+      "id": "paper-9",
+      "name": "消防中级试卷（九）",
+      "file": "paper-9.json"
+    },
+    {
+      "id": "paper-10",
+      "name": "消防中级试卷（十）",
+      "file": "paper-10.json"
+    }
+  ]
+}

@@ -75,6 +75,11 @@
   gap: 10px;
 }
 
+/* 题库切换选择器 */
+.bank-select {
+  min-width: 140px;
+}
+
 .btn-text {
   background: none;
   border: none;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { ConfigProvider, Button, Layout, Modal, Drawer, Table, Space, Badge, Popconfirm, App, Tooltip, Tag } from 'antd'
+import { ConfigProvider, Button, Layout, Modal, Drawer, Table, Space, Badge, Popconfirm, App, Tooltip, Tag, Select } from 'antd'
 import { theme } from 'antd'
-import { FullscreenOutlined, FullscreenExitOutlined, FileExcelOutlined, DeleteOutlined, QuestionCircleOutlined, MoonOutlined, SunOutlined, DownloadOutlined } from '@ant-design/icons'
+import { FullscreenOutlined, FullscreenExitOutlined, FileExcelOutlined, DeleteOutlined, QuestionCircleOutlined, MoonOutlined, SunOutlined, DownloadOutlined, BookOutlined } from '@ant-design/icons'
 import './App.css'
 
 const { Header, Content, Footer } = Layout
@@ -10,7 +10,7 @@ import HomePage from './components/home/HomePage'
 import QuestionOption from './components/exam/QuestionOption'
 import ResultPage from './components/result/ResultPage'
 import PracticePage from './components/practice/PracticePage'
-import { loadJsonFiles, loadExamState } from './utils/examUtils'
+import { loadJsonFiles, loadExamState, loadBankList, clearExamState } from './utils/examUtils'
 import useExamStore from './store/examStore'
 import { pwaUpdate } from './main.jsx'
 
@@ -51,7 +51,9 @@ function WrongBookDrawer({
       placement="right"
     >
       <Table
-        dataSource={wrongBook.map((id, index) => {
+        dataSource={wrongBook
+          .filter(id => examData.questions.some(q => q.id === id))
+          .map((id, index) => {
           const question = examData.questions.find(q => q.id === id)
           return {
             key: id,
@@ -132,7 +134,9 @@ export default function RootApp() {
     toggleDarkMode,
     wrongBook,
     removeFromWrongBook,
-    clearWrongBook
+    clearWrongBook,
+    currentBank,
+    setCurrentBank
   } = useExamStore()
 
   const [showWrongBookModal, setShowWrongBookModal] = useState(false)
@@ -142,6 +146,8 @@ export default function RootApp() {
   const [isPwaInstalled, setIsPwaInstalled] = useState(false)
   const [showUpdateModal, setShowUpdateModal] = useState(false)
   const [dataLoading, setDataLoading] = useState(true)
+  const [banks, setBanks] = useState([])
+  const [bankLoading, setBankLoading] = useState(false)
 
   useEffect(() => {
     const saved = loadExamState()
@@ -187,9 +193,16 @@ export default function RootApp() {
   useEffect(() => {
     const initData = async () => {
       try {
-        const jsonData = await loadJsonFiles()
-        console.log('Loaded data:', jsonData)
-        setExamData(jsonData)
+        // 先读取题库总索引，再加载当前题库（默认或上次选择的题库）
+        const bankList = await loadBankList()
+        setBanks(bankList)
+        const targetBank = bankList.find(b => b.id === currentBank) || bankList[0]
+        if (targetBank) {
+          setCurrentBank(targetBank.id)
+          const jsonData = await loadJsonFiles(targetBank.dir)
+          console.log('Loaded data:', jsonData)
+          setExamData(jsonData)
+        }
         setDataLoading(false)
         console.log('Data loading set to false')
       } catch (error) {
@@ -199,6 +212,44 @@ export default function RootApp() {
     }
     initData()
   }, [])
+
+  // 切换题库：加载对应文件夹的试卷数据
+  const handleBankChange = (bankId) => {
+    if (bankId === currentBank || bankLoading) return
+    const targetBank = banks.find(b => b.id === bankId)
+    if (!targetBank) return
+
+    const doSwitch = async () => {
+      setBankLoading(true)
+      setCurrentBank(bankId)
+      // 清除未完成的考试状态并回到首页，避免新旧题库题目混淆
+      clearExamState()
+      if (currentPage !== 'home') {
+        setPage('home')
+      }
+      try {
+        const jsonData = await loadJsonFiles(targetBank.dir)
+        setExamData(jsonData)
+      } catch (error) {
+        console.error('Bank switch error:', error)
+      } finally {
+        setBankLoading(false)
+      }
+    }
+
+    // 考试/练习/结果页切换题库会丢失当前进度，需二次确认
+    if (currentPage !== 'home') {
+      Modal.confirm({
+        title: '切换题库？',
+        content: '切换题库将退出当前考试/练习，本次答题进度不会保存。',
+        okText: '切换题库',
+        cancelText: '取消',
+        onOk: doSwitch
+      })
+    } else {
+      doSwitch()
+    }
+  }
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -294,6 +345,15 @@ export default function RootApp() {
             {currentPage === 'home' && <span className="logo-text">智能刷题系统</span>}
           </div>
           <div className="header-right">
+            <Select
+              className="bank-select"
+              value={currentBank}
+              onChange={handleBankChange}
+              loading={bankLoading}
+              disabled={bankLoading || banks.length === 0}
+              prefix={<BookOutlined />}
+              options={banks.map(bank => ({ value: bank.id, label: bank.name }))}
+            />
             <div className="header-actions">
               <Button 
                 className="btn-icon"
@@ -308,7 +368,7 @@ export default function RootApp() {
               <Button 
                 className="btn-icon"
                 icon={
-                  <Badge count={wrongBook.length > 0 ? wrongBook.length : 0} showZero={false} size="small">
+                  <Badge count={wrongBook.filter(id => examData.questions.some(q => q.id === id)).length} showZero={false} size="small">
                     <FileExcelOutlined />
                   </Badge>
                 }
